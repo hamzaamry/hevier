@@ -9,9 +9,11 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import expo.modules.workoutnotification.NotificationConstants.CHANNEL_ID
 import expo.modules.workoutnotification.NotificationConstants.MIN_REDRAW_MS
 import expo.modules.workoutnotification.NotificationConstants.NOTIFICATION_ID
 import expo.modules.workoutnotification.NotificationConstants.QUIET_AFTER_TAP_MS
@@ -38,15 +40,22 @@ class WorkoutNotificationService : Service() {
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     Channels.ensure(this)
-    val notification = state?.let { views.build(it) }
-    if (notification == null) {
+    val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
+    val current = state
+    if (current == null) {
+      // hide() came before the service started. Android kills the app if a
+      // service started with startForegroundService doesn't call
+      // startForeground, so show an empty notification and stop right away.
+      val empty = NotificationCompat.Builder(this, CHANNEL_ID)
+        .setSmallIcon(R.drawable.ic_workout_notification)
+        .build()
+      ServiceCompat.startForeground(this, NOTIFICATION_ID, empty, type)
       stopSelf()
       return START_NOT_STICKY
     }
-    val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
-    ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, type)
+    ServiceCompat.startForeground(this, NOTIFICATION_ID, views.build(current), type)
     running = this
-    wasResting = (state?.restEndsAt ?: 0) > System.currentTimeMillis()
+    wasResting = (current.restEndsAt ?: 0) > System.currentTimeMillis()
     scheduleTick()
     return START_NOT_STICKY
   }
@@ -156,7 +165,10 @@ class WorkoutNotificationService : Service() {
       main.post {
         state = null
         RestController.reset()
-        context.stopService(Intent(context, WorkoutNotificationService::class.java))
+        // Stopping a service that is still starting makes Android kill the app
+        // (startForegroundService without startForeground). If it isn't running
+        // yet, onStartCommand sees the empty state and stops it itself.
+        if (running != null) context.stopService(Intent(context, WorkoutNotificationService::class.java))
       }
     }
   }
