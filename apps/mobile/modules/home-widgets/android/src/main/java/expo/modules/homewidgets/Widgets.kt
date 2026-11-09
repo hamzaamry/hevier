@@ -10,6 +10,8 @@ import android.content.Intent
 open class HevierWidget : AppWidgetProvider() {
   override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
     HomeWidgets.redraw(context, manager, javaClass, ids)
+    // Keep the midnight redraw booked whenever the system updates a widget.
+    RedrawScheduler.bookNext(context, WidgetStore.load(context))
   }
 
   override fun onEnabled(context: Context) {
@@ -25,6 +27,8 @@ class CycleWidget : HevierWidget()
 
 class RecoveryWidget : HevierWidget()
 
+// Fires at midnight, and when the timezone changes (the booked alarm is an
+// absolute time in the old zone). A reboot is covered by onEnabled.
 class MidnightReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     HomeWidgets.redrawAll(context)
