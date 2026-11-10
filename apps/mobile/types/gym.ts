@@ -35,3 +35,19 @@ export interface GymStretch {
   workouts: number;
   current: boolean;
 }
+
+// A gym OpenStreetMap lists near the user (lib/gym/overpass.ts).
+export interface NearbyGym {
+  id: string;
+  name: string;
+  street: string | null;
+  meters: number;
+}
+
+// What "Use my location" is doing (hooks/useNearbyGyms.ts).
+export type NearbyState =
+  | { kind: 'idle' }
+  | { kind: 'loading' }
+  | { kind: 'done'; gyms: NearbyGym[] }
+  | { kind: 'denied' }
+  | { kind: 'failed' };

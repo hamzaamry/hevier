@@ -15,3 +15,15 @@ export const GYM_NAME_MAX_LENGTH = 60;
 
 // How far back the Change Gym date can go.
 export const GYM_DATE_YEARS_BACK = 10;
+
+// Gyms near the user, from OpenStreetMap (lib/gym/nearby.ts). The user agent
+// names the app only, never the user.
+export const GYM_SEARCH = {
+  url: 'https://overpass-api.de/api/interpreter',
+  radiusMeters: 3000,
+  maxResults: 15,
+  timeoutMs: 15000,
+  userAgent: 'Hevier (open-source workout app)',
+};
+
+export const EARTH_RADIUS_METERS = 6371000;

@@ -46,6 +46,14 @@
           "barcodeScannerEnabled": true
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Hevier uses your location to list gyms near you.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
+        }
+      ],
       "expo-build-properties",
       [
         "expo-build-properties",
