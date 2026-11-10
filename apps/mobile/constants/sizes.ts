@@ -344,6 +344,16 @@ export const ROUTINE_PAGE_SIZES = {
   setCellWidth: 38.8,
 };
 
+// app/gym.tsx, components/gym/ (the timeline, the date sheet)
+export const GYM_SIZES = {
+  railColumn: 22, // the column the timeline's line and dots sit in
+  rail: 2, // the line
+  dot: 12,
+  menuHit: 44, // the ⋯ button
+  dayWheel: 64,
+  yearWheel: 96,
+};
+
 // app/save-workout.tsx
 export const SAVE_WORKOUT_SIZES = {
   statWidth: 126,

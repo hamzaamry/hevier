@@ -2,7 +2,7 @@
 // runs in its own worker, so the zone set here stays here.
 import { describe, expect, it } from 'vitest';
 
-import { dayKey, daysBetween, secondsSince, secondsUntil, startOfDay, startOfMonth, startOfWeek, weeksBetween } from './date';
+import { clampedDayKey, dateOfDayKey, dayKey, daysBetween, daysInMonth, secondsSince, secondsUntil, startOfDay, startOfMonth, startOfWeek, weeksBetween } from './date';
 
 process.env.TZ = 'Europe/Paris';
 
@@ -75,5 +75,34 @@ describe('across a clock change', () => {
     expect(weeksBetween(new Date(2026, 9, 19), new Date(2026, 9, 26))).toBe(1);
     expect(startOfWeek(new Date(2026, 9, 25, 23, 30))).toEqual(new Date(2026, 9, 19));
     expect(startOfDay(new Date(2026, 2, 29, 12))).toEqual(new Date(2026, 2, 29));
+  });
+});
+
+describe('daysInMonth', () => {
+  it('Feb 2028 = 29, Feb 2026 = 28, Oct = 31, Nov = 30', () => {
+    expect(daysInMonth(2028, 1)).toBe(29);
+    expect(daysInMonth(2026, 1)).toBe(28);
+    expect(daysInMonth(2026, 9)).toBe(31);
+    expect(daysInMonth(2026, 10)).toBe(30);
+  });
+});
+
+describe('dateOfDayKey', () => {
+  it('is the local midnight of that day', () => {
+    expect(dateOfDayKey('2026-10-25')).toEqual(new Date(2026, 9, 25));
+  });
+});
+
+describe('clampedDayKey', () => {
+  const today = new Date(2026, 10, 10, 15);
+  it('keeps a day that exists and is not after today', () => {
+    expect(clampedDayKey(2026, 9, 30, today)).toBe('2026-10-30');
+  });
+  it('a day past the end of the month goes to its last day', () => {
+    expect(clampedDayKey(2026, 1, 31, today)).toBe('2026-02-28');
+  });
+  it('a day after today goes to today', () => {
+    expect(clampedDayKey(2026, 10, 25, today)).toBe('2026-11-10');
+    expect(clampedDayKey(2026, 11, 1, today)).toBe('2026-11-10');
   });
 });

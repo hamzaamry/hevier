@@ -51,3 +51,16 @@ export function dateOfDayKey(day: string): Date {
   const [y, m, d] = day.split('-').map(Number);
   return new Date(y, m - 1, d);
 }
+
+// The number of days in a month (monthIndex 0 = January).
+export function daysInMonth(year: number, monthIndex: number): number {
+  return new Date(year, monthIndex + 1, 0).getDate();
+}
+
+// The dayKey of a day picked on scroll wheels: the day is cut back to the
+// month's length, and a day after today becomes today.
+export function clampedDayKey(year: number, monthIndex: number, day: number, today: Date): string {
+  const picked = dayKey(new Date(year, monthIndex, Math.min(day, daysInMonth(year, monthIndex))));
+  const now = dayKey(today);
+  return picked > now ? now : picked;
+}
