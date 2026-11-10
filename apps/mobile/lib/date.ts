@@ -45,3 +45,9 @@ export function secondsUntil(endsAt: number, now: number): number {
 export function secondsSince(startedAt: number, now: number): number {
   return Math.max(0, Math.floor((now - startedAt) / MS_PER_SECOND));
 }
+
+// The local midnight of a dayKey ("2026-10-14").
+export function dateOfDayKey(day: string): Date {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}

@@ -23,3 +23,15 @@ export interface GymChoice {
   gymId: string | null;
   name: string;
 }
+
+// One period at a gym, as listed on the Gym screen (newest first).
+// changeId null = the unnamed Previous gym; from / to null = open ended.
+export interface GymStretch {
+  changeId: string | null;
+  gymId: string | null;
+  name: string;
+  from: string | null;
+  to: string | null;
+  workouts: number;
+  current: boolean;
+}
