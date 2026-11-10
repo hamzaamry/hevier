@@ -3,7 +3,7 @@ import { GYM_LABELS } from '@/constants/labels';
 import { dateOfDayKey, dayKey } from '@/lib/date';
 import { fullDate } from '@/lib/format/date';
 import { plural } from '@/lib/format/text';
-import type { Gym, GymStretch, GymTimeline, YourGym } from '@/types/gym';
+import type { Gym, GymChoice, GymStretch, GymTimeline, YourGym } from '@/types/gym';
 
 // Which gym a workout was at, from the days the user changed gym. Days are
 // local calendar days ('YYYY-MM-DD', compared as text).
@@ -106,4 +106,16 @@ export function yourGyms(t: GymTimeline, workouts: { startTime: string; visitGym
   return [...t.gyms.values()]
     .map((g) => ({ gymId: g.id, name: g.name, lastWorkout: last.get(g.id) ?? null }))
     .sort((a, b) => (b.lastWorkout ?? '').localeCompare(a.lastWorkout ?? '') || a.name.localeCompare(b.name));
+}
+
+// What Save Workout does with the gym picked on its Gym row: nothing when it is
+// the gym of the workout's day anyway; the first gym ever named (no question,
+// there is no other gym to have come from); else it asks, since it could be a
+// move to a new gym or just a visit.
+export function gymQuestion(t: GymTimeline, startTime: string, choice: GymChoice | undefined): 'none' | 'ask' | 'firstGym' {
+  if (!choice) return 'none';
+  const typed = choice.name.trim().toLowerCase();
+  const picked = choice.gymId ?? [...t.gyms.values()].find((g) => g.name.trim().toLowerCase() === typed)?.id ?? null;
+  if (picked !== null && picked === workoutGym(t, startTime, null)) return 'none';
+  return t.changes.length === 0 ? 'firstGym' : 'ask';
 }

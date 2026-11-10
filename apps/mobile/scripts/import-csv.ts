@@ -69,7 +69,7 @@ export async function importCsvToDatabase(
 
   for (const workout of workouts) {
     const workoutId = crypto.randomUUID();
-    db.run(INSERT_WORKOUT, [workoutId, workout.title, workout.startTime, workout.endTime, workout.description]);
+    db.run(INSERT_WORKOUT, [workoutId, workout.title, workout.startTime, workout.endTime, workout.description, null]);
 
     for (const we of workout.exercises) {
       const exerciseId = exerciseIds.get(we.exerciseName);

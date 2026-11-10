@@ -14,10 +14,11 @@ export function ConfirmDialog({
   tone = 'danger',
   onConfirm,
   onCancel,
+  onDismiss = onCancel,
 }: ConfirmDialogProps) {
   return (
-    <Modal transparent visible={visible} animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={onCancel}>
-      <Pressable style={styles.overlay} onPress={onCancel}>
+    <Modal transparent visible={visible} animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={onDismiss}>
+      <Pressable style={styles.overlay} onPress={onDismiss}>
         {/* Inner Pressable swallows taps so only the dim area cancels. */}
         <Pressable style={styles.box}>
           <Text style={styles.message}>{message}</Text>

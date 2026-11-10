@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { CalendarBlank } from 'phosphor-react-native/src/icons/CalendarBlank';
 import { MapPin } from 'phosphor-react-native/src/icons/MapPin';
@@ -43,18 +43,20 @@ export default function ChangeGym() {
     <Screen>
       <Stack.Screen options={{ headerShown: false }} />
       <InnerHeader title={GYM_LABELS.changeGym} right={<HeaderPillButton label="Save" disabled={!choice} onPress={save} />} />
-      <GymFormRow
-        icon={<CalendarBlank size={ICON_SIZES.xxl} color={COLORS.text} />}
-        label={GYM_LABELS.formDate}
-        value={fullDate(dateOfDayKey(day))}
-        onPress={() => setDateOpen(true)}
-      />
-      <GymFormRow
-        icon={<MapPin size={ICON_SIZES.xxl} color={COLORS.text} />}
-        label={GYM_LABELS.formGym}
-        value={choice?.name ?? GYM_LABELS.select}
-        onPress={() => openGymPicker(router, setChoice)}
-      />
+      <View style={styles.rows}>
+        <GymFormRow
+          icon={<CalendarBlank size={ICON_SIZES.xxl} color={COLORS.text} />}
+          label={GYM_LABELS.formDate}
+          value={fullDate(dateOfDayKey(day))}
+          onPress={() => setDateOpen(true)}
+        />
+        <GymFormRow
+          icon={<MapPin size={ICON_SIZES.xxl} color={COLORS.text} />}
+          label={GYM_LABELS.formGym}
+          value={choice?.name ?? GYM_LABELS.select}
+          onPress={() => openGymPicker(router, setChoice)}
+        />
+      </View>
       <Text style={styles.note}>{GYM_LABELS.formNote}</Text>
 
       <DaySheet
@@ -72,6 +74,9 @@ export default function ChangeGym() {
 }
 
 const styles = StyleSheet.create({
+  rows: {
+    paddingHorizontal: LAYOUT.screenMargin,
+  },
   note: {
     marginTop: SPACE.md,
     paddingHorizontal: LAYOUT.screenMargin,

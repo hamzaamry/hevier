@@ -115,6 +115,15 @@ describe('active workout', () => {
     ]);
   });
 
+  it('finishWorkout stores gym_id for a visit and null otherwise', async () => {
+    raw.exec("INSERT INTO gyms (id, name) VALUES ('g', 'Gym G')");
+    const w = await startWorkout('a', new Date('2026-10-14T18:00:00Z'));
+    Object.assign(w.exercises[1].sets[0], { done: true });
+    const normal = await finishWorkout(w, new Date('2026-10-14T19:00:00Z'));
+    const visit = await finishWorkout(w, new Date('2026-10-14T19:00:00Z'), 'g');
+    expect(rows<{ gym_id: string | null }>('SELECT id, gym_id FROM workouts WHERE id IN (?, ?) ORDER BY gym_id', [normal, visit]).map((r) => r.gym_id)).toEqual([null, 'g']);
+  });
+
   it('saves how hard a football game was in rpe, nothing when not picked', async () => {
     const w = await startWorkout(null, new Date('2026-10-14T18:00:00Z'));
     const football = { id: 'football', name: 'Football', type: 'duration' as const, catalogueId: null };

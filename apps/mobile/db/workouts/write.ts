@@ -59,7 +59,8 @@ function completedExercises(workout: ActiveWorkout): WorkoutDraftExercise[] {
 }
 
 // Saves the completed sets as a workout in the history and clears the draft.
-export async function finishWorkout(workout: ActiveWorkout, now = new Date()): Promise<string> {
+// visitGymId: the gym when it was a one-off visit to a gym that isn't the user's own.
+export async function finishWorkout(workout: ActiveWorkout, now = new Date(), visitGymId: string | null = null): Promise<string> {
   const db = await getDb();
   const workoutId = Crypto.randomUUID();
   await runInTransaction(db, async () => {
@@ -70,6 +71,7 @@ export async function finishWorkout(workout: ActiveWorkout, now = new Date()): P
       // Paused time left out, so the saved duration is what Duration showed.
       new Date(Date.parse(workout.startTime) + elapsedSeconds(workout, now.getTime()) * 1000).toISOString(),
       workout.description?.trim() || null,
+      visitGymId,
     ]);
     for (const [position, m] of (workout.media ?? []).entries()) {
       await db.runAsync(INSERT_WORKOUT_MEDIA, [Crypto.randomUUID(), workoutId, m.file, m.kind, position]);

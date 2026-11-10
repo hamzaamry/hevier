@@ -2,6 +2,7 @@ import type { SetRecord, Bests } from './records';
 import type { SET_TYPES } from '@/constants/workout';
 import type { ExerciseType } from './exercise';
 import type { FootballRating } from './football';
+import type { GymChoice } from './gym';
 import type { EditorSet } from './routine';
 
 // The kind of a set: one of SET_TYPES.
@@ -84,6 +85,8 @@ export interface ActiveWorkout {
   // Logged afterwards for a past day (from the calendar): its clock stands
   // still (kept paused at the end), and no rest timers or notification.
   backdated?: boolean;
+  // The gym picked on Save Workout's Gym row; none = the gym of the workout's day.
+  gym?: GymChoice;
 }
 
 // What a new workout starts from: a routine id (its planned sets), a saved

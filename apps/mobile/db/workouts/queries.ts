@@ -52,10 +52,10 @@ export const DELETE_WORKOUT_MEDIA = 'DELETE FROM workout_media WHERE workout_id 
 // The workout itself, last.
 export const DELETE_WORKOUT = 'DELETE FROM workouts WHERE id = ?';
 
-// A finished workout's own fields.
+// A finished workout's own fields. gym_id: the gym of a one-off visit, else NULL (the gym comes from the timeline).
 export const INSERT_WORKOUT = `
-  INSERT INTO workouts (id, title, start_time, end_time, description)
-  VALUES (?, ?, ?, ?, ?)`;
+  INSERT INTO workouts (id, title, start_time, end_time, description, gym_id)
+  VALUES (?, ?, ?, ?, ?, ?)`;
 
 // One photo or video of a finished workout, at its place.
 export const INSERT_WORKOUT_MEDIA = `

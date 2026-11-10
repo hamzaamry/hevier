@@ -133,6 +133,7 @@ export interface ConfirmDialogProps {
   tone?: 'danger' | 'primary';
   onConfirm: () => void;
   onCancel: () => void;
+  onDismiss?: () => void; // a tap outside or Back, when it isn't the same as Cancel (default onCancel)
 }
 
 export interface DialogButtonProps {

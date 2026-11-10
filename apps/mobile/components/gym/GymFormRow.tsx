@@ -3,11 +3,12 @@ import { CaretRight } from 'phosphor-react-native/src/icons/CaretRight';
 
 import { Divider } from '@/components/ui/Divider';
 import { COLORS, TYPE } from '@/constants/theme';
-import { LAYOUT, SPACE } from '@/constants/layout';
+import { SPACE } from '@/constants/layout';
 import { ICON_SIZES, SAVE_WORKOUT_SIZES } from '@/constants/sizes';
 import type { GymFormRowProps } from './types';
 
 // A row like Save Workout's Date row: icon, label, grey value, ›, a divider under it.
+// No side margins of its own: its screen's content has them.
 export function GymFormRow({ icon, label, value, onPress }: GymFormRowProps) {
   return (
     <>
@@ -27,7 +28,6 @@ export function GymFormRow({ icon, label, value, onPress }: GymFormRowProps) {
 const styles = StyleSheet.create({
   row: {
     height: SAVE_WORKOUT_SIZES.rowHeight,
-    paddingHorizontal: LAYOUT.screenMargin,
     flexDirection: 'row',
     alignItems: 'center',
   },
