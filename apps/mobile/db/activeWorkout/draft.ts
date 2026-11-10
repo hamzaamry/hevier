@@ -1,6 +1,6 @@
 import { STORAGE_KEYS } from '@/constants/storage';
 import { getJson, remove, setJson } from '@/db/appState/appState';
-import { getExerciseBestsFor } from '@/db/records/bests';
+import { getExerciseBestsFor, getRecordsGymFor } from '@/db/records/bests';
 import { bestsOf } from '@/lib/workout/activeWorkout';
 import type { ActiveWorkout } from '@/types/workout';
 
@@ -12,11 +12,21 @@ import type { ActiveWorkout } from '@/types/workout';
 export async function loadActiveWorkout(): Promise<ActiveWorkout | null> {
   const workout = await getJson<ActiveWorkout>(STORAGE_KEYS.activeWorkout);
   if (!workout) return null;
-  if (workout.exercises.length > 0) {
-    const bests = await getExerciseBestsFor(workout.exercises.map((e) => e.exerciseId));
-    for (const e of workout.exercises) e.bests = bestsOf(bests, e.exerciseId);
-  }
+  await fillRecords(workout);
   return workout;
+}
+
+// The bests the PR medals compare with, and the gym they are from: those of the
+// gym the workout started at, so a backdated workout counts its own day's gym.
+export async function fillRecords(workout: ActiveWorkout): Promise<void> {
+  if (workout.exercises.length === 0) return;
+  const ids = workout.exercises.map((e) => e.exerciseId);
+  const at = new Date(workout.startTime);
+  const [bests, gyms] = await Promise.all([getExerciseBestsFor(ids, at), getRecordsGymFor(ids, at)]);
+  for (const e of workout.exercises) {
+    e.bests = bestsOf(bests, e.exerciseId);
+    e.recordsGym = gyms.get(e.exerciseId) ?? null;
+  }
 }
 
 export async function saveActiveWorkout(workout: ActiveWorkout): Promise<void> {

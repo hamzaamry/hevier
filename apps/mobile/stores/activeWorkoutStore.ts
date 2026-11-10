@@ -201,7 +201,7 @@ async function markSet(
     const sets = exercise.sets.map((s) => (s.key === set.key ? { ...s, done: true } : s));
     const records = setRecords(exercise.type, exercise.bests ?? null, sets, set.key);
     if (records.length > 0) {
-      if (toast) for (const l of prListeners) l({ name: exercise.name, catalogueId: exercise.catalogueId, records });
+      if (toast) for (const l of prListeners) l({ name: exercise.name, catalogueId: exercise.catalogueId, records, gym: exercise.recordsGym ?? null });
       celebratePr();
     }
   }

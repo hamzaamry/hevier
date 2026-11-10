@@ -9,6 +9,7 @@ import { COLORS, LINE_HEIGHTS, PR_COLORS, TYPE } from '@/constants/theme';
 import { HIT_SLOPS, RADIUS, SPACE } from '@/constants/layout';
 import { ICON_SIZES, PR_TOAST_SIZES, SIZES } from '@/constants/sizes';
 import { PR_TOAST_MOTION } from '@/constants/motion';
+import { GYM_LABELS } from '@/constants/labels';
 import type { MedalProps, PrToastProps } from './types';
 
 // Personal records while logging: a medal in the set box and a toast over the header.
@@ -82,6 +83,11 @@ export function PrToast({ toast, onDone }: PrToastProps) {
             {r.label} - {r.value}
           </Text>
         ))}
+        {toast.gym && (
+          <Text style={styles.gym} numberOfLines={1}>
+            {GYM_LABELS.recordsAt.toLowerCase()} {toast.gym}
+          </Text>
+        )}
       </View>
       <Pressable style={styles.close} onPress={hide} hitSlop={HIT_SLOPS.lg}>
         <X size={ICON_SIZES.xxs} weight="bold" color={COLORS.text} />
@@ -118,6 +124,11 @@ const styles = StyleSheet.create({
     ...TYPE.body,
     lineHeight: LINE_HEIGHTS.normal,
     color: GOLD,
+  },
+  // Which gym the records are from, on machine and cable exercises.
+  gym: {
+    ...TYPE.caption,
+    color: COLORS.textSecondary,
   },
   // A small ✕ disc on the bottom-right corner, half outside the toast.
   close: {

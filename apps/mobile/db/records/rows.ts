@@ -10,4 +10,13 @@ export interface ExerciseSetRow {
   reps: number | null;
   distance_km: number | null;
   duration_seconds: number | null;
+  equipment: string | null;
+  start_time: string;
+  gym_id: string | null;
+}
+
+// selectEquipmentOf
+export interface EquipmentRow {
+  id: string;
+  equipment: string | null;
 }

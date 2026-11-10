@@ -54,6 +54,9 @@ export interface ActiveExercise {
   // From the history, for the PR medals (db/records/bests.ts); null = never done.
   // Missing in drafts saved before PRs existed: filled in on load.
   bests?: Bests | null;
+  // The gym those bests are from, for the PR toast ("at Basic-Fit Nation"). Only
+  // for machine and cable exercises, and only once the user has changed gym.
+  recordsGym?: string | null;
 }
 
 // A photo or video added on the Save Workout page (lib/workoutMedia.ts).
@@ -122,6 +125,7 @@ export interface PrEvent {
   name: string;
   catalogueId: string | null;
   records: SetRecord[];
+  gym: string | null;
 }
 
 // A past workout with its totals (db/sessions/sessions.ts): the Profile tab and

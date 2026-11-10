@@ -49,4 +49,5 @@ export interface PrToastData {
   name: string;
   catalogueId: string | null;
   records: SetRecord[];
+  gym: string | null;
 }

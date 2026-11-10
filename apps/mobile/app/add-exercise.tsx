@@ -75,6 +75,11 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
     return all ? pickerCount(all, { search, equipment: eq, muscles: mu }) : 0;
   }
 
+  // Its bests are those of the gym the workout started at.
+  async function workoutStart(): Promise<string> {
+    return (await getActiveWorkout())?.startTime ?? new Date().toISOString();
+  }
+
   async function choose(exercise: PickerExercise) {
     if (browse) {
       router.push({ pathname: '/exercises/[id]', params: { id: exercise.id } });
@@ -91,7 +96,7 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
       router.back();
       return;
     }
-    const fresh = await newActiveExercise(exercise, replacing?.sets ?? 1);
+    const fresh = await newActiveExercise(exercise, await workoutStart(), replacing?.sets ?? 1);
     updateActiveWorkout((w) => ({
       ...w,
       exercises: w.exercises.map((e) => (e.key === replace ? { ...fresh, restSeconds: e.restSeconds } : e)),
@@ -112,7 +117,8 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
       router.back();
       return;
     }
-    const added = await Promise.all(exercises.map((e) => newActiveExercise(e)));
+    const start = await workoutStart();
+    const added = await Promise.all(exercises.map((e) => newActiveExercise(e, start)));
     updateActiveWorkout((w) => ({ ...w, exercises: [...w.exercises, ...added] }));
     router.back();
   }
