@@ -2,7 +2,7 @@ import * as Crypto from 'expo-crypto';
 import { FROM_START_DAY } from '@/constants/gym';
 import { getDb } from '@/db/client';
 import { cached, invalidateHistory } from '@/db/historyCache';
-import type { Gym, GymChoice, GymTimeline } from '@/types/gym';
+import type { Gym, GymChoice, GymTimeline, GymWorkout } from '@/types/gym';
 import {
   DELETE_GYM_CHANGE,
   DELETE_UNUSED_GYMS,
@@ -12,9 +12,10 @@ import {
   SELECT_GYMS,
   SELECT_GYM_BY_NAME,
   SELECT_GYM_CHANGES,
+  SELECT_GYM_WORKOUTS,
   UPSERT_GYM_CHANGE,
 } from './queries';
-import type { GymChangeRow, GymIdRow, GymRow } from './rows';
+import type { GymChangeRow, GymIdRow, GymRow, GymWorkoutRow } from './rows';
 
 // Settings → Gym and the Gym row on Save Workout. Every record is worked out
 // from the timeline, so each write refreshes the history (cached workout cards
@@ -29,6 +30,15 @@ export function getGymTimeline(): Promise<GymTimeline> {
     ]);
     const gyms = new Map<string, Gym>(gymRows.map((r) => [r.id, { id: r.id, name: r.name }]));
     return { gyms, changes: changeRows.map((r) => ({ id: r.id, day: r.day, gymId: r.gym_id })) };
+  });
+}
+
+// Oldest first. Cached like the timeline, and refreshed by the same writes.
+export function getGymWorkouts(): Promise<GymWorkout[]> {
+  return cached('gymWorkouts', async () => {
+    const db = await getDb();
+    const rows = await db.getAllAsync<GymWorkoutRow>(SELECT_GYM_WORKOUTS);
+    return rows.map((r) => ({ startTime: r.start_time, visitGymId: r.gym_id }));
   });
 }
 

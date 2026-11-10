@@ -5,6 +5,9 @@ export const SELECT_GYMS = 'SELECT id, name FROM gyms';
 // Oldest first.
 export const SELECT_GYM_CHANGES = 'SELECT id, day, gym_id FROM gym_changes ORDER BY day';
 
+// Every workout's start and one-off gym, for the gym screens' counts and dates.
+export const SELECT_GYM_WORKOUTS = 'SELECT start_time, gym_id FROM workouts ORDER BY start_time';
+
 export const SELECT_GYM_BY_NAME = 'SELECT id FROM gyms WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) LIMIT 1';
 
 export const INSERT_GYM = 'INSERT INTO gyms (id, name) VALUES (?, ?)';

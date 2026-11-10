@@ -3,7 +3,7 @@ import { GYM_LABELS } from '@/constants/labels';
 import { dateOfDayKey, dayKey } from '@/lib/date';
 import { fullDate } from '@/lib/format/date';
 import { plural } from '@/lib/format/text';
-import type { Gym, GymStretch, GymTimeline } from '@/types/gym';
+import type { Gym, GymStretch, GymTimeline, YourGym } from '@/types/gym';
 
 // Which gym a workout was at, from the days the user changed gym. Days are
 // local calendar days ('YYYY-MM-DD', compared as text).
@@ -94,4 +94,16 @@ export function stretchLabel(s: GymStretch): string {
 export function deleteMessage(s: GymStretch, previousName: string): string {
   const from = s.from ? fullDate(dateOfDayKey(s.from)) : '';
   return `Delete this gym change? Workouts from ${from} count at ${previousName} again.`;
+}
+
+// Select Gym's "Your Gyms": every gym, the one trained at most recently first.
+export function yourGyms(t: GymTimeline, workouts: { startTime: string; visitGymId: string | null }[]): YourGym[] {
+  const last = new Map<string, string>();
+  for (const w of workouts) {
+    const gymId = workoutGym(t, w.startTime, w.visitGymId);
+    if (gymId && (last.get(gymId) ?? '') < w.startTime) last.set(gymId, w.startTime);
+  }
+  return [...t.gyms.values()]
+    .map((g) => ({ gymId: g.id, name: g.name, lastWorkout: last.get(g.id) ?? null }))
+    .sort((a, b) => (b.lastWorkout ?? '').localeCompare(a.lastWorkout ?? '') || a.name.localeCompare(b.name));
 }

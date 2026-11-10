@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ALL_GYMS, FROM_START_DAY, NO_GYM } from '@/constants/gym';
 import type { GymTimeline } from '@/types/gym';
-import { currentGym, deleteMessage, gymName, gymOnDay, gymStretches, isPerGym, recordKey, stretchLabel, workoutGym } from './timeline';
+import { currentGym, deleteMessage, gymName, yourGyms, gymOnDay, gymStretches, isPerGym, recordKey, stretchLabel, workoutGym } from './timeline';
 
 function timeline(changes: [string, string][], names: Record<string, string> = { a: 'Gym A', b: 'Gym B' }): GymTimeline {
   return {
@@ -129,5 +129,23 @@ describe('labels', () => {
     expect(deleteMessage(s('2026-10-30', null, 4), 'Previous gym')).toBe(
       'Delete this gym change? Workouts from Oct 30, 2026 count at Previous gym again.',
     );
+  });
+});
+
+describe('yourGyms', () => {
+  const t = timeline([['2026-03-12', 'a'], ['2026-10-30', 'b']], { a: 'Gym A', b: 'Gym B', c: 'Gym C' });
+  const w = (y: number, m: number, d: number, visit: string | null = null) => ({ startTime: at(y, m, d), visitGymId: visit });
+
+  it('the gym with the most recent workout first, gyms without workouts last', () => {
+    const list = yourGyms(t, [w(2026, 4, 1), w(2026, 11, 1)]);
+    expect(list.map((g) => [g.name, g.lastWorkout])).toEqual([
+      ['Gym B', at(2026, 11, 1)],
+      ['Gym A', at(2026, 4, 1)],
+      ['Gym C', null],
+    ]);
+  });
+
+  it('a visit counts for the visited gym', () => {
+    expect(yourGyms(t, [w(2026, 4, 1), w(2026, 11, 5, 'a')])[0]).toMatchObject({ name: 'Gym A', lastWorkout: at(2026, 11, 5) });
   });
 });

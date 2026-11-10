@@ -352,6 +352,12 @@ export const SAVE_WORKOUT_SIZES = {
   updateButtonHeight: 47,
 };
 
+// app/select-gym.tsx, components/gym/GymListRow.tsx
+export const SELECT_GYM_SIZES = {
+  avatar: 46,
+  rowHeight: 66,
+};
+
 // app/settings.tsx
 export const SETTINGS_SIZES = {
   sectionHeight: 53,

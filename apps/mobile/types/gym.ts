@@ -18,10 +18,23 @@ export interface GymTimeline {
   changes: GymChange[];
 }
 
+// A saved workout, as far as the gym screens need it: when, and the gym of a one-off visit.
+export interface GymWorkout {
+  startTime: string;
+  visitGymId: string | null;
+}
+
 // What the Gym row / Select Gym hands back: an existing gym, or a new name to create.
 export interface GymChoice {
   gymId: string | null;
   name: string;
+}
+
+// A gym on Select Gym's "Your Gyms" list; lastWorkout = ISO start, null = none yet.
+export interface YourGym {
+  gymId: string;
+  name: string;
+  lastWorkout: string | null;
 }
 
 // One period at a gym, as listed on the Gym screen (newest first).
