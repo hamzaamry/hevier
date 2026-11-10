@@ -27,6 +27,10 @@ export interface WorkoutSetRow {
   reps: number | null;
   duration_seconds: number | null;
   distance_km: number | null;
+  // Which gym the set counts at (lib/gym/timeline.ts recordKey).
+  equipment: string | null;
+  start_time: string;
+  gym_id: string | null;
 }
 
 // SELECT_WORKOUT_DESCRIPTION

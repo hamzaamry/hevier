@@ -18,7 +18,7 @@ export function epley1RM(weightKg: number, reps: number): number {
 }
 
 // The bests of each exercise in `sets`; exercises without sets are left out.
-export function exerciseBests(sets: Omit<HistorySet, 'workoutId' | 'type'>[]): Map<string, Bests> {
+export function exerciseBests(sets: Omit<HistorySet, 'workoutId' | 'type' | 'recordKey'>[]): Map<string, Bests> {
   const result = new Map<string, Bests>();
   for (const r of sets) {
     if (r.setType === 'warmup') continue;
@@ -122,11 +122,13 @@ export function workoutRecords(sets: HistorySet[]): {
   let i = 0;
   while (i < sets.length) {
     // One exercise within one workout.
-    const { workoutId, exerciseId, type } = sets[i];
+    const { workoutId, exerciseId, type, recordKey } = sets[i];
+    // A machine's records are kept per gym.
+    const bestsKey = `${exerciseId}|${recordKey}`;
     let j = i;
     while (j < sets.length && sets[j].workoutId === workoutId && sets[j].exerciseId === exerciseId) j++;
     if (!counts.has(workoutId)) counts.set(workoutId, 0);
-    const history = bests.get(exerciseId);
+    const history = bests.get(bestsKey);
     const bar: Bests = history
       ? { ...history }
       : { weightKg: null, oneRmKg: null, volumeKg: null, reps: null, durationSeconds: null, distanceKm: null };
@@ -147,7 +149,7 @@ export function workoutRecords(sets: HistorySet[]): {
       }
       raise(bar, m);
     }
-    bests.set(exerciseId, bar);
+    bests.set(bestsKey, bar);
     counts.set(workoutId, counts.get(workoutId)! + broken.size);
     if (broken.size) {
       const list = records.get(workoutId) ?? [];

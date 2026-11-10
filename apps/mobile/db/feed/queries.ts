@@ -12,6 +12,7 @@ export const SELECT_WORKOUTS = `
 export const SELECT_WORKOUT_SETS = `
   SELECT w.id AS workout_id, we.id AS workout_exercise_id, we.exercise_id, e.name, e.type, e.catalogue_id, we.notes,
          s.id AS set_id, s.set_type, s.weight_kg, s.reps, s.duration_seconds, s.distance_km,
+         e.equipment, w.start_time, w.gym_id,
          ${SET_BODY_WEIGHT} AS body_weight_kg
   FROM workouts w
   JOIN workout_exercises we ON we.workout_id = w.id

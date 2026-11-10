@@ -101,6 +101,7 @@ describe('records per saved workout', () => {
     reps,
     durationSeconds: null,
     distanceKm: null,
+    recordKey: '',
   });
 
   it('counts each kind an exercise beat once; the first time is not a record', () => {
@@ -130,7 +131,7 @@ describe('records per saved workout', () => {
 
   it('keeps warm-up sets out of the stored bests', () => {
     const rows = [s('w1', 80, 10), { ...s('w1', 120, 3), setType: 'warmup' as const }].map(
-      ({ workoutId: _w, type: _t, ...row }) => row
+      ({ workoutId: _w, type: _t, recordKey: _k, ...row }) => row
     );
     expect(exerciseBests(rows).get('bench')?.weightKg).toBe(80);
     expect(exerciseBests([rows[1]]).size).toBe(0);
@@ -144,5 +145,31 @@ describe('records per saved workout', () => {
       { exerciseId: 'bench', kind: 'oneRm', value: 112 },
       { exerciseId: 'bench', kind: 'volume', value: 960 },
     ]);
+  });
+
+  // A machine exercise whose records are kept per gym: its recordKey is the gym.
+  const at = (gym: string, workoutId: string, weightKg: number, reps: number) => ({ ...s(workoutId, weightKg, reps, 'press'), recordKey: gym });
+
+  it("a cable PR at gym A doesn't stop a medal at gym B; the first workout at B has no medal", () => {
+    const { counts, recordSets } = workoutRecords([
+      at('A', 'w1', 80, 10),
+      at('A', 'w2', 100, 10), // PR at A
+      at('B', 'w3', 60, 10), // first at B: no medal
+      at('B', 'w4', 65, 10), // beats B's 60
+    ]);
+    expect(recordSets).toEqual([false, true, false, true]);
+    expect([...counts].map(([, n]) => n > 0)).toEqual([false, true, false, true]);
+  });
+
+  it("back at gym A: the bar is A's best, not B's", () => {
+    const { recordSets } = workoutRecords([at('A', 'w1', 100, 10), at('B', 'w2', 120, 10), at('A', 'w3', 105, 10)]);
+    expect(recordSets).toEqual([false, false, true]);
+    const { recordSets: equal } = workoutRecords([at('A', 'w1', 100, 10), at('B', 'w2', 120, 10), at('A', 'w3', 100, 10)]);
+    expect(equal).toEqual([false, false, false]);
+  });
+
+  it("a barbell exercise ignores recordKey ('' everywhere)", () => {
+    const { recordSets } = workoutRecords([s('w1', 80, 10), s('w2', 90, 10)]);
+    expect(recordSets).toEqual([false, true]);
   });
 });

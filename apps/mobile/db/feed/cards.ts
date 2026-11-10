@@ -1,5 +1,8 @@
 import { getDb } from '@/db/client';
+import { getGymTimeline } from '@/db/gym/gym';
 import { cached } from '@/db/historyCache';
+import { recordKey } from '@/lib/gym/timeline';
+import type { GymTimeline } from '@/types/gym';
 import { workoutRecords } from '@/lib/stats/records';
 import { durationSecondsOf } from '@/lib/workout/duration';
 import type { HistorySet } from '@/types/records';
@@ -21,7 +24,7 @@ async function loadWorkoutCards(): Promise<WorkoutCardData[]> {
   const db = await getDb();
   const workouts = await db.getAllAsync<WorkoutRow>(SELECT_WORKOUTS);
   const rows = await db.getAllAsync<WorkoutSetRow>(SELECT_WORKOUT_SETS);
-  return buildCards(workouts, rows).reverse();
+  return buildCards(workouts, rows, await getGymTimeline()).reverse();
 }
 
 // One workout, for its page. Records need the whole history, so this takes
@@ -35,7 +38,7 @@ export async function getWorkoutCard(id: string): Promise<WorkoutCardData | null
   return { ...card, description: extra?.description ?? null, media };
 }
 
-export function buildCards(workouts: WorkoutRow[], rows: WorkoutSetRow[]): WorkoutCardData[] {
+export function buildCards(workouts: WorkoutRow[], rows: WorkoutSetRow[], timeline: GymTimeline): WorkoutCardData[] {
   const cards = new Map<string, WorkoutCardData>();
   for (const w of workouts) {
     cards.set(w.id, {
@@ -86,6 +89,7 @@ export function buildCards(workouts: WorkoutRow[], rows: WorkoutSetRow[]): Worko
       reps: r.reps,
       durationSeconds: r.duration_seconds,
       distanceKm: r.distance_km,
+      recordKey: recordKey(timeline, r.equipment, r.start_time, r.gym_id),
     });
   }
   const { counts, recordSets, records } = workoutRecords(history);

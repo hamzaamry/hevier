@@ -36,7 +36,7 @@ const fakeDb = {
 vi.mock('@/db/client', () => ({ getDb: async () => fakeDb }));
 vi.mock('expo-crypto', () => ({ randomUUID: () => `id${++nextId}` }));
 
-const { addGymChange, deleteGymChange, getGymTimeline, namePreviousGym } = await import('./gym');
+const { addGymChange, deleteGymChange, getGymTimeline, moveGymChange, namePreviousGym, renameGym } = await import('./gym');
 const { FROM_START_DAY } = await import('@/constants/gym');
 
 beforeEach(async () => {
@@ -110,5 +110,15 @@ describe('gym tables', () => {
     const t = await getGymTimeline();
     expect(t.changes.map((c) => c.day)).toEqual([FROM_START_DAY, '2026-10-30']);
     expect(t.gyms.get(t.changes[0].gymId)?.name).toBe('Old gym');
+  });
+
+  it('renaming and moving show at once, despite the cached timeline', async () => {
+    await addGymChange('2026-10-30', { gymId: null, name: 'A' });
+    const before = await getGymTimeline();
+    await renameGym(before.changes[0].gymId, ' Gym A ');
+    await moveGymChange(before.changes[0].id, '2026-10-20');
+    const after = await getGymTimeline();
+    expect(after.gyms.get(before.changes[0].gymId)?.name).toBe('Gym A');
+    expect(after.changes[0].day).toBe('2026-10-20');
   });
 });

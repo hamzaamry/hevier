@@ -34,6 +34,8 @@ export interface HistorySet {
   reps: number | null;
   durationSeconds: number | null;
   distanceKm: number | null;
+  // Which gym the set counts at: a machine's records are kept per gym; '' = every gym (lib/gym/timeline.ts).
+  recordKey: string;
 }
 
 // A record one workout set: which exercise, which kind, the new best.
