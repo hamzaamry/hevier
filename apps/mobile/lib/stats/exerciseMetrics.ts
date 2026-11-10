@@ -62,11 +62,31 @@ const RECORDS: Record<ExerciseType, { label: string; metric: Metric }[]> = {
 
 const workingSets = (sets: WorkoutSet[]) => sets.filter((s) => s.setType !== 'warmup');
 
-export function personalRecords(type: ExerciseType, sessions: ExerciseSession[]): { label: string; value: string }[] {
+// With `gymKey` (a machine or cable exercise once the user has changed gym):
+// `value` is the best at that gym ('-' when nothing yet) and `allGyms` the best
+// over every gym.
+export function personalRecords(
+  type: ExerciseType,
+  sessions: ExerciseSession[],
+  gymKey?: string
+): { label: string; value: string; allGyms?: string }[] {
+  const best = (list: ExerciseSession[], metric: Metric) => max(list.map((s) => metric.value(workingSets(s.sets))));
   return RECORDS[type]
-    .map(({ label, metric }) => ({ label, best: max(sessions.map((s) => metric.value(workingSets(s.sets)))), unit: metric.unit }))
-    .filter((r) => r.best !== null)
-    .map((r) => ({ label: r.label, value: formatValue(r.best!, r.unit) }));
+    .map(({ label, metric }) => ({ label, unit: metric.unit, all: best(sessions, metric), here: best(sessions.filter((s) => s.gymKey === gymKey), metric) }))
+    .filter((r) => r.all !== null)
+    .map((r) => {
+      if (gymKey === undefined) return { label: r.label, value: formatValue(r.all!, r.unit) };
+      return { label: r.label, value: r.here === null ? '-' : formatValue(r.here, r.unit), allGyms: formatValue(r.all!, r.unit) };
+    });
+}
+
+// The chart of a per-gym exercise: points from other gyms than the current one
+// are faded, and the line breaks wherever the gym changes between two points.
+export function gymChartMarks(keys: string[], currentKey: string): { faded: boolean[]; breaks: number[] } {
+  return {
+    faded: keys.map((k) => k !== currentKey),
+    breaks: keys.flatMap((k, i) => (i > 0 && k !== keys[i - 1] ? [i] : [])),
+  };
 }
 
 // One point per session that has something to plot.

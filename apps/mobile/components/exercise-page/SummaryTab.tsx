@@ -11,7 +11,8 @@ import { CHART_DEFAULTS } from '@/constants/defaults';
 import { LAYOUT, SPACE } from '@/constants/layout';
 import { EXERCISE_PAGE_SIZES, ICON_SIZES } from '@/constants/sizes';
 import { PERIODS } from '@/constants/periods';
-import { METRICS, chartPoints, formatTick, formatValue, personalRecords } from '@/lib/stats/exerciseMetrics';
+import { METRICS, chartPoints, formatTick, formatValue, gymChartMarks, personalRecords } from '@/lib/stats/exerciseMetrics';
+import { GYM_LABELS } from '@/constants/labels';
 import { inPeriod, periodIndex } from '@/lib/training/periods';
 import { monthDay, shortDate } from '@/lib/format/date';
 import { ExerciseClip } from './ExerciseClip';
@@ -44,7 +45,12 @@ export function SummaryTab({ detail }: ExerciseTabProps) {
   );
   const tick = useCallback((v: number) => formatTick(v, m.unit), [m]);
   const shown = selected !== null && selected < points.length ? selected : points.length - 1;
-  const records = useMemo(() => personalRecords(detail.type, detail.sessions), [detail]);
+  // A machine's chart fades the other gyms' sessions and breaks at each change.
+  const marks = useMemo(
+    () => (detail.gym ? gymChartMarks(points.map((p) => p.session.gymKey), detail.gym.key) : null),
+    [detail, points]
+  );
+  const records = useMemo(() => personalRecords(detail.type, detail.sessions, detail.gym?.key), [detail]);
   const metricOptions = useMemo(() => metrics.map((x, i) => ({ key: i, label: x.label })), [metrics]);
 
   return (
@@ -67,7 +73,7 @@ export function SummaryTab({ detail }: ExerciseTabProps) {
         </ChartHeader>
 
         <View style={styles.chart}>
-          {points.length > 0 && <ProgressChart points={chart} formatTick={tick} selected={shown} onSelect={setSelected} />}
+          {points.length > 0 && <ProgressChart points={chart} formatTick={tick} selected={shown} onSelect={setSelected} faded={marks?.faded} breaks={marks?.breaks} />}
         </View>
 
         <MetricPills options={metricOptions} value={metric} onChange={pickMetric} wrap />
@@ -76,11 +82,23 @@ export function SummaryTab({ detail }: ExerciseTabProps) {
           <Medal size={ICON_SIZES.xl} />
           <Text style={styles.recordsTitle}>Personal Records</Text>
         </View>
+        {detail.gym && (
+          <Text style={styles.recordsGym}>
+            {GYM_LABELS.recordsAt} {detail.gym.name}
+          </Text>
+        )}
         {records.length === 0 && <EmptyState message="Log this exercise to set records." note />}
         {records.map((r) => (
           <View key={r.label} style={styles.recordRow}>
             <Text style={styles.recordLabel}>{r.label}</Text>
-            <Text style={styles.recordValue}>{r.value}</Text>
+            <View style={styles.recordValues}>
+              <Text style={styles.recordValue}>{r.value}</Text>
+              {r.allGyms !== undefined && (
+                <Text style={styles.recordAllGyms}>
+                  {GYM_LABELS.allGyms} {r.allGyms}
+                </Text>
+              )}
+            </View>
           </View>
         ))}
       </View>
@@ -111,6 +129,19 @@ const styles = StyleSheet.create({
   },
   recordsTitle: {
     ...TYPE.row,
+    color: COLORS.textSecondary,
+  },
+  // "At Basic-Fit Nation", in line with the title text (the medal and its gap come first).
+  recordsGym: {
+    marginLeft: ICON_SIZES.xl + SPACE.sm,
+    ...TYPE.caption,
+    color: COLORS.textSecondary,
+  },
+  recordValues: {
+    alignItems: 'flex-end',
+  },
+  recordAllGyms: {
+    ...TYPE.caption,
     color: COLORS.textSecondary,
   },
   recordRow: {

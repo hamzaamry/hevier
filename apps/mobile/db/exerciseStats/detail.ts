@@ -1,4 +1,7 @@
 import { getDb } from '@/db/client';
+import { getGymTimeline } from '@/db/gym/gym';
+import { gymName, isPerGym, recordKey, workoutGym } from '@/lib/gym/timeline';
+import { NO_GYM } from '@/constants/gym';
 import { muscleGroup, parseList, secondaryGroups } from '@/lib/domain/muscles';
 import type { ExerciseDetail } from '@/types/exercise';
 import { getExerciseHistory } from './history';
@@ -12,7 +15,11 @@ export async function getExerciseDetail(id: string): Promise<ExerciseDetail | nu
   const row = await db.getFirstAsync<ExerciseDetailRow>(SELECT_EXERCISE_DETAIL, [id]);
   if (!row) return null;
   const primary = muscleGroup(row.target_muscle, row.body_part);
-  const history = await getExerciseHistory(id);
+  const [history, timeline] = await Promise.all([getExerciseHistory(id), getGymTimeline()]);
+  // Only a user who changed gym sees records per gym.
+  const perGym = isPerGym(row.equipment) && timeline.changes.length > 0;
+  const now = new Date().toISOString();
+  const currentGym = workoutGym(timeline, now, null);
   return {
     id: row.id,
     name: row.name,
@@ -27,6 +34,8 @@ export async function getExerciseDetail(id: string): Promise<ExerciseDetail | nu
       title: h.workout.title,
       startTime: h.workout.startTime,
       sets: h.sets,
+      gymKey: recordKey(timeline, row.equipment, h.workout.startTime, h.gymId),
     })),
+    gym: perGym ? { key: currentGym ?? NO_GYM, name: gymName(timeline, currentGym) } : null,
   };
 }

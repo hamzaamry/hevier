@@ -8,6 +8,7 @@ export interface ExerciseDetailRow {
   id: string;
   name: string;
   type: ExerciseType;
+  equipment: string | null;
   catalogue_id: string | null;
   target_muscle: string | null;
   body_part: string | null;
@@ -24,6 +25,7 @@ export interface ExerciseHistoryRow {
   start_time: string;
   end_time: string | null;
   description: string | null;
+  gym_id: string | null;
   set_id: string | null;
   set_index: number;
   set_type: SetType;

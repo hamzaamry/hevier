@@ -97,8 +97,8 @@ async function oldExerciseHistory(exerciseId: string) {
   ]);
   const results = [];
   for (const we of weRows) {
-    const w = rows<{ id: string; title: string; start_time: string; end_time: string | null; description: string | null }>(
-      'SELECT id, title, start_time, end_time, description FROM workouts WHERE id = ?',
+    const w = rows<{ id: string; title: string; start_time: string; end_time: string | null; description: string | null; gym_id: string | null }>(
+      'SELECT id, title, start_time, end_time, description, gym_id FROM workouts WHERE id = ?',
       [we.workout_id]
     )[0];
     if (!w) continue;
@@ -108,6 +108,7 @@ async function oldExerciseHistory(exerciseId: string) {
     }>('SELECT * FROM sets WHERE workout_exercise_id = ? ORDER BY set_index', [we.id]);
     results.push({
       workout: { id: w.id, title: w.title, startTime: w.start_time, endTime: w.end_time, description: w.description },
+      gymId: w.gym_id,
       sets: setRows.map((s) => ({
         id: s.id, workoutExerciseId: s.workout_exercise_id, setIndex: s.set_index, setType: s.set_type,
         weightKg: s.weight_kg, reps: s.reps, distanceKm: s.distance_km, durationSeconds: s.duration_seconds, rpe: s.rpe,

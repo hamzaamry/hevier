@@ -40,6 +40,8 @@ export interface ExerciseSession {
   title: string;
   startTime: string;
   sets: WorkoutSet[];
+  // Which gym its records count at ('' = every gym; lib/gym/timeline.ts recordKey).
+  gymKey: string;
 }
 
 export interface ExerciseDetail {
@@ -52,6 +54,9 @@ export interface ExerciseDetail {
   description: string | null;
   instructions: string[];
   sessions: ExerciseSession[]; // oldest first
+  // Set only for a machine or cable exercise once the user has changed gym: the
+  // gym whose records the page shows.
+  gym: { key: string; name: string } | null;
 }
 
 // A unit of the exercise page's chart and records: one of CHART_UNITS.

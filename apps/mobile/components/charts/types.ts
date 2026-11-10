@@ -52,10 +52,15 @@ export interface ProgressChartProps {
   formatTick: (value: number, step: number) => string;
   selected: number;
   onSelect: (index: number) => void;
+  // Points drawn faded, and the indices where the line breaks (a gym change).
+  faded?: boolean[];
+  breaks?: number[];
 }
 
 export interface PlotProps {
   points: ChartPoint[];
+  faded?: boolean[];
+  breaks?: number[];
   width: number;
   min: number;
   max: number;

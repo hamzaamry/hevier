@@ -39,6 +39,9 @@ export const PROGRESS_CHART_LIMITS = {
   maxXLabels: 8, // x labels under the line at most
 };
 
+// Points from another gym than the current one (exercise page of a machine).
+export const CHART_FADED_OPACITY = 0.35;
+
 // components/ShareCards.tsx
 export const SHARE_CARDS_LIMITS = {
   summaryExercises: 5, // summary card, then "…and N more exercises"
