@@ -50,7 +50,9 @@ export default function SaveWorkout() {
   // For the Gym row: the gym of the workout's day, when the user has changed gym.
   const [timeline, setTimeline] = useState<GymTimeline | null>(null);
   useEffect(() => {
-    getGymTimeline().then(setTimeline);
+    getGymTimeline()
+      .then(setTimeline)
+      .catch((e) => console.warn('[saveWorkout] gym load failed', e));
   }, []);
   const { bodyWeight, reload: reloadBodyWeight } = useBodyWeight();
   const [askingBodyWeight, setAskingBodyWeight] = useState(false);

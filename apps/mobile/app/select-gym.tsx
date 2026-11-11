@@ -33,7 +33,9 @@ export default function SelectGym() {
   const leaving = useRef(false);
 
   useEffect(() => {
-    Promise.all([getGymTimeline(), getGymWorkouts()]).then(([timeline, workouts]) => setMine(yourGyms(timeline, workouts)));
+    Promise.all([getGymTimeline(), getGymWorkouts()])
+      .then(([timeline, workouts]) => setMine(yourGyms(timeline, workouts)))
+      .catch((e) => console.warn('[selectGym] load failed', e));
   }, []);
 
   const needle = query.trim().toLowerCase();

@@ -43,9 +43,9 @@ export default function GymScreen() {
   const busy = useRef(false);
 
   const reload = useCallback(() => {
-    Promise.all([getGymTimeline(), getGymWorkouts()]).then(([timeline, workouts]) =>
-      setData({ timeline, stretches: gymStretches(timeline, workouts, new Date()) })
-    );
+    Promise.all([getGymTimeline(), getGymWorkouts()])
+      .then(([timeline, workouts]) => setData({ timeline, stretches: gymStretches(timeline, workouts, new Date()) }))
+      .catch((e) => console.warn('[gym] load failed', e));
   }, []);
   useFocusEffect(reload);
 

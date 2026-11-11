@@ -25,7 +25,9 @@ export default function SettingsScreen() {
   const [gym, setGym] = useState<string | null>(null);
   useFocusEffect(
     useCallback(() => {
-      getGymTimeline().then((t) => setGym(currentGym(t, new Date())?.name ?? null));
+      getGymTimeline()
+        .then((t) => setGym(currentGym(t, new Date())?.name ?? null))
+        .catch((e) => console.warn('[settings] gym load failed', e));
     }, [])
   );
   return (
