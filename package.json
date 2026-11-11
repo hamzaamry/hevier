@@ -16,6 +16,8 @@
     "mobile": "pnpm --filter @hevier/mobile start",
     "android": "pnpm --filter @hevier/mobile android",
     "sync": "pnpm --filter @hevier/sync start",
+    "web": "pnpm --filter @hevier/web dev",
+    "e2e": "turbo run e2e --filter=@hevier/web",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {

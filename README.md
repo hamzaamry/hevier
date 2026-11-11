@@ -49,6 +49,8 @@
   estimated 1RM, best set volume, most reps, longest time or distance
 - **"Reps left"** after your last set, so the app knows how hard it was
 - **Per-hand weight** for dumbbell exercises
+- **Body weight** (Profile → Body weight): pull-ups, dips and other body weight
+  exercises count the weight you logged as weight lifted
 - A **clock** with a timer and a stopwatch, and Keep Awake while you train
 - Edit, copy or delete a past workout, save one as a routine, or log a workout
   for a past day from the calendar
@@ -101,11 +103,11 @@ say that too.
 
 <br clear="right">
 
-### 5,600+ exercises
+### 5,500+ exercises
 
 <img src="docs/images/screens/exercises.png" alt="Exercise search: many variations of each movement" width="230" align="right">
 
-The library has **5,600+ exercises** with their muscles and step-by-step
+The library has **5,500+ exercises** with their muscles and step-by-step
 instructions (from [openGym](#credits)): every common movement in barbell,
 dumbbell, cable, machine, band and bodyweight versions. Search by name, filter
 by equipment or muscle, and each one gets its own page with your progress
@@ -193,7 +195,8 @@ only, so make your routines in the app.
 The exercise stills and clips are licensed by Gym visual to openGym only, so
 they are **not** in this repository. Without them the app shows a placeholder.
 If you have your own licensed copy, put it in `packages/catalogue/media/` and
-`apps/mobile/scripts/load-device.sh` copies it onto the device.
+`apps/mobile/scripts/load-device.sh` copies it onto the device. Settings →
+Exercise pictures switches the pictures between a male and a female figure.
 
 ### Hevier Sync (PC backup)
 
@@ -240,7 +243,7 @@ apps/
     modules/         native Kotlin: workout notification, home-screen widgets
     scripts/         import, device loading, design tools
   sync/              Hevier Sync, the PC backup program
-  web/               landing page (not built yet)
+  web/               landing page (Next.js, static export)
 packages/
   shared/            the sync protocol, used by the app and Hevier Sync
   catalogue/         the exercise catalogue from openGym

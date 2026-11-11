@@ -6,7 +6,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "out/**"]
     },
     "typecheck": {
       "dependsOn": ["^transit"],
@@ -19,6 +19,11 @@
     "test": {
       "dependsOn": ["^transit"],
       "outputs": []
+    },
+    "e2e": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": false
     },
     "check": {
       "dependsOn": ["typecheck", "lint", "test"],

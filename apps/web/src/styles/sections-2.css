@@ -1,0 +1,359 @@
+/* ---------- science ---------- */
+
+.rules {
+  display: grid;
+  gap: 1px;
+  border-radius: 32px;
+  overflow: hidden;
+  background: var(--line);
+  box-shadow: 0 0 0 1px var(--line);
+}
+.rule {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: clamp(28px, 4vw, 52px);
+  background: var(--bg);
+}
+.rule p {
+  margin: 0;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.rule .rule-big {
+  margin-bottom: 4px;
+  font-size: clamp(3.2rem, 7vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+  font-weight: 300;
+  color: var(--ink);
+}
+.rule .own {
+  font-size: 0.95rem;
+  color: var(--ink-3);
+}
+@media (min-width: 860px) {
+  .rules {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.src {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 99px;
+  background: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgb(14 16 28 / 0.1),
+    0 1px 2px rgb(14 16 28 / 0.05);
+  font-size: 13px;
+  font-weight: 560;
+  color: var(--ink);
+  transition: box-shadow 0.25s;
+}
+.src:hover {
+  box-shadow:
+    inset 0 0 0 1px rgb(14 16 28 / 0.3),
+    0 1px 2px rgb(14 16 28 / 0.05);
+}
+
+.limits {
+  display: grid;
+  gap: 32px;
+  margin-top: 28px;
+  padding: clamp(24px, 4vw, 48px);
+  --radius: 32px;
+}
+.limits .lead {
+  margin-top: 14px;
+  font-size: 1.05rem;
+}
+.limits-side {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+.link-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 0;
+}
+@media (min-width: 900px) {
+  .limits {
+    grid-template-columns: 1.3fr 1fr;
+    gap: 64px;
+  }
+}
+.sources summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.sources ul {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.sources a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(14 16 28 / 0.25);
+  text-underline-offset: 3px;
+}
+
+/* ---------- widgets, notification, records ---------- */
+
+.moments {
+  background:
+    radial-gradient(44% 40% at 85% 12%, rgb(120 150 255 / 0.1), transparent 72%),
+    radial-gradient(40% 40% at 8% 70%, rgb(var(--orange) / 0.07), transparent 72%);
+}
+.bento {
+  display: grid;
+  gap: 20px;
+}
+.panel {
+  display: grid;
+  align-content: space-between;
+  gap: 28px;
+  padding: clamp(22px, 3vw, 36px);
+  --radius: 32px;
+}
+.panel-copy {
+  display: grid;
+  gap: 10px;
+}
+.panel-copy p {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+@media (min-width: 980px) {
+  .bento {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .p-notif {
+    grid-column: span 3;
+  }
+  .p-pr {
+    grid-column: span 3;
+  }
+  .p-widgets {
+    grid-column: span 6;
+  }
+  .p-widgets .wgrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .wgrid .w {
+    min-height: 290px;
+  }
+}
+
+/* the Android notification, drawn the way it looks in the shade */
+.notif {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px 16px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #e8eaf2, #dcdfea);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.8),
+    0 2px 4px rgb(14 16 28 / 0.06),
+    0 20px 36px -18px rgb(14 16 28 / 0.35);
+  font-size: 15px;
+  color: #1c1d24;
+}
+.notif-top {
+  display: flex;
+  gap: 14px;
+}
+.notif-top img {
+  flex: none;
+  border-radius: 50%;
+}
+.notif-top div {
+  display: grid;
+  gap: 2px;
+  line-height: 1.3;
+}
+.notif-top span {
+  color: #4a4c58;
+}
+.rest {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+}
+.rest b {
+  min-width: 7.2em;
+  font-variant-numeric: tabular-nums;
+}
+.rest-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 99px;
+  background: rgb(14 16 28 / 0.1);
+  overflow: hidden;
+}
+.rest-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #0a84ff;
+  transition: width 1s linear;
+}
+.notif-actions {
+  display: flex;
+  gap: 28px;
+  padding-top: 2px;
+  font-weight: 600;
+  color: #3c4a8a;
+}
+
+/* the four widgets: dark tiles, as they sit on the home screen */
+.wgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.w {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-height: 190px;
+  min-width: 0;
+  padding: 16px 16px 14px;
+  border-radius: 26px;
+  background: linear-gradient(180deg, #26272d, #17181c);
+  color: #f3f3f6;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 0 0 1px rgb(14 16 28 / 0.4),
+    0 18px 30px -16px rgb(14 16 28 / 0.55);
+  overflow: clip;
+}
+.w p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.w small {
+  font-size: 12px;
+  color: #c9c9d1;
+}
+.w .dim {
+  color: #85858f;
+}
+.w b {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.w .big {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.w .blue {
+  color: #4aa3ff;
+  font-size: 13px;
+  margin-top: 10px;
+}
+.w-vol,
+.w-next {
+  align-content: center;
+}
+.w-cal {
+  align-content: start;
+}
+.w-vol b {
+  margin-bottom: 8px;
+}
+.cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  align-items: center;
+  text-align: center;
+  font-size: clamp(9px, 1.3vw, 11.5px);
+  color: #d8d8de;
+}
+.cal .dh {
+  color: #8a8a94;
+}
+.cal span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+.cal .on {
+  background: #0a84ff;
+  color: #fff;
+  font-weight: 600;
+}
+.w-rec {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.w-rec div {
+  display: flex;
+  gap: 6px;
+  min-height: 0;
+  padding: 2px 0 6px;
+}
+.w-rec .body {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  --o-fill: #3a3c46;
+  --o-stroke: #17181c;
+  --m-stroke: #17181c;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 22px 16px 16px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #26272d, #17181c);
+  color: #f3f3f6;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 20px 34px -16px rgb(14 16 28 / 0.55);
+}
+.toast > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.toast b {
+  font-size: 15px;
+}
+.toast span {
+  color: #e9a90b;
+}
+.moments-note {
+  margin-top: 28px;
+}
+.p-pr .fine {
+  margin-top: -12px;
+}

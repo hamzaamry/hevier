@@ -60,7 +60,7 @@ After adding, moving or renaming files, restart Metro with
 |---|---|
 | `apps/mobile` (`@hevier/mobile`) | The Expo app |
 | `apps/sync` (`@hevier/sync`) | Hevier Sync, the PC backup program |
-| `apps/web` | Landing page (empty for now) |
+| `apps/web` | Landing page (Next.js, static export) |
 | `packages/shared` (`@hevier/shared`) | The sync protocol, imported by the app and Hevier Sync |
 | `packages/catalogue` (`@hevier/catalogue`) | The exercise catalogue from openGym |
 | `packages/config-typescript`, `packages/config-eslint` | Shared tsconfig and eslint config |

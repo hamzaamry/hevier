@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 // tests in one process so coverage/lcov.info has paths relative to the repo.
 export default defineConfig({
   test: {
-    projects: ['apps/mobile', 'apps/sync', 'packages/shared'],
+    projects: ['apps/mobile', 'apps/sync', 'apps/web', 'packages/shared'],
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'lcov'],

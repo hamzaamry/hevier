@@ -1,0 +1,39 @@
+{
+  "name": "@hevier/web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "node scripts/serve-out.mjs",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "e2e:update": "playwright test --update-snapshots",
+    "perf": "node scripts/budget.mjs"
+  },
+  "dependencies": {
+    "@musclemap/assets": "1.1.0",
+    "geist": "^1.9.2",
+    "next": "^16.4.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@hevier/config-typescript": "workspace:*",
+    "@playwright/test": "^1.65.0",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "catalog:",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "catalog:",
+    "eslint-config-next": "^16.4.5",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.3.5",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
