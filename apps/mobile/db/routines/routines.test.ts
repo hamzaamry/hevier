@@ -1,38 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import initSqlJs, { type Database } from 'sql.js';
-import { runMigrations } from '@/db/migrations';
+import { fakeDb, freshDb, raw, rows } from '@/db/testDb';
 
 // The routine code talks to expo-sqlite through getDb(); here the same calls run on
 // an in-memory sql.js database.
-let raw: Database;
-
-function rows<T>(sqlText: string, params: unknown[] = []): T[] {
-  const stmt = raw.prepare(sqlText);
-  stmt.bind(params as never);
-  const out: T[] = [];
-  while (stmt.step()) out.push(stmt.getAsObject() as T);
-  stmt.free();
-  return out;
-}
-
-const fakeDb = {
-  async execAsync(sqlText: string) {
-    raw.exec(sqlText);
-  },
-  async runAsync(sqlText: string, params: unknown[] = []) {
-    raw.run(sqlText, params as never);
-  },
-  async getAllAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params);
-  },
-  async getFirstAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params)[0] ?? null;
-  },
-  async withTransactionAsync(fn: () => Promise<void>) {
-    await fn();
-  },
-};
-
 vi.mock('@/db/client', () => ({ getDb: async () => fakeDb }));
 let nextId = 0;
 vi.mock('expo-crypto', () => ({ randomUUID: () => `id${++nextId}` }));
@@ -42,11 +12,9 @@ const { deleteRoutine, duplicateRoutine, saveRoutine } = await import('@/db/rout
 const { getRoutineForEdit } = await import('@/db/routines/editor');
 const { getRoutinePage } = await import('@/db/routines/page');
 const { movedOverview } = await import('@/lib/workout/routineOverview');
-const SQL = await initSqlJs();
 
 beforeEach(async () => {
-  raw = new SQL.Database();
-  await runMigrations(fakeDb);
+  await freshDb();
   raw.exec(`
     INSERT INTO exercises (id, name, type) VALUES ('squat', 'Squat', 'weight_reps'), ('curl', 'Leg Curl', 'weight_reps');
     INSERT INTO routine_folders (id, name, position) VALUES ('f1', 'My routine', 0);

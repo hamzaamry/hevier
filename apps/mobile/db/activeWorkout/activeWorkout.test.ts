@@ -1,41 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import initSqlJs, { type Database } from 'sql.js';
-import { runMigrations } from '@/db/migrations';
+import { fakeDb, freshDb, raw, rows } from '@/db/testDb';
 
 // Same in-memory database setup as db/routines/routines.test.ts.
-let raw: Database;
-function rows<T>(sqlText: string, params: unknown[] = []): T[] {
-  const stmt = raw.prepare(sqlText);
-  stmt.bind(params as never);
-  const out: T[] = [];
-  while (stmt.step()) out.push(stmt.getAsObject() as T);
-  stmt.free();
-  return out;
-}
-const fakeDb = {
-  async execAsync(sqlText: string) {
-    raw.exec(sqlText);
-  },
-  async runAsync(sqlText: string, params: unknown[] = []) {
-    raw.run(sqlText, params as never);
-  },
-  async getAllAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params);
-  },
-  async getFirstAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params)[0] ?? null;
-  },
-  async withTransactionAsync(fn: () => Promise<void>) {
-    raw.exec('BEGIN');
-    try {
-      await fn();
-      raw.exec('COMMIT');
-    } catch (e) {
-      raw.exec('ROLLBACK');
-      throw e;
-    }
-  },
-};
 vi.mock('@/db/client', () => ({ getDb: async () => fakeDb }));
 let nextId = 0;
 vi.mock('expo-crypto', () => ({ randomUUID: () => `id${++nextId}` }));
@@ -44,11 +10,9 @@ const { backdatedStart, currentExerciseName, elapsedSeconds, pauseTimer, resumeT
 const { clearActiveWorkout, loadActiveWorkout, saveActiveWorkout } = await import('@/db/activeWorkout/draft');
 const { finishWorkout } = await import('@/db/workouts/write');
 const { newActiveExercise, startWorkout } = await import('@/db/activeWorkout/start');
-const SQL = await initSqlJs();
 
 beforeEach(async () => {
-  raw = new SQL.Database();
-  await runMigrations(fakeDb);
+  await freshDb({ realTransactions: true });
   raw.exec(`
     INSERT INTO exercises (id, name, type) VALUES ('squat', 'Squat', 'weight_reps'), ('warm', 'Warm Up', 'duration');
     INSERT INTO routines (id, name) VALUES ('a', 'LOWER A');

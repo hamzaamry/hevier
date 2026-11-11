@@ -1,46 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import initSqlJs, { type Database } from 'sql.js';
-import { runMigrations } from './migrations';
 import { DEFAULT_WORKOUT_SETTINGS } from '@/constants/defaults';
+import { fakeDb, freshDb, raw } from '@/db/testDb';
 
 // workoutSettings.ts on an in-memory sql.js database, as in db/workouts/edit.test.ts.
-let raw: Database;
-
-function rows<T>(sqlText: string, params: unknown[] = []): T[] {
-  const stmt = raw.prepare(sqlText);
-  stmt.bind(params as never);
-  const out: T[] = [];
-  while (stmt.step()) out.push(stmt.getAsObject() as T);
-  stmt.free();
-  return out;
-}
-
-const fakeDb = {
-  async execAsync(sqlText: string) {
-    raw.exec(sqlText);
-  },
-  async runAsync(sqlText: string, params: unknown[] = []) {
-    raw.run(sqlText, params as never);
-  },
-  async getAllAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params);
-  },
-  async getFirstAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params)[0] ?? null;
-  },
-  async withTransactionAsync(fn: () => Promise<void>) {
-    await fn();
-  },
-};
-
 vi.mock('./client', () => ({ getDb: async () => fakeDb }));
 
 const { getWorkoutSettings, restOf, saveWorkoutSettings } = await import('./workoutSettings');
-const SQL = await initSqlJs();
 
 beforeEach(async () => {
-  raw = new SQL.Database();
-  await runMigrations(fakeDb as never);
+  await freshDb();
 });
 
 describe('workout settings', () => {

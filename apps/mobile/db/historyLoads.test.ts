@@ -1,37 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import initSqlJs, { type Database } from 'sql.js';
-import { runMigrations } from './migrations';
 import type { SetType } from '@/types/workout';
+import { fakeDb, freshDb, raw, rows } from '@/db/testDb';
 
 // The one-query loads against the queries they replaced, on a random history,
 // and the shared history cache dropped by every write. Same in-memory database
 // setup as routines.test.ts.
-let raw: Database;
-function rows<T>(sqlText: string, params: unknown[] = []): T[] {
-  const stmt = raw.prepare(sqlText);
-  stmt.bind(params as never);
-  const out: T[] = [];
-  while (stmt.step()) out.push(stmt.getAsObject() as T);
-  stmt.free();
-  return out;
-}
-const fakeDb = {
-  async execAsync(sqlText: string) {
-    raw.exec(sqlText);
-  },
-  async runAsync(sqlText: string, params: unknown[] = []) {
-    raw.run(sqlText, params as never);
-  },
-  async getAllAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params);
-  },
-  async getFirstAsync<T>(sqlText: string, params: unknown[] = []) {
-    return rows<T>(sqlText, params)[0] ?? null;
-  },
-  async withTransactionAsync(fn: () => Promise<void>) {
-    await fn();
-  },
-};
 vi.mock('./client', () => ({ getDb: async () => fakeDb }));
 let nextId = 0;
 vi.mock('expo-crypto', () => ({ randomUUID: () => `id${++nextId}` }));
@@ -51,7 +24,6 @@ const { finishWorkout } = await import('@/db/workouts/write');
 const { newSet } = await import('@/lib/workout/activeWorkout');
 const { saveWorkoutEdit, getWorkoutForEdit } = await import('@/db/workouts/edit');
 const { invalidateHistory } = await import('./historyCache');
-const SQL = await initSqlJs();
 
 const EXERCISES = ['squat', 'bench', 'pull', 'curl'];
 
@@ -138,16 +110,14 @@ function oldPreviousSets(exerciseId: string) {
 }
 
 beforeEach(async () => {
-  raw = new SQL.Database();
-  await runMigrations(fakeDb);
+  await freshDb();
   invalidateHistory(); // a new database each test
 });
 
 describe('one-query loads give what the per-row queries gave', () => {
   it('exercise history, previous sets and bests', async () => {
     for (let n = 1; n <= 15; n++) {
-      raw = new SQL.Database();
-      await runMigrations(fakeDb);
+      await freshDb();
       seed(n);
       const previous = await getPreviousSetsFor([...EXERCISES, 'football']);
       const bests = await getExerciseBestsFor(EXERCISES);
