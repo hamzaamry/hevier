@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Secrets never reach fork pull requests; the condition makes that explicit.
+      SONAR_TOKEN: ${{ github.event.pull_request.head.repo.fork != true && secrets.SONAR_TOKEN || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: ${{ env.SONAR_TOKEN != '' && '0' || '1' }} # Sonar needs the history to tell new code from old
+
+      - uses: ./.github/actions/setup
+
+      - name: Cache Turborepo
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-turbo-
+
+      # Expo writes expo-env.d.ts and the typed-routes file (.expo/types/router.d.ts)
+      # when its dev server starts; the type check needs both. Start it, wait
+      # for the file, stop it.
+      - name: Generate Expo types
+        working-directory: apps/mobile
+        run: |
+          CI=1 ./node_modules/.bin/expo start --port 8099 > "$RUNNER_TEMP/expo-start.log" 2>&1 &
+          for _ in $(seq 1 90); do [ -f .expo/types/router.d.ts ] && break; sleep 1; done
+          kill $! 2>/dev/null || true
+          if [ ! -f expo-env.d.ts ] || [ ! -f .expo/types/router.d.ts ]; then
+            cat "$RUNNER_TEMP/expo-start.log"
+            exit 1
+          fi
+
+      - name: Check (types, lint, tests)
+        run: pnpm turbo run check --cache-dir=.turbo
+
+      - name: Coverage
+        if: env.SONAR_TOKEN != ''
+        run: pnpm test:coverage
+
+      - name: Cache Sonar packages
+        if: env.SONAR_TOKEN != ''
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Sonar
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
+
+  mobile:
+    name: mobile (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: expo-doctor
+            run: pnpm dlx expo-doctor@1.21.6
+          - name: android-bundle
+            run: pnpm exec expo export --platform android
+          - name: prebuild
+            run: |
+              pnpm exec expo prebuild --platform android --no-install --clean
+              grep -q 'hevier {' android/app/build.gradle
+              git diff --exit-code -- package.json app.json
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - name: Run
+        working-directory: apps/mobile
+        env:
+          CI: '1'
+        run: ${{ matrix.run }}
+
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: actionlint
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          # linux_amd64 line of actionlint_1.7.12_checksums.txt from the release
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          (
+            cd "$RUNNER_TEMP"
+            curl --proto '=https' --proto-redir '=https' --tlsv1.2 -fsSLO "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${archive}"
+            echo "${ACTIONLINT_SHA256}  ${archive}" | sha256sum --check --strict
+            tar -xzf "$archive" actionlint
+          )
+          "$RUNNER_TEMP/actionlint" -color

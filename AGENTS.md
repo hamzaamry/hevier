@@ -47,6 +47,8 @@ Typecheck needs Expo's generated types (`expo-env.d.ts`, `.expo/types/`): start 
 
 Run `pnpm check` before declaring any task done.
 
+CI (`docs/ci.md` has the workflow map, secrets and release steps): every PR runs `pnpm turbo run check`, the Expo checks, a debug APK and the web build + e2e. The PR title must be `type(scope): subject` (subject up to 5 words, lowercase): it becomes the squash commit and the changelog line. Never pin an action by tag: use the full commit SHA with the version in a comment. Check workflows with `actionlint`.
+
 ## Navigation & Routing
 
 - Use **Expo Router** for all navigation. Routes live in `app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `app/`.

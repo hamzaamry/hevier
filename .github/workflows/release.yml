@@ -1,0 +1,103 @@
+name: Release
+
+# Push to main: release-please keeps a release pull request up to date. Merging it
+# tags vX.Y.Z and creates a draft release; the builds below run in the same workflow
+# (tags made with GITHUB_TOKEN start no other workflow) and publish the release.
+# To build and publish an existing tag again, run it from that tag:
+# gh workflow run release.yml --ref v1.2.3 (or pick the tag in "Use workflow from").
+# The builds always use the commit the workflow itself runs on, never an input.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      version: ${{ steps.tag.outputs.version }}
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: rp
+        if: github.ref_type != 'tag'
+        with:
+          # A pull request opened with GITHUB_TOKEN starts no checks: set RELEASE_PLEASE_TOKEN to a token that does.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          target-branch: ${{ github.ref_name }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Tag to build
+        id: tag
+        env:
+          TAG: ${{ github.ref_type == 'tag' && github.ref_name || steps.rp.outputs.tag_name }}
+        run: |
+          [[ -z "$TAG" || "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::$TAG is not vX.Y.Z"; exit 1; }
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+  android:
+    needs: please
+    if: needs.please.outputs.tag != ''
+    uses: ./.github/workflows/android.yml
+    with:
+      release: true
+      version: ${{ needs.please.outputs.version }}
+    secrets: inherit
+
+  sync:
+    needs: please
+    if: needs.please.outputs.tag != ''
+    uses: ./.github/workflows/sync-binaries.yml
+    with:
+      version: ${{ needs.please.outputs.version }}
+
+  publish:
+    needs: [please, android, sync]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.please.outputs.tag }}
+      SIGNED: ${{ needs.android.outputs.signed }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: '{android-release,hevier-sync}'
+          path: dist
+          merge-multiple: true
+
+      - name: Publish
+        run: |
+          (cd dist && sha256sum -- * > SHA256SUMS && cat SHA256SUMS)
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release view "$TAG" --json assets --jq '.assets[].name' | while read -r asset; do
+              gh release delete-asset "$TAG" "$asset" --yes
+            done
+            gh release upload "$TAG" dist/*
+          else
+            gh release create "$TAG" dist/* --draft --verify-tag --generate-notes --title "$TAG"
+          fi
+          if [ "$SIGNED" = true ]; then
+            gh release edit "$TAG" --draft=false --latest
+            echo "Published $TAG" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::$TAG stays a draft: the APK is not signed with the release key."
+            echo "$TAG is a draft. Set the ANDROID_KEYSTORE_* secrets and run Release again with this tag." >> "$GITHUB_STEP_SUMMARY"
+          fi
