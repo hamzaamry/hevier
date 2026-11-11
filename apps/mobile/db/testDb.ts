@@ -3,11 +3,10 @@ import { runMigrations } from "@/db/migrations";
 
 // The in-memory sql.js database the db tests run on, answering the same calls as the
 // expo-sqlite one. A test file mocks `getDb` to return `fakeDb`, then calls `freshDb()`
-// before each test; `raw` is the current database.
-export let raw: Database;
-let realTransactions = false;
-
+// before each test; `raw` is the database, emptied again by every `freshDb()`.
 const SQL = await initSqlJs();
+export const raw: Database = new SQL.Database();
+let realTransactions = false;
 
 export function rows<T>(sqlText: string, params: unknown[] = []): T[] {
   const stmt = raw.prepare(sqlText);
@@ -47,7 +46,9 @@ export const fakeDb = {
 // An empty database with every migration applied. `realTransactions` makes a failing
 // transaction roll back; by default the callback just runs.
 export async function freshDb(options: { realTransactions?: boolean } = {}) {
-  raw = new SQL.Database();
+  const tables = rows<{ name: string }>("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'");
+  for (const { name } of tables) raw.run(`DROP TABLE "${name}"`);
+  raw.run("PRAGMA user_version = 0");
   realTransactions = options.realTransactions ?? false;
   await runMigrations(fakeDb as never);
 }
