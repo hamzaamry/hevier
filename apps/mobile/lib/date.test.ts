@@ -2,7 +2,7 @@
 // runs in its own worker, so the zone set here stays here.
 import { describe, expect, it } from 'vitest';
 
-import { clampedDayKey, dateOfDayKey, dayKey, daysBetween, daysInMonth, secondsSince, secondsUntil, startOfDay, startOfMonth, startOfWeek, weeksBetween } from './date';
+import { clampedDayKey, daysUpToToday, monthsUpToToday, dateOfDayKey, dayKey, dayKeyBefore, daysBetween, daysInMonth, secondsSince, secondsUntil, startOfDay, startOfMonth, startOfWeek, weeksBetween } from './date';
 
 process.env.TZ = 'Europe/Paris';
 
@@ -104,5 +104,26 @@ describe('clampedDayKey', () => {
   it('a day after today goes to today', () => {
     expect(clampedDayKey(2026, 10, 25, today)).toBe('2026-11-10');
     expect(clampedDayKey(2026, 11, 1, today)).toBe('2026-11-10');
+  });
+});
+
+describe('dayKeyBefore', () => {
+  it('across a month, a year and a clock change', () => {
+    expect(dayKeyBefore('2026-11-01')).toBe('2026-10-31');
+    expect(dayKeyBefore('2026-01-01')).toBe('2025-12-31');
+    expect(dayKeyBefore('2026-10-26')).toBe('2026-10-25');
+  });
+});
+
+describe('wheels up to today', () => {
+  const today = new Date(2026, 10, 11);
+  it('only past months in the current year', () => {
+    expect(monthsUpToToday(2026, today)).toBe(11);
+    expect(monthsUpToToday(2025, today)).toBe(12);
+  });
+  it('only past days in the current month', () => {
+    expect(daysUpToToday(2026, 10, today)).toBe(11);
+    expect(daysUpToToday(2026, 9, today)).toBe(31);
+    expect(daysUpToToday(2024, 1, today)).toBe(29);
   });
 });

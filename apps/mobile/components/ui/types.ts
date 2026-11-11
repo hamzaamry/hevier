@@ -243,3 +243,18 @@ export interface Piece {
   duration: number;
   spin: number; // degrees over the fall
 }
+
+export interface SearchFieldProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  autoFocus?: boolean;
+  maxLength?: number;
+}
+
+export interface FormRowProps {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  onPress: () => void;
+}

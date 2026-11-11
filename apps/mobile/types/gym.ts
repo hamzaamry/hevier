@@ -63,4 +63,11 @@ export type NearbyState =
   | { kind: 'loading' }
   | { kind: 'done'; gyms: NearbyGym[] }
   | { kind: 'denied' }
+  | { kind: 'off' }
   | { kind: 'failed' };
+
+export interface Locator {
+  allowed: () => Promise<boolean>;
+  switchedOn: () => Promise<boolean>;
+  position: () => Promise<{ latitude: number; longitude: number }>;
+}

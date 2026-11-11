@@ -14,7 +14,7 @@ const node = (id: number, name: string | undefined, dLat: number, tags: Record<s
 
 describe('overpassQuery', () => {
   it('asks for fitness centres around the position', () => {
-    expect(overpassQuery(48.85, 2.35)).toBe('[out:json][timeout:15];nwr["leisure"="fitness_centre"](around:3000,48.85,2.35);out center tags;');
+    expect(overpassQuery(48.85, 2.35)).toBe('[out:json][timeout:45];nwr["leisure"="fitness_centre"](around:3000,48.85,2.35);out center tags;');
   });
 });
 

@@ -5,9 +5,11 @@ import { getDb } from '@/db/client';
 import { invalidateHistory } from '@/db/historyCache';
 import { runInTransaction } from '@/db/transaction';
 import { remove } from '@/db/appState/appState';
+import { ensureGym } from '@/db/gym/gym';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { elapsedSeconds } from '@/lib/workout/activeWorkout';
 import { setRpe } from '@/lib/training/rpe';
+import type { GymChoice } from '@/types/gym';
 import type { ActiveWorkout } from '@/types/workout';
 import type { WorkoutDraftExercise } from '@/types/workoutEdit';
 import { INSERT_SET, INSERT_WORKOUT, INSERT_WORKOUT_EXERCISE, INSERT_WORKOUT_MEDIA } from './queries';
@@ -59,11 +61,12 @@ function completedExercises(workout: ActiveWorkout): WorkoutDraftExercise[] {
 }
 
 // Saves the completed sets as a workout in the history and clears the draft.
-// visitGymId: the gym when it was a one-off visit to a gym that isn't the user's own.
-export async function finishWorkout(workout: ActiveWorkout, now = new Date(), visitGymId: string | null = null): Promise<string> {
+// visit: the gym of a one-off visit, created in the same transaction.
+export async function finishWorkout(workout: ActiveWorkout, now = new Date(), visit: GymChoice | null = null): Promise<string> {
   const db = await getDb();
   const workoutId = Crypto.randomUUID();
   await runInTransaction(db, async () => {
+    const visitGymId = visit ? await ensureGym(visit) : null;
     await db.runAsync(INSERT_WORKOUT, [
       workoutId,
       workout.title.trim() || 'Workout',

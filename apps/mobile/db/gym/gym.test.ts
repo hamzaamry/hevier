@@ -112,6 +112,19 @@ describe('gym tables', () => {
     expect(t.gyms.get(t.changes[0].gymId)?.name).toBe('Old gym');
   });
 
+  it('a gym change can not be on a future day', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const day = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    await expect(addGymChange(day, { gymId: null, name: 'Later' })).rejects.toThrow();
+    await addGymChange('2026-10-30', { gymId: null, name: 'A' });
+    const t = await getGymTimeline();
+    await expect(moveGymChange(t.changes[0].id, day)).rejects.toThrow();
+    const after = await getGymTimeline();
+    expect([...after.gyms.values()].map((g) => g.name)).toEqual(['A']);
+    expect(after.changes.map((c) => c.day)).toEqual(['2026-10-30']);
+  });
+
   it('renaming and moving show at once, despite the cached timeline', async () => {
     await addGymChange('2026-10-30', { gymId: null, name: 'A' });
     const before = await getGymTimeline();

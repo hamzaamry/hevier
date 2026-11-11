@@ -1,6 +1,6 @@
-import { ALL_GYMS, FROM_START_DAY, NO_GYM, PER_GYM_EQUIPMENT } from '@/constants/gym';
+import { ALL_GYMS, FROM_START_DAY, GYM_NAME_MAX_LENGTH, NO_GYM, PER_GYM_EQUIPMENT } from '@/constants/gym';
 import { GYM_LABELS } from '@/constants/labels';
-import { dateOfDayKey, dayKey } from '@/lib/date';
+import { dateOfDayKey, dayKey, dayKeyBefore } from '@/lib/date';
 import { fullDate } from '@/lib/format/date';
 import { plural } from '@/lib/format/text';
 import type { Gym, GymChoice, GymStretch, GymTimeline, YourGym } from '@/types/gym';
@@ -44,12 +44,6 @@ export function gymName(t: GymTimeline, gymId: string | null): string {
   return (gymId && t.gyms.get(gymId)?.name) || GYM_LABELS.previousGym;
 }
 
-function dayBefore(day: string): string {
-  const d = dateOfDayKey(day);
-  d.setDate(d.getDate() - 1);
-  return dayKey(d);
-}
-
 // The Gym screen's history, newest first. The workouts before the first change
 // are the unnamed Previous gym; it is listed only when there are some.
 export function gymStretches(
@@ -67,13 +61,13 @@ export function gymStretches(
   const stretches: GymStretch[] = t.changes.map((c, i) => {
     const from = c.day === FROM_START_DAY ? null : c.day;
     const next = t.changes[i + 1];
-    const to = next ? dayBefore(next.day) : null;
+    const to = next ? dayKeyBefore(next.day) : null;
     return { changeId: c.id, gymId: c.gymId, name: gymName(t, c.gymId), from, to, workouts: count(c.gymId, from, to), current: i === currentIndex };
   });
 
   const first = t.changes[0];
   if (first.day !== FROM_START_DAY) {
-    const to = dayBefore(first.day);
+    const to = dayKeyBefore(first.day);
     const earlier = count(null, null, to);
     if (earlier > 0) stretches.unshift({ changeId: null, gymId: null, name: GYM_LABELS.previousGym, from: null, to, workouts: earlier, current: false });
   }
@@ -108,14 +102,23 @@ export function yourGyms(t: GymTimeline, workouts: { startTime: string; visitGym
     .sort((a, b) => (b.lastWorkout ?? '').localeCompare(a.lastWorkout ?? '') || a.name.localeCompare(b.name));
 }
 
+export function sameGymName(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+export function choiceOfName(mine: YourGym[], typed: string): GymChoice {
+  const name = typed.trim().slice(0, GYM_NAME_MAX_LENGTH).trim();
+  const known = mine.find((g) => sameGymName(g.name, name));
+  return known ? { gymId: known.gymId, name: known.name } : { gymId: null, name };
+}
+
 // What Save Workout does with the gym picked on its Gym row: nothing when it is
 // the gym of the workout's day anyway; the first gym ever named (no question,
 // there is no other gym to have come from); else it asks, since it could be a
 // move to a new gym or just a visit.
 export function gymQuestion(t: GymTimeline, startTime: string, choice: GymChoice | undefined): 'none' | 'ask' | 'firstGym' {
   if (!choice) return 'none';
-  const typed = choice.name.trim().toLowerCase();
-  const picked = choice.gymId ?? [...t.gyms.values()].find((g) => g.name.trim().toLowerCase() === typed)?.id ?? null;
+  const picked = choice.gymId ?? [...t.gyms.values()].find((g) => sameGymName(g.name, choice.name))?.id ?? null;
   if (picked !== null && picked === workoutGym(t, startTime, null)) return 'none';
   return t.changes.length === 0 ? 'firstGym' : 'ask';
 }

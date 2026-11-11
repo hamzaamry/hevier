@@ -22,7 +22,8 @@ export const GYM_SEARCH = {
   url: 'https://overpass-api.de/api/interpreter',
   radiusMeters: 3000,
   maxResults: 15,
-  timeoutMs: 15000,
+  timeoutMs: 45000, // the public server can take ~40 s when busy
+  positionTimeoutMs: 15000,
   userAgent: 'Hevier (open-source workout app)',
 };
 

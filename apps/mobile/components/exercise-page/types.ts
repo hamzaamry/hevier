@@ -21,6 +21,12 @@ export interface ExerciseClipProps {
   catalogueId: string | null;
 }
 
+export interface GymRecordsInfoSheetProps {
+  visible: boolean;
+  gymName: string;
+  onDismiss: () => void;
+}
+
 export interface ClipVideoProps {
   uri: string;
 }

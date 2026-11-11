@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import type { GymStretch } from '@/types/gym';
 
 // Props of the gym screens' pieces in components/gym/.
@@ -13,14 +12,6 @@ export interface GymListRowProps {
   // Grey text on the right (the distance).
   right?: string;
   icon: GymListIcon;
-  onPress: () => void;
-}
-
-// A row of Change Gym (and Save Workout's Gym row): icon, label, grey value, ›.
-export interface GymFormRowProps {
-  icon: ReactNode;
-  label: string;
-  value: string;
   onPress: () => void;
 }
 

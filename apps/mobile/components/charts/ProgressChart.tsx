@@ -2,7 +2,7 @@ import { memo, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, type GestureResponderEvent } from 'react-native';
 import Svg, { Circle, Line, Polyline } from 'react-native-svg';
 
-import { scale } from '@/lib/chartScale';
+import { breakEnds, scale } from '@/lib/chartScale';
 import { COLORS, FONT_SIZES, LINE_HEIGHTS, TYPE } from '@/constants/theme';
 import { PROGRESS_CHART_SIZES } from '@/constants/sizes';
 import { CHART_FADED_OPACITY, PROGRESS_CHART_LIMITS } from '@/constants/limits';
@@ -71,6 +71,13 @@ const Plot = memo(function Plot({
   // The line, one piece per stretch at the same gym: [from, to).
   const starts = [0, ...breaks];
   const runs = starts.map((from, i) => [from, starts[i + 1] ?? points.length] as const);
+  const ends = breaks.map((b) => breakEnds([x(b - 1), y(points[b - 1].value)], [x(b), y(points[b].value)], PROGRESS_CHART_SIZES.breakGap));
+  const runPoints = (from: number, to: number, i: number) => {
+    const line = points.slice(from, to).map((p, k) => `${x(from + k)},${y(p.value)}`);
+    const after = i > 0 ? ends[i - 1]?.after : undefined;
+    const before = ends[i]?.before;
+    return [...(after ? [after.join(',')] : []), ...line, ...(before ? [before.join(',')] : [])].join(' ');
+  };
   return (
     <>
       <Svg width={width} height={PROGRESS_CHART_SIZES.plotHeight + 1} style={StyleSheet.absoluteFill}>
@@ -86,15 +93,15 @@ const Plot = memo(function Plot({
             x2={(x(b - 1) + x(b)) / 2}
             y1={0}
             y2={PROGRESS_CHART_SIZES.plotHeight}
-            stroke={COLORS.textSecondary}
-            strokeWidth={StyleSheet.hairlineWidth}
-            strokeDasharray="3 3"
+            stroke={COLORS.caution}
+            strokeWidth={1}
+            strokeDasharray="4 3"
           />
         ))}
-        {runs.map(([from, to]) => (
+        {runs.map(([from, to], i) => (
           <Polyline
             key={`run${from}`}
-            points={points.slice(from, to).map((p, i) => `${x(from + i)},${y(p.value)}`).join(' ')}
+            points={runPoints(from, to, i)}
             fill="none"
             stroke={COLORS.primary}
             strokeWidth={1.9}

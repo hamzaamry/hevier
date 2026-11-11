@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { CalendarDots } from 'phosphor-react-native/src/icons/CalendarDots';
-import { CaretRight } from 'phosphor-react-native/src/icons/CaretRight';
 import { MapPin } from 'phosphor-react-native/src/icons/MapPin';
 import { X } from 'phosphor-react-native/src/icons/X';
 
 import { updateActiveWorkout, useActiveWorkout, useNow } from '@/stores/activeWorkoutStore';
-import { GymFormRow } from '@/components/gym/GymFormRow';
+import { FormRow } from '@/components/ui/FormRow';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { NameDialog } from '@/components/ui/NameDialog';
 import { DurationSheet } from '@/components/workout/DurationSheet';
@@ -131,14 +130,13 @@ export default function SaveWorkout() {
         />
         <Divider />
 
-        <Pressable style={styles.row} onPress={() => setTimeOpen(true)}>
-          <CalendarDots size={ICON_SIZES.xxl} color={COLORS.text} />
-          <Text style={styles.rowLabel}>Date</Text>
-          <Text style={styles.rowValue}>{dateTimeLabel(start)}</Text>
-          <CaretRight size={ICON_SIZES.sm} color={COLORS.textSecondary} />
-        </Pressable>
-        <Divider />
-        <GymFormRow
+        <FormRow
+          icon={<CalendarDots size={ICON_SIZES.xxl} color={COLORS.text} />}
+          label="Date"
+          value={dateTimeLabel(start)}
+          onPress={() => setTimeOpen(true)}
+        />
+        <FormRow
           icon={<MapPin size={ICON_SIZES.xxl} color={COLORS.text} />}
           label={GYM_LABELS.formGym}
           value={gymValue}
@@ -244,21 +242,6 @@ const styles = StyleSheet.create({
     padding: 0,
     minHeight: SAVE_WORKOUT_SIZES.descriptionMinHeight,
     ...TYPE.body,
-  },
-  row: {
-    height: SAVE_WORKOUT_SIZES.rowHeight,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rowLabel: {
-    flex: 1,
-    marginLeft: SPACE.md,
-    ...TYPE.row,
-  },
-  rowValue: {
-    marginRight: SPACE.xs,
-    ...TYPE.body,
-    color: COLORS.textSecondary,
   },
   discard: {
     marginTop: SPACE.xl,

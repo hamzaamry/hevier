@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ALL_GYMS, FROM_START_DAY, NO_GYM } from '@/constants/gym';
 import type { GymTimeline } from '@/types/gym';
-import { currentGym, deleteMessage, gymName, gymQuestion, yourGyms, gymOnDay, gymStretches, isPerGym, recordKey, stretchLabel, workoutGym } from './timeline';
+import { choiceOfName, currentGym, sameGymName, deleteMessage, gymName, gymQuestion, yourGyms, gymOnDay, gymStretches, isPerGym, recordKey, stretchLabel, workoutGym } from './timeline';
 
 function timeline(changes: [string, string][], names: Record<string, string> = { a: 'Gym A', b: 'Gym B' }): GymTimeline {
   return {
@@ -165,5 +165,25 @@ describe('gymQuestion', () => {
     expect(gymQuestion(t, start, { gymId: 'a', name: 'Gym A' })).toBe('ask');
     expect(gymQuestion(t, start, { gymId: null, name: 'New gym' })).toBe('ask');
     expect(gymQuestion(t, at(2026, 4, 1), { gymId: 'b', name: 'Gym B' })).toBe('ask'); // a's day
+  });
+});
+
+describe('choiceOfName', () => {
+  const mine = [{ gymId: 'a', name: 'Basic-Fit Nation', lastWorkout: null }];
+
+  it('a name you already have is that gym, whatever the case and spaces', () => {
+    expect(choiceOfName(mine, '  basic-fit NATION ')).toEqual({ gymId: 'a', name: 'Basic-Fit Nation' });
+  });
+
+  it('a new name is a new gym, trimmed and cut to the max length', () => {
+    expect(choiceOfName(mine, '  Fitness Park  ')).toEqual({ gymId: null, name: 'Fitness Park' });
+    expect(choiceOfName(mine, 'x'.repeat(80)).name).toHaveLength(60);
+  });
+});
+
+describe('sameGymName', () => {
+  it('ignores case and spaces around', () => {
+    expect(sameGymName(' Basic-Fit NATION ', 'basic-fit nation')).toBe(true);
+    expect(sameGymName('Basic-Fit', 'Basic-Fit Nation')).toBe(false);
   });
 });

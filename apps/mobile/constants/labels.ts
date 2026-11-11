@@ -212,6 +212,7 @@ export const GYM_LABELS = {
   delete: 'Delete Gym Change',
   namePrevious: 'Name This Gym',
   renameTitle: 'Rename Gym',
+  addGym: 'Add Gym',
   namePlaceholder: 'Gym name',
   deleteConfirm: 'Delete', // the message is built by deleteMessage() (lib/gym/timeline.ts)
   formDate: 'Date',
@@ -231,6 +232,7 @@ export const GYM_LABELS = {
   noWorkouts: 'No workouts yet',
   denied: "Location is off for Hevier. Search or type the gym's name instead.",
   failed: "Couldn't load gyms nearby. Check your connection, or type the gym's name.",
+  locationOff: "Couldn't find where you are. Turn on location, or type the gym's name.",
   empty: "No gyms found within 3 km. Type the gym's name instead.",
   changedGym: 'I Changed Gym',
   justThisWorkout: 'Just This Workout',

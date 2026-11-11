@@ -52,9 +52,24 @@ export function dateOfDayKey(day: string): Date {
   return new Date(y, m - 1, d);
 }
 
+export function dayKeyBefore(day: string): string {
+  const d = dateOfDayKey(day);
+  d.setDate(d.getDate() - 1);
+  return dayKey(d);
+}
+
 // The number of days in a month (monthIndex 0 = January).
 export function daysInMonth(year: number, monthIndex: number): number {
   return new Date(year, monthIndex + 1, 0).getDate();
+}
+
+// Date wheels that stop at today.
+export function monthsUpToToday(year: number, today: Date): number {
+  return year === today.getFullYear() ? today.getMonth() + 1 : 12;
+}
+
+export function daysUpToToday(year: number, monthIndex: number, today: Date): number {
+  return year === today.getFullYear() && monthIndex === today.getMonth() ? today.getDate() : daysInMonth(year, monthIndex);
 }
 
 // The dayKey of a day picked on scroll wheels: the day is cut back to the

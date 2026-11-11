@@ -2,6 +2,8 @@ import * as Crypto from 'expo-crypto';
 import { FROM_START_DAY } from '@/constants/gym';
 import { getDb } from '@/db/client';
 import { cached, invalidateHistory } from '@/db/historyCache';
+import { dayKey } from '@/lib/date';
+import { gymOnDay } from '@/lib/gym/timeline';
 import type { Gym, GymChoice, GymTimeline, GymWorkout } from '@/types/gym';
 import {
   DELETE_GYM_CHANGE,
@@ -56,13 +58,16 @@ export async function ensureGym(choice: GymChoice): Promise<string> {
 
 // From `day` on, workouts count at this gym. Nothing changes when it already is
 // the gym on that day.
+function refuseFuture(day: string) {
+  if (day > dayKey(new Date())) throw new Error(`Gym change on a future day: ${day}`);
+}
+
 export async function addGymChange(day: string, choice: GymChoice): Promise<void> {
+  refuseFuture(day);
   const gymId = await ensureGym(choice);
   invalidateHistory();
   const t = await getGymTimeline();
-  let inEffect: string | null = null;
-  for (const c of t.changes) if (c.day <= day) inEffect = c.gymId;
-  if (inEffect === gymId) return;
+  if (gymOnDay(t, day) === gymId) return;
   const db = await getDb();
   await db.runAsync(UPSERT_GYM_CHANGE, [Crypto.randomUUID(), day, gymId]);
   invalidateHistory();
@@ -84,6 +89,7 @@ export async function renameGym(gymId: string, name: string): Promise<void> {
 
 // The UI doesn't offer a day that already has a change; a clash throws.
 export async function moveGymChange(changeId: string, day: string): Promise<void> {
+  refuseFuture(day);
   const db = await getDb();
   await db.runAsync(MOVE_GYM_CHANGE, [day, changeId]);
   invalidateHistory();

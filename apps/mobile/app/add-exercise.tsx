@@ -1,24 +1,22 @@
 import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, SectionList, StyleSheet, TextInput, View } from 'react-native';
+import { SectionList, StyleSheet, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MagnifyingGlass } from 'phosphor-react-native/src/icons/MagnifyingGlass';
-import { XCircle } from 'phosphor-react-native/src/icons/XCircle';
 
 import { getActiveWorkout, updateActiveWorkout } from '@/stores/activeWorkoutStore';
 import { currentPickRequest, deliverPicks, setInfoPick } from '@/stores/exercisePickRequest';
 import { FilterSheet } from '@/components/exercises/FilterSheet';
 import { HeaderTextButton, HeaderTextLeft, InnerHeader } from '@/components/ui/InnerHeader';
 import { Screen } from '@/components/ui/Screen';
+import { SearchField } from '@/components/ui/SearchField';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FilterButton } from '@/components/exercise-picker/FilterButton';
 import { PickerRow, renderSectionHeader, rowKey } from '@/components/exercise-picker/PickerRow';
 import { EQUIPMENT_SECTIONS, MUSCLE_SECTIONS } from '@/components/exercise-picker/filterSections';
 import type { PickerFilter, Replacing } from '@/components/exercise-picker/types';
-import { COLORS, TYPE } from '@/constants/theme';
-import { HIT_SLOPS, LAYOUT, RADIUS, SPACE } from '@/constants/layout';
-import { ADD_EXERCISE_SIZES, ICON_SIZES } from '@/constants/sizes';
+import { LAYOUT, SPACE } from '@/constants/layout';
+import { ADD_EXERCISE_SIZES } from '@/constants/sizes';
 import { LIST_RENDERING } from '@/constants/limits';
 import { newActiveExercise } from '@/db/activeWorkout/start';
 import { getPickerExercises } from '@/db/exercisePicker/pickerExercises';
@@ -174,26 +172,7 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
         />
       )}
 
-      <View style={styles.search}>
-        <MagnifyingGlass size={ICON_SIZES.lg} color={COLORS.textSecondary} />
-        <TextInput
-          style={styles.searchInput}
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search exercise"
-          placeholderTextColor={COLORS.textSecondary}
-          selectionColor={COLORS.primary}
-          cursorColor={COLORS.primary}
-          autoFocus={!replaceMode && !browse}
-          autoCorrect={false}
-          returnKeyType="search"
-        />
-        {query ? (
-          <Pressable onPress={() => setQuery('')} hitSlop={HIT_SLOPS.lg}>
-            <XCircle size={ICON_SIZES.md} weight="fill" color={COLORS.textSecondary} />
-          </Pressable>
-        ) : null}
-      </View>
+      <SearchField value={query} onChangeText={setQuery} placeholder="Search exercise" autoFocus={!replaceMode && !browse} />
 
       <View style={styles.filters}>
         <FilterButton
@@ -265,23 +244,6 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
 }
 
 const styles = StyleSheet.create({
-  // 16 under the header, 36 tall, 16 from the sides.
-  search: {
-    height: ADD_EXERCISE_SIZES.searchHeight,
-    marginTop: SPACE.lg,
-    marginHorizontal: LAYOUT.screenMargin,
-    paddingHorizontal: SPACE.md,
-    borderRadius: RADIUS.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.surface,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: SPACE.sm,
-    paddingVertical: 0,
-    ...TYPE.body,
-  },
   // Two 36-tall buttons 16 under the search, 20.6 apart.
   filters: {
     flexDirection: 'row',

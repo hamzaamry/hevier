@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Location from 'expo-location';
 
-import { findNearbyGyms } from '@/lib/gym/nearby';
-import type { NearbyState } from '@/types/gym';
+import { searchNearby } from '@/lib/gym/nearby';
+import type { Locator, NearbyState } from '@/types/gym';
+
+const locator: Locator = {
+  allowed: async () => (await Location.requestForegroundPermissionsAsync()).status === 'granted',
+  switchedOn: () => Location.hasServicesEnabledAsync(),
+  // No Google "Location Accuracy" popup on every search.
+  position: async () =>
+    (await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced, mayShowUserSettingsDialog: false })).coords,
+};
 
 // "Use my location" on Select Gym. The position is asked for only when
 // search() is called, used for one request and never kept.
@@ -19,20 +27,10 @@ export function useNearbyGyms(): { state: NearbyState; search: () => void } {
 
   const search = useCallback(() => {
     const mine = ++latest.current;
-    const show = (next: NearbyState) => {
+    setState({ kind: 'loading' });
+    void searchNearby(locator).then((next) => {
       if (latest.current === mine) setState(next);
-    };
-    show({ kind: 'loading' });
-    (async () => {
-      try {
-        const permission = await Location.requestForegroundPermissionsAsync();
-        if (permission.status !== 'granted') return show({ kind: 'denied' });
-        const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-        show({ kind: 'done', gyms: await findNearbyGyms(coords.latitude, coords.longitude) });
-      } catch {
-        show({ kind: 'failed' });
-      }
-    })();
+    });
   }, []);
 
   return { state, search };

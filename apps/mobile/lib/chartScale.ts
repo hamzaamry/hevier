@@ -24,3 +24,15 @@ function ticksFor(min: number, max: number, step: number) {
   }
   return ticks;
 }
+
+// Where the line stops on each side of a gym-change marker, halfway between two points.
+export function breakEnds(
+  [x1, y1]: [number, number],
+  [x2, y2]: [number, number],
+  gap: number
+): { before: [number, number]; after: [number, number] } | null {
+  const mid = (x1 + x2) / 2;
+  if (mid - gap <= x1) return null;
+  const at = (x: number): [number, number] => [x, y1 + ((y2 - y1) * (x - x1)) / (x2 - x1)];
+  return { before: at(mid - gap), after: at(mid + gap) };
+}

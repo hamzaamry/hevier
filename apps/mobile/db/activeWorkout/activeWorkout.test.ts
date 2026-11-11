@@ -26,7 +26,14 @@ const fakeDb = {
     return rows<T>(sqlText, params)[0] ?? null;
   },
   async withTransactionAsync(fn: () => Promise<void>) {
-    await fn();
+    raw.exec('BEGIN');
+    try {
+      await fn();
+      raw.exec('COMMIT');
+    } catch (e) {
+      raw.exec('ROLLBACK');
+      throw e;
+    }
   },
 };
 vi.mock('@/db/client', () => ({ getDb: async () => fakeDb }));
@@ -120,8 +127,26 @@ describe('active workout', () => {
     const w = await startWorkout('a', new Date('2026-10-14T18:00:00Z'));
     Object.assign(w.exercises[1].sets[0], { done: true });
     const normal = await finishWorkout(w, new Date('2026-10-14T19:00:00Z'));
-    const visit = await finishWorkout(w, new Date('2026-10-14T19:00:00Z'), 'g');
+    const visit = await finishWorkout(w, new Date('2026-10-14T19:00:00Z'), { gymId: 'g', name: 'Gym G' });
     expect(rows<{ gym_id: string | null }>('SELECT id, gym_id FROM workouts WHERE id IN (?, ?) ORDER BY gym_id', [normal, visit]).map((r) => r.gym_id)).toEqual([null, 'g']);
+  });
+
+  it('a visit to a new gym creates the gym in the same save', async () => {
+    const w = await startWorkout('a', new Date('2026-10-14T18:00:00Z'));
+    Object.assign(w.exercises[1].sets[0], { done: true });
+    const id = await finishWorkout(w, new Date('2026-10-14T19:00:00Z'), { gymId: null, name: 'Gym New' });
+    const [saved] = rows<{ name: string }>('SELECT g.name FROM workouts w JOIN gyms g ON g.id = w.gym_id WHERE w.id = ?', [id]);
+    expect(saved?.name).toBe('Gym New');
+  });
+
+  it('a failed save leaves no new gym behind', async () => {
+    const w = await startWorkout('a', new Date('2026-10-14T18:00:00Z'));
+    Object.assign(w.exercises[1].sets[0], { done: true });
+    w.exercises[1].exerciseId = 'missing';
+    raw.exec('PRAGMA foreign_keys = ON');
+    await expect(finishWorkout(w, new Date('2026-10-14T19:00:00Z'), { gymId: null, name: 'Gym Lost' })).rejects.toThrow();
+    raw.exec('PRAGMA foreign_keys = OFF');
+    expect(rows('SELECT id FROM gyms WHERE name = ?', ['Gym Lost'])).toEqual([]);
   });
 
   it('saves how hard a football game was in rpe, nothing when not picked', async () => {

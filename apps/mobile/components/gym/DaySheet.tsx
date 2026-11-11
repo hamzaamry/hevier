@@ -10,7 +10,7 @@ import { COLORS, TYPE } from '@/constants/theme';
 import { LAYOUT, SPACE } from '@/constants/layout';
 import { DURATION_SHEET_SIZES, GYM_SIZES } from '@/constants/sizes';
 import { MONTH_NAMES } from '@/constants/time';
-import { clampedDayKey, dateOfDayKey, daysInMonth } from '@/lib/date';
+import { clampedDayKey, dateOfDayKey, daysUpToToday, monthsUpToToday } from '@/lib/date';
 import { weekdayDate } from '@/lib/format/date';
 import type { DaySheetProps } from './types';
 
@@ -25,14 +25,16 @@ export function DaySheet({ visible, day, takenDays, onDone, onDismiss }: DayShee
     if (visible) setPicked(day);
   }
 
-  const thisYear = new Date().getFullYear();
+  const today = new Date();
+  const thisYear = today.getFullYear();
   const date = dateOfDayKey(picked);
   const year = date.getFullYear();
   const month = date.getMonth();
   // Back to the picked day's year when it is older than the wheel goes.
   const firstYear = Math.min(thisYear - GYM_DATE_YEARS_BACK, year);
   const years = Array.from({ length: thisYear - firstYear + 1 }, (_, i) => String(firstYear + i));
-  const days = Array.from({ length: daysInMonth(year, month) }, (_, i) => String(i + 1));
+  const days = Array.from({ length: daysUpToToday(year, month, today) }, (_, i) => String(i + 1));
+  const months = MONTH_NAMES.slice(0, monthsUpToToday(year, today));
 
   const taken = takenDays.includes(picked);
 
@@ -47,14 +49,14 @@ export function DaySheet({ visible, day, takenDays, onDone, onDismiss }: DayShee
           items={days}
           index={date.getDate() - 1}
           width={GYM_SIZES.dayWheel}
-          onChange={(i) => setPicked(clampedDayKey(year, month, i + 1, new Date()))}
+          onChange={(i) => setPicked(clampedDayKey(year, month, i + 1, today))}
         />
-        <WheelPicker items={MONTH_NAMES} index={month} flex={1} onChange={(i) => setPicked(clampedDayKey(year, i, date.getDate(), new Date()))} />
+        <WheelPicker items={months} index={month} flex={1} onChange={(i) => setPicked(clampedDayKey(year, i, date.getDate(), today))} />
         <WheelPicker
           items={years}
           index={year - firstYear}
           width={GYM_SIZES.yearWheel}
-          onChange={(i) => setPicked(clampedDayKey(firstYear + i, month, date.getDate(), new Date()))}
+          onChange={(i) => setPicked(clampedDayKey(firstYear + i, month, date.getDate(), today))}
         />
       </View>
       {taken && <Text style={styles.taken}>{GYM_LABELS.dayTaken}</Text>}

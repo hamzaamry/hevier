@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Info } from 'phosphor-react-native/src/icons/Info';
 
 import { ProgressChart } from '@/components/charts/ProgressChart';
 import { Medal } from '@/components/workout/PrToast';
@@ -8,7 +9,7 @@ import { MetricPills } from '@/components/ui/MetricPills';
 import { ChartHeader, SESSION_SUMMARY_STYLES } from '@/components/charts/ChartHeader';
 import { COLORS, LINE_HEIGHTS, TYPE } from '@/constants/theme';
 import { CHART_DEFAULTS } from '@/constants/defaults';
-import { LAYOUT, SPACE } from '@/constants/layout';
+import { HIT_SLOPS, LAYOUT, SPACE } from '@/constants/layout';
 import { EXERCISE_PAGE_SIZES, ICON_SIZES } from '@/constants/sizes';
 import { PERIODS } from '@/constants/periods';
 import { METRICS, chartPoints, formatTick, formatValue, gymChartMarks, personalRecords } from '@/lib/stats/exerciseMetrics';
@@ -16,6 +17,7 @@ import { GYM_LABELS } from '@/constants/labels';
 import { inPeriod, periodIndex } from '@/lib/training/periods';
 import { monthDay, shortDate } from '@/lib/format/date';
 import { ExerciseClip } from './ExerciseClip';
+import { GymRecordsInfoSheet } from './GymRecordsInfoSheet';
 import { shared } from './styles';
 import type { ExerciseTabProps } from './types';
 
@@ -26,6 +28,7 @@ export function SummaryTab({ detail }: ExerciseTabProps) {
   const [metric, setMetric] = useState(0);
   const [range, setRange] = useState(() => periodIndex(CHART_DEFAULTS.exercisePeriod));
   const [selected, setSelected] = useState<number | null>(null);
+  const [gymInfo, setGymInfo] = useState(false);
   // A new range starts with no bar picked.
   const pickRange = useCallback((i: number) => {
     setRange(i);
@@ -83,9 +86,12 @@ export function SummaryTab({ detail }: ExerciseTabProps) {
           <Text style={styles.recordsTitle}>Personal Records</Text>
         </View>
         {detail.gym && (
-          <Text style={styles.recordsGym}>
-            {GYM_LABELS.recordsAt} {detail.gym.name}
-          </Text>
+          <Pressable style={styles.recordsGym} onPress={() => setGymInfo(true)} hitSlop={HIT_SLOPS.md} accessibilityRole="button">
+            <Text style={styles.recordsGymText}>
+              {GYM_LABELS.recordsAt} {detail.gym.name}
+            </Text>
+            <Info size={ICON_SIZES.sm} color={COLORS.textSecondary} />
+          </Pressable>
         )}
         {records.length === 0 && <EmptyState message="Log this exercise to set records." note />}
         {records.map((r) => (
@@ -102,6 +108,7 @@ export function SummaryTab({ detail }: ExerciseTabProps) {
           </View>
         ))}
       </View>
+      {detail.gym && <GymRecordsInfoSheet visible={gymInfo} gymName={detail.gym.name} onDismiss={() => setGymInfo(false)} />}
     </>
   );
 }
@@ -134,6 +141,12 @@ const styles = StyleSheet.create({
   // "At Basic-Fit Nation", in line with the title text (the medal and its gap come first).
   recordsGym: {
     marginLeft: ICON_SIZES.xl + SPACE.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: SPACE.xs,
+  },
+  recordsGymText: {
     ...TYPE.caption,
     color: COLORS.textSecondary,
   },

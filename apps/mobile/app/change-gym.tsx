@@ -5,7 +5,7 @@ import { CalendarBlank } from 'phosphor-react-native/src/icons/CalendarBlank';
 import { MapPin } from 'phosphor-react-native/src/icons/MapPin';
 
 import { DaySheet } from '@/components/gym/DaySheet';
-import { GymFormRow } from '@/components/gym/GymFormRow';
+import { FormRow } from '@/components/ui/FormRow';
 import { HeaderPillButton, InnerHeader } from '@/components/ui/InnerHeader';
 import { Screen } from '@/components/ui/Screen';
 import { GYM_LABELS } from '@/constants/labels';
@@ -44,13 +44,13 @@ export default function ChangeGym() {
       <Stack.Screen options={{ headerShown: false }} />
       <InnerHeader title={GYM_LABELS.changeGym} right={<HeaderPillButton label="Save" disabled={!choice} onPress={save} />} />
       <View style={styles.rows}>
-        <GymFormRow
+        <FormRow
           icon={<CalendarBlank size={ICON_SIZES.xxl} color={COLORS.text} />}
           label={GYM_LABELS.formDate}
           value={fullDate(dateOfDayKey(day))}
           onPress={() => setDateOpen(true)}
         />
-        <GymFormRow
+        <FormRow
           icon={<MapPin size={ICON_SIZES.xxl} color={COLORS.text} />}
           label={GYM_LABELS.formGym}
           value={choice?.name ?? GYM_LABELS.select}
