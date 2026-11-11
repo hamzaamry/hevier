@@ -1,0 +1,79 @@
+name: Bug
+description: Something in Hevier or Hevier Sync does not work
+title: "bug: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. If this can lose or leak data (restore, sync, pairing link), use the private security report instead of this form.
+        Do not attach your database, a backup folder, a pairing link or the `key.txt` file. Do not attach exercise pictures from the catalogue or screenshots of the Hevy app.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Mobile app (logging, routines, statistics)
+        - Hevier Sync (PC program)
+        - Restore or backup
+        - Widgets or notification
+        - Import (Hevy CSV)
+        - Build, install or CI
+        - Docs
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: One or two sentences. What did you see?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Tap ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: The release you installed, or the commit if you built it yourself.
+      placeholder: "1.0.0"
+  - type: input
+    id: device
+    attributes:
+      label: Phone and Android version
+      placeholder: "Pixel 8, Android 15"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or logs
+      description: Remove names, keys and links first. Demo data is best.
+  - type: input
+    id: roadmap
+    attributes:
+      label: Roadmap ID or audit finding
+      description: Only if it matches one, such as R-04 or A-10.
+      placeholder: "R-04"
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send
+      options:
+        - label: I searched the open issues and this is not a duplicate
+          required: true
+        - label: I removed personal data, keys and pairing links
+          required: true

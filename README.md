@@ -251,7 +251,9 @@ packages/
 ## Contributing
 
 Pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has the code
-rules and the checks to run first.
+rules and the checks to run first. The [roadmap](ROADMAP.md) shows what is
+planned and what is not, and the research behind it is in
+[docs/research/](docs/research/README.md).
 
 ## Licence
 

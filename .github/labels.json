@@ -1,0 +1,33 @@
+[
+  { "name": "bug", "color": "d73a4a", "description": "Something does not work" },
+  { "name": "feature", "color": "1d76db", "description": "A new capability or a change in behaviour" },
+  { "name": "task", "color": "c5def5", "description": "A defined piece of work, usually from the roadmap" },
+  { "name": "docs", "color": "0075ca", "description": "README, guides, research and science notes" },
+  { "name": "roadmap", "color": "5319e7", "description": "Has a roadmap ID (R-xx) in ROADMAP.md" },
+
+  { "name": "area:mobile", "color": "0e8a16", "description": "The Expo app in apps/mobile" },
+  { "name": "area:sync", "color": "0e8a16", "description": "Hevier Sync, the PC program in apps/sync" },
+  { "name": "area:shared", "color": "0e8a16", "description": "The sync protocol in packages/shared" },
+  { "name": "area:catalogue", "color": "0e8a16", "description": "The exercise catalogue in packages/catalogue" },
+  { "name": "area:web", "color": "0e8a16", "description": "The landing page in apps/web" },
+  { "name": "area:ci", "color": "0e8a16", "description": "Build, checks, hooks and release" },
+
+  { "name": "security", "color": "b60205", "description": "Could expose or send data to the wrong place" },
+  { "name": "data-safety", "color": "b60205", "description": "Could lose or corrupt user data (restore, sync, migrations)" },
+  { "name": "a11y", "color": "bfdadc", "description": "Accessibility: TalkBack, targets, font size, colour" },
+  { "name": "android-native", "color": "fbca04", "description": "Kotlin modules, widgets, notification, config plugins" },
+  { "name": "ios", "color": "fbca04", "description": "Anything about running Hevier on iOS" },
+  { "name": "performance", "color": "fef2c0", "description": "Slow, heavy or battery hungry" },
+  { "name": "science", "color": "d4c5f9", "description": "Training numbers, studies and how the app explains them" },
+  { "name": "design", "color": "f9d0c4", "description": "Look, copy and the design system" },
+  { "name": "dependencies", "color": "ededed", "description": "Package updates and licences" },
+
+  { "name": "needs-triage", "color": "ffffff", "description": "New, not looked at yet" },
+  { "name": "needs-decision", "color": "e99695", "description": "Waiting on a product call from the owner" },
+  { "name": "blocked", "color": "000000", "description": "Waiting on another item or on something outside the repo" },
+  { "name": "good first issue", "color": "7057ff", "description": "Small, clear and safe for a first pull request" },
+  { "name": "help wanted", "color": "008672", "description": "Extra hands welcome" },
+  { "name": "non-goal", "color": "cccccc", "description": "Listed as a non-goal in ROADMAP.md" },
+  { "name": "duplicate", "color": "cfd3d7", "description": "Already reported" },
+  { "name": "wontfix", "color": "ffffff", "description": "Will not be done" }
+]

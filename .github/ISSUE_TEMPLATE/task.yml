@@ -1,0 +1,61 @@
+name: Task
+description: A defined piece of work, usually from the roadmap
+title: "task: "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For maintainers and contributors who already know what to do. If it is an idea, use the Feature form. If something is broken, use the Bug form.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Mobile app
+        - Hevier Sync (PC program)
+        - Shared sync protocol
+        - Exercise catalogue
+        - Landing page (apps/web)
+        - Build and CI
+        - Docs
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What to do
+      description: The change, in a few lines. Name the files if you know them.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: How we know it is finished. Include the test or the check that proves it.
+      placeholder: |
+        - `pnpm check` passes
+        - a test fails without the change
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      description: S is a few hours, M is one to three days, L is a week or more.
+      options:
+        - S
+        - M
+        - L
+    validations:
+      required: true
+  - type: input
+    id: roadmap
+    attributes:
+      label: Roadmap ID
+      placeholder: "R-05"
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+      description: Audit findings (A-13), research files, related issues, blocked by.

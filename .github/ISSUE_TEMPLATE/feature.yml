@@ -1,0 +1,64 @@
+name: Feature
+description: Suggest something new or a change to the roadmap
+title: "feat: "
+labels: ["feature", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [ROADMAP.md](https://github.com/hamzaamry/hevier/blob/main/ROADMAP.md) first, including the non-goals (no cloud accounts, no injury-risk scores, no Strava dependency). Evidence beats opinion: a link, a number, a real case.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Mobile app
+        - Hevier Sync (PC program)
+        - Shared sync protocol
+        - Exercise catalogue
+        - Landing page (apps/web)
+        - Build and CI
+        - Docs
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: Who is stuck, doing what, and what do they do today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like
+      description: Say what it does, in plain words. Screens are welcome, but use demo data.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Links, numbers, other apps that do it, studies. If it is only your own need, say so.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What else you considered
+  - type: input
+    id: roadmap
+    attributes:
+      label: Related roadmap ID
+      description: If this belongs to an existing item, such as R-17. Leave empty for a new idea.
+      placeholder: "R-17"
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send
+      options:
+        - label: I searched the roadmap and the open issues
+          required: true
+        - label: It is not one of the non-goals
+          required: true
+        - label: It does not need exercise pictures from the catalogue or anything from the Hevy app
+          required: true

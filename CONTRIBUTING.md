@@ -33,8 +33,23 @@ logic needs tests: `pnpm test:coverage` shows what they cover.
 If you changed a screen, try it on an emulator or phone, and add a screenshot
 to the pull request.
 
-Keep one change per pull request, and one change per commit. Write commit
-messages that say what changed, in plain words.
+Keep one change per pull request, and one change per commit. Commit messages
+are `type(scope): subject`, five words or fewer, lowercase, imperative, no
+period: `fix(sync): stage restore first`. Types: `feat`, `fix`, `perf`,
+`refactor`, `chore`, `test`, `docs`, `ci`. The scope is the area (`mobile`,
+`sync`, `shared`, `web`, `catalogue`, `repo`).
+
+## What to work on
+
+[ROADMAP.md](ROADMAP.md) lists what is planned, in order (`R-01`, `R-02`, ...),
+and what is not (the non-goals). To suggest something new, open a Feature issue
+with evidence; the roadmap explains how a change gets in. Small, clear issues are
+labelled `good first issue`. The pull request template asks for the check, a
+screenshot for UI changes, and a note on risk. How issues and the project board
+are set up: [docs/github-project.md](docs/github-project.md).
+
+Coding agents follow [AGENTS.md](AGENTS.md), which adds a definition of done,
+data-safety rules for sync and migrations, and a self-review checklist.
 
 ## Native code
 
