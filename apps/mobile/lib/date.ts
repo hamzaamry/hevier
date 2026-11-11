@@ -13,6 +13,12 @@ export function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
+// The same clock time `days` calendar days from d (seconds dropped), so a
+// clock change doesn't move it.
+export function shiftDays(d: Date, days: number): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days, d.getHours(), d.getMinutes());
+}
+
 // Weeks start on Monday.
 export function startOfWeek(d: Date): Date {
   const start = startOfDay(d);

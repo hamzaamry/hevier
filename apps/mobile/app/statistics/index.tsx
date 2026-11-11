@@ -1,11 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
 import { AppState, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Stack, useFocusEffect } from 'expo-router';
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
 
 import { BodyFigure, recoveryView, volumeView } from '@/components/body/BodyFigure';
 import { InnerHeader } from '@/components/ui/InnerHeader';
 import { Screen } from '@/components/ui/Screen';
 import { MetricPills } from '@/components/ui/MetricPills';
+import { RunTodayCard } from '@/components/run/RunTodayCard';
+import { useRunReadiness } from '@/hooks/useRunReadiness';
 import { SevenDayStrip } from '@/components/stats/SevenDayStrip';
 import { ConditioningCard } from '@/components/stats/ConditioningCard';
 import { AdvancedStatsList } from '@/components/stats/AdvancedStatsList';
@@ -25,6 +27,8 @@ import type { BodyView, StatSet } from '@/types/stats';
 // Pieces: components/stats/.
 
 export default function StatisticsScreen() {
+  const router = useRouter();
+  const run = useRunReadiness();
   const [sets, setSets] = useState<StatSet[] | null>(null);
   const [view, setView] = useState<BodyView>(VIEW_DEFAULTS.statisticsBody);
   // When the data was loaded: "now" for the 7 days, recovery and this week's
@@ -61,6 +65,14 @@ export default function StatisticsScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <InnerHeader title="Statistics" />
       <ScrollView contentContainerStyle={styles.content}>
+        {run.data?.on && (
+          <RunTodayCard
+            readiness={run.data.readiness}
+            now={run.data.now}
+            noteRead={run.data.settings.disclaimerSeen}
+            onOpen={() => router.push('/run')}
+          />
+        )}
         <Text style={styles.graphTitle}>Last 7 days body graph</Text>
         <SevenDayStrip days={days} />
         <MetricPills options={BODY_VIEWS} value={view} onChange={setView} style={styles.views} />

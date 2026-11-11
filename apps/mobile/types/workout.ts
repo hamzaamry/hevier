@@ -40,6 +40,7 @@ export interface ActiveSet {
   done: boolean;
   rir?: number | null; // reps left, asked after the last set: 0–3, 4 = "4+"
   rating?: FootballRating | null; // Football: how hard the game was (lib/training/football.ts)
+  effort?: number | null; // Run: how hard it felt, 1–10 (constants/run.ts)
 }
 
 export interface ActiveExercise {

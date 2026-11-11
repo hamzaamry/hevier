@@ -11,6 +11,7 @@ export const STORAGE_KEYS = {
   rotationSkip: 'rotationSkip', // a skipped step of the cycle (db/rotation/cycle.ts)
   perHand: 'perHand', // exercises logged per hand (db/perHand/perHand.ts)
   workoutSettings: 'workoutSettings', // the Workout Settings screen (db/workoutSettings.ts)
+  runSettings: 'run.settings', // run readiness on / off and the run time (db/run/settings.ts)
   profileName: 'profile.name',
   profileUsername: 'profile.username',
   profilePhoto: 'profile.photo', // file name in documents/profile (stores/profilePhoto.ts)

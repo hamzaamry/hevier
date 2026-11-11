@@ -52,6 +52,10 @@ export interface PillProps {
   // Filled blue when on.
   active: boolean;
   onPress: () => void;
+  // Lighter grey, for a pill on a card (which is the same grey as a plain one).
+  raised?: boolean;
+  // What a screen reader says, when the label alone is not enough.
+  accessibilityLabel?: string;
 }
 
 export interface MetricPillsProps<K extends string | number> {

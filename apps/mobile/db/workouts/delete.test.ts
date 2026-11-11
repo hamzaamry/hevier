@@ -15,10 +15,12 @@ describe('deleteWorkout', () => {
       INSERT INTO sets (id, workout_exercise_id, set_index, set_type, weight_kg, reps) VALUES ('s', 'we', 0, 'normal', 100, 5);
       INSERT INTO workout_media (id, workout_id, file, kind, position) VALUES
         ('m1', 'w', 'a.jpg', 'photo', 0), ('m2', 'w', 'b.mp4', 'video', 1), ('m3', 'k', 'c.jpg', 'photo', 0);
+      INSERT INTO run_feedback (workout_id, verdict_shown, legs_felt) VALUES ('w', 'easy', 'ok'), ('k', 'easy', NULL);
     `);
     expect(await deleteWorkout('w')).toEqual(['a.jpg', 'b.mp4']);
     expect(rows('SELECT id FROM workouts')).toEqual([{ id: 'k' }]);
     expect(rows('SELECT id FROM workout_media')).toEqual([{ id: 'm3' }]);
     expect(rows('SELECT id FROM sets')).toEqual([]);
+    expect(rows('SELECT workout_id FROM run_feedback')).toEqual([{ workout_id: 'k' }]);
   });
 });

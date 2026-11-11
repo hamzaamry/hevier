@@ -15,6 +15,7 @@ export interface StatSetRow {
   weight_kg: number | null;
   body_weight_kg: number | null; // what a body weight exercise's set counts (SET_BODY_WEIGHT)
   reps: number | null;
+  distance_km: number | null;
   duration_seconds: number | null;
   set_type: string;
   rpe: number | null;

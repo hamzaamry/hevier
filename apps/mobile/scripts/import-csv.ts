@@ -10,6 +10,7 @@ import { checkTimeZone, machineTimeZone } from './import/parseHevyDate';
 import { catalogueExerciseType, toHevyName } from './import/catalogue';
 import { HEVY_CATALOGUE_MAP } from './import/hevyCatalogueMap';
 import { HEVY_OFFICIAL_NAMES } from './import/hevyOfficialNames';
+import { RUN, RUN_CATALOGUE_ID, RUN_IMPORT_NAMES } from '@/constants/run';
 import catalogueJson from '@hevier/catalogue/exercises.json';
 import type { CatalogueEntry, ImportResult, NoNumbersRow, SkippedRow, TransformOptions } from '@/types/import';
 
@@ -58,14 +59,23 @@ export async function importCsvToDatabase(
   // top of the existing tables.
   db.exec(`PRAGMA user_version = ${MIGRATIONS[MIGRATIONS.length - 1].version}`);
 
+  // Runs go to the built-in Run exercise (migration 016) instead of a copy of their own.
+  const runId = db.exec('SELECT id FROM exercises WHERE name = ?', [RUN])[0].values[0][0] as string;
+  const isRun = (name: string) => (RUN_IMPORT_NAMES as readonly string[]).includes(name);
   const exerciseIds = new Map<string, string>();
+  const ownExerciseIds = new Map<string, string>();
   for (const [name, type] of exerciseTypes) {
+    if (isRun(name)) {
+      exerciseIds.set(name, runId);
+      continue;
+    }
     const id = crypto.randomUUID();
     exerciseIds.set(name, id);
+    ownExerciseIds.set(name, id);
     db.run('INSERT INTO exercises (id, name, type) VALUES (?, ?, ?)', [id, name, type]);
   }
 
-  if (catalogue.length > 0) insertCatalogue(db, catalogue, exerciseIds);
+  if (catalogue.length > 0) insertCatalogue(db, catalogue, ownExerciseIds);
 
   for (const workout of workouts) {
     const workoutId = crypto.randomUUID();
@@ -125,10 +135,10 @@ function insertCatalogue(db: Database, catalogue: CatalogueEntry[], userExercise
   }
 
   // Hevy's own names are claimed first so a converted name never takes one.
-  const libraryEntries = catalogue.filter((e) => !linkedCatalogueIds.has(e.id));
+  const libraryEntries = catalogue.filter((e) => e.id !== RUN_CATALOGUE_ID && !linkedCatalogueIds.has(e.id));
   const official = libraryEntries.filter((e) => HEVY_OFFICIAL_NAMES[e.id]);
   const others = libraryEntries.filter((e) => !HEVY_OFFICIAL_NAMES[e.id]);
-  const usedNames = new Set(userExerciseIds.keys());
+  const usedNames = new Set(db.exec('SELECT name FROM exercises')[0].values.map((row) => row[0] as string));
   for (const entry of [...official, ...others]) {
     const base = HEVY_OFFICIAL_NAMES[entry.id] ?? toHevyName(entry.name);
     let name = base;

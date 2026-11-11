@@ -1,6 +1,7 @@
 import { getDb } from '@/db/client';
 import { invalidateHistory } from '@/db/historyCache';
 import { runInTransaction } from '@/db/transaction';
+import { DELETE_RUN_FEEDBACK } from '@/db/run/queries';
 import {
   DELETE_WORKOUT,
   DELETE_WORKOUT_EXERCISES,
@@ -15,6 +16,7 @@ export async function deleteWorkout(id: string): Promise<string[]> {
   const db = await getDb();
   const media = await db.getAllAsync<MediaFileRow>(SELECT_WORKOUT_MEDIA_FILES, [id]);
   await runInTransaction(db, async () => {
+    await db.runAsync(DELETE_RUN_FEEDBACK, [id]);
     await db.runAsync(DELETE_WORKOUT_MEDIA, [id]);
     await db.runAsync(DELETE_WORKOUT_SETS, [id]);
     await db.runAsync(DELETE_WORKOUT_EXERCISES, [id]);

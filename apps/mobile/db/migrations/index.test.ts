@@ -46,6 +46,8 @@ describe('runMigrations', () => {
       'routine_folders',
       'routine_sets',
       'routines',
+      'run_checkins',
+      'run_feedback',
       'sets',
       'workout_exercises',
       'workout_media',
@@ -53,7 +55,7 @@ describe('runMigrations', () => {
     ]);
 
     const version = rawDb.exec('PRAGMA user_version')[0].values[0][0];
-    expect(version).toBe(15);
+    expect(version).toBe(17);
   });
 
   it('is idempotent: running twice does not error or duplicate', async () => {
@@ -64,7 +66,16 @@ describe('runMigrations', () => {
     const tables = rawDb.exec(
       "SELECT name FROM sqlite_master WHERE type='table'"
     )[0].values;
-    expect(tables.length).toBe(13);
+    expect(tables.length).toBe(15);
+  });
+
+  it('migrations 016 and 017 can run again after an interrupted upgrade', async () => {
+    const rawDb = new SQL.Database();
+    await runMigrations(wrap(rawDb));
+    rawDb.exec("INSERT INTO run_checkins (date, created_at) VALUES ('2026-11-10', 'now')");
+    for (const m of MIGRATIONS.slice(15)) expect(() => rawDb.exec(m.sql)).not.toThrow();
+    expect(rawDb.exec('SELECT date FROM run_checkins')[0].values).toEqual([['2026-11-10']]);
+    expect(rawDb.exec("SELECT COUNT(*) FROM exercises WHERE name = 'Run'")[0].values).toEqual([[1]]);
   });
 
   it('upgrades a version-1 database by adding the catalogue columns', async () => {
@@ -77,7 +88,7 @@ describe('runMigrations', () => {
 
     const row = rawDb.exec("SELECT is_custom, catalogue_id FROM exercises WHERE id = 'e1'")[0].values[0];
     expect(row).toEqual([1, null]);
-    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(15);
+    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(17);
   });
 
   it('allows warm-up sets and keeps the existing sets', async () => {
@@ -156,6 +167,34 @@ describe('runMigrations', () => {
     ]);
     const football = rawDb.exec("SELECT name, type FROM exercises WHERE id = 'football'")[0].values;
     expect(football).toEqual([['Football', 'duration']]);
+  });
+
+  it('adds Run and leaves history under other names alone', async () => {
+    const rawDb = new SQL.Database();
+    for (const m of MIGRATIONS.slice(0, 14)) rawDb.exec(m.sql);
+    rawDb.exec('PRAGMA user_version = 14');
+    rawDb.exec(`
+      INSERT INTO exercises (id, name, type) VALUES ('r1', 'Running', 'distance_duration');
+      INSERT INTO workouts (id, title, start_time) VALUES ('a', 'Morning run', '2026-10-05T07:00:00Z');
+      INSERT INTO workout_exercises (id, workout_id, exercise_id, order_index) VALUES ('wa', 'a', 'r1', 0);
+    `);
+
+    await runMigrations(wrap(rawDb));
+
+    expect(rawDb.exec('SELECT exercise_id FROM workout_exercises')[0].values).toEqual([['r1']]);
+    expect(rawDb.exec("SELECT id, type FROM exercises WHERE name = 'Run'")[0].values).toEqual([['run', 'distance_duration']]);
+  });
+
+  it('keeps a Run the user already made as it is, whatever its type', async () => {
+    const rawDb = new SQL.Database();
+    for (const m of MIGRATIONS.slice(0, 14)) rawDb.exec(m.sql);
+    rawDb.exec('PRAGMA user_version = 14');
+    rawDb.exec("INSERT INTO exercises (id, name, type) VALUES ('mine', 'Run', 'weight_reps')");
+
+    await runMigrations(wrap(rawDb));
+
+    expect(rawDb.exec("SELECT id, type FROM exercises WHERE name = 'Run'")[0].values).toEqual([['mine', 'weight_reps']]);
+    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(17);
   });
 
   it('adds the indexes the history lookups use', async () => {

@@ -120,7 +120,7 @@ Add an Expo library with `npx expo install <name>` from `apps/mobile`.
 
 ## Database changes
 
-Add a new numbered file in `apps/mobile/db/migrations/` (`015_….ts`) and list it in
+Add a new numbered file in `apps/mobile/db/migrations/` (`018_….ts`) and list it in
 `apps/mobile/db/migrations/index.ts`. Never change a migration that has shipped: phones
 have already run it. Add a test in `apps/mobile/db/migrations/index.test.ts`.
 

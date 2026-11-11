@@ -1,4 +1,6 @@
 import { PERIOD_LABELS } from '@/constants/labels';
+import { RUN_SLOT_DEFAULT_MINUTES } from '@/constants/run';
+import type { RunSettings } from '@/types/run';
 import type { WorkoutSettings } from '@/types/workoutSettings';
 
 // Every default setting and first choice a screen opens with, in one place.
@@ -12,6 +14,13 @@ export const DEFAULT_WORKOUT_SETTINGS: WorkoutSettings = {
   repsLeft: true, // ask "Reps left?" after the last set
   inlineTimer: true, // ▶ on timed sets
   prAlert: true, // toast, chime and buzz on a new record
+};
+
+// Run settings before the user changes any (db/run/settings.ts).
+export const DEFAULT_RUN_SETTINGS: RunSettings = {
+  enabled: null, // off until the user turns it on or logs a run
+  slotMinutes: RUN_SLOT_DEFAULT_MINUTES,
+  disclaimerSeen: false, // the medical note is shown on first open
 };
 
 // The period and metric each chart opens on (labels from lib/training/periods.ts PERIODS

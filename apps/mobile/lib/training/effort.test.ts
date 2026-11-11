@@ -96,6 +96,14 @@ describe('effort', () => {
     expect(recovery(two, setEfforts(two), new Date(2026, 9, 14, 18)).get('Quadriceps')).toBe('recovering');
   });
 
+  it('a run leaves no window: Cardio gets no state, the legs keep their lifting one', () => {
+    const squats = Array.from({ length: 4 }, () => set(at(13, 11), 120, 8));
+    const run = set(at(13, 18), null, 0, { exerciseId: 'run', name: 'Run', primary: 'Cardio', secondary: [], seconds: 1800, rpe: 8 });
+    const states = recovery([...squats, run], setEfforts([...squats, run]), new Date(2026, 9, 13, 20));
+    expect(states.has('Cardio')).toBe(false);
+    expect(states.get('Quadriceps')).toBe('fatigued');
+  });
+
   it('football: its own curve in recovery, never sets', () => {
     const game = set(at(13, 11), null, 0, {
       exerciseId: 'football',

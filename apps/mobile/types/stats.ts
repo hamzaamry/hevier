@@ -20,7 +20,8 @@ export interface StatSet {
   warmup?: boolean; // a warm-up set (W), counts 0.3
   rir?: number | null; // reps left as logged (from sets.rpe), else estimated
   seconds?: number | null; // the set's TIME (duration exercises)
-  rpe?: number | null; // as saved; Football keeps its easy / normal / hard here
+  distanceKm?: number | null; // the set's distance (Run)
+  rpe?: number | null; // as saved; Football keeps its easy / normal / hard here, Run its session RPE
   startMs?: number; // startTime as ms, read once (getStatSets fills it in)
 }
 

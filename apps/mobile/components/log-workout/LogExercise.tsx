@@ -14,13 +14,14 @@ import { COLORS, TYPE } from '@/constants/theme';
 import { HIT_SLOPS, LAYOUT, RADIUS, SPACE } from '@/constants/layout';
 import { ICON_SIZES, LOG_WORKOUT_SIZES } from '@/constants/sizes';
 import { LOG_WORKOUT_LIMITS } from '@/constants/limits';
-import { FOOTBALL_RATING_LABELS } from '@/constants/labels';
+import { FOOTBALL_RATING_LABELS, RUN_EFFORT_LABEL, RUN_EFFORT_WORDS } from '@/constants/labels';
 import { FOOTBALL_RATINGS } from '@/constants/football';
+import { RUN_EFFORT_CHOICES } from '@/constants/run';
 import { SET_FIELDS } from '@/constants/setFields';
 import { restOf } from '@/db/workoutSettings';
 import { restLabel } from '@/lib/format/duration';
 import { setRecords } from '@/lib/stats/records';
-import { shouldAskRating, shouldAskRepsLeft } from '@/lib/workout/activeWorkout';
+import { shouldAskEffort, shouldAskRating, shouldAskRepsLeft } from '@/lib/workout/activeWorkout';
 import { SetRow } from './SetRow';
 import type { LogExerciseProps } from './types';
 
@@ -107,6 +108,24 @@ export const LogExercise = memo(function LogExercise({ exercise, settings, timer
               onPress={() => actions.setChange(exercise.key, last.key, { rating: last.rating === r ? null : r })}
               hitSlop={HIT_SLOPS.xs}>
               <Text style={styles.chipText}>{FOOTBALL_RATING_LABELS[r]}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
+      {last && shouldAskEffort(exercise) && (
+        <View style={styles.chips}>
+          <Text style={[styles.hint, styles.chipsLabel]}>{RUN_EFFORT_LABEL}</Text>
+          {RUN_EFFORT_CHOICES.map((n) => (
+            <Pressable
+              key={n}
+              style={[styles.chip, last.effort === n && styles.chipOn]}
+              onPress={() => actions.setChange(exercise.key, last.key, { effort: last.effort === n ? null : n })}
+              hitSlop={HIT_SLOPS.md}
+              accessibilityRole="button"
+              accessibilityLabel={`${n}, ${RUN_EFFORT_WORDS[n]}`}
+              accessibilityState={{ selected: last.effort === n }}>
+              <Text style={styles.chipText}>{n}</Text>
             </Pressable>
           ))}
         </View>

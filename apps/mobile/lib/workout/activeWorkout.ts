@@ -4,6 +4,7 @@ import { SECONDS_PER_HOUR } from '@/constants/time';
 import { setVolumeKg } from '@/lib/volume';
 import { BACKDATED_DURATION_HOURS, BACKDATED_START_HOUR } from '@/constants/training';
 import { FOOTBALL } from '@/constants/football';
+import { RUN } from '@/constants/run';
 import type { BodyWeightContext } from '@/types/bodyWeight';
 import type { Bests } from '@/types/records';
 import type { EditorSet } from '@/types/routine';
@@ -43,6 +44,16 @@ export function shouldAskRating(exercise: ActiveExercise): boolean {
   return exercise.name === FOOTBALL && exercise.sets[exercise.sets.length - 1]?.done;
 }
 
+// Run: how hard it felt, asked once the run is ticked (constants/run.ts).
+export function shouldAskEffort(exercise: ActiveExercise): boolean {
+  return exercise.name === RUN && exercise.sets[exercise.sets.length - 1]?.done;
+}
+
+// Games and runs are one timed effort, not a lift: no rest after them, and their TIME is the workout's length.
+function isTimedEffort(name: string): boolean {
+  return name === FOOTBALL || name === RUN;
+}
+
 // A planned set (routine or copied workout) as a set to do.
 // Warm Up starts at 00:00 from a routine, so its time can be left
 // out; ▶ on the empty box still runs last session's time.
@@ -58,10 +69,10 @@ export function backdatedStart(day: Date, now: Date, seconds = BACKDATED_DURATIO
 }
 
 // How long a workout logged for a past day lasts until changed: the game's
-// TIME when it has Football, else an hour.
+// TIME when it has Football or a run, else an hour.
 export function backdatedSeconds(workout: ActiveWorkout): number {
   const game = workout.exercises
-    .filter((e) => e.name === FOOTBALL)
+    .filter((e) => isTimedEffort(e.name))
     .flatMap((e) => e.sets)
     .reduce((total, s) => total + (parseClock(s.time) ?? 0), 0);
   return game || BACKDATED_DURATION_HOURS * SECONDS_PER_HOUR;
@@ -74,9 +85,9 @@ export function bestsOf(bests: Map<string, Bests>, exerciseId: string): Bests | 
 }
 
 // An exercise's rest timer when a workout gets it: its own, else the default,
-// except Football: OFF (nobody rests after a game), from a routine too.
+// except Football and Run: OFF (nobody rests after a game or a run), from a routine too.
 export function startingRest(name: string, restSeconds: number | null): number | null {
-  return restSeconds ?? (name === FOOTBALL ? 0 : null);
+  return restSeconds ?? (isTimedEffort(name) ? 0 : null);
 }
 
 // Volume and Sets above the exercises: completed sets only. Body weight

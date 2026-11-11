@@ -363,6 +363,18 @@ export const SAVE_WORKOUT_SIZES = {
   updateButtonHeight: 47,
 };
 
+// app/run/, components/run/
+export const RUN_SIZES = {
+  verdictDot: 12, // beside the verdict title
+  cardDot: 6, // before the kicker of the small card
+  forecastDot: 26, // one morning in the 5-day strip
+  touchTarget: 44, // the least a tap target gets (steppers, effort numbers)
+  stepperLabel: 72, // between the + and −
+  inputHeight: 52, // Log Run's time and distance boxes
+  minutesBoxWidth: 96, // Log Run's minutes and seconds boxes
+  effortChipHeight: 44, // one effort choice
+};
+
 // app/select-gym.tsx, components/gym/GymListRow.tsx
 export const SELECT_GYM_SIZES = {
   avatar: 46,

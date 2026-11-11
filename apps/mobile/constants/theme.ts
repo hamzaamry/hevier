@@ -161,6 +161,14 @@ export const TYPE = {
   hugeBold: text(FONTS.bold, FONT_SIZES.huge),
 };
 
+// Run readiness (components/run/): one colour per verdict, hardest to easiest to read.
+export const RUN_COLORS = {
+  quality: COLORS.success,
+  easy: COLORS.primary,
+  strength_only: COLORS.caution,
+  rest: COLORS.iconMuted,
+};
+
 // Statistics → Muscle distribution (components/stats/).
 export const DISTRIBUTION_COLORS = {
   previous: COLORS.textSecondary, // last period's dashed outline

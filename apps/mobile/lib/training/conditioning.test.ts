@@ -29,6 +29,14 @@ describe('conditioning', () => {
     expect(cardioMinutes(set(1, {}))).toBe(0);
   });
 
+  it('a run counts half, or in full when it felt hard (RPE 7+); no RPE counts as easy', () => {
+    const run = (rpe: number | null) =>
+      set(1, { name: 'Run', primary: 'Cardio', weightKg: null, reps: null, seconds: 30 * 60, rpe });
+    expect(cardioMinutes(run(4))).toBe(15);
+    expect(cardioMinutes(run(8))).toBe(30);
+    expect(cardioMinutes(run(null))).toBe(15);
+  });
+
   it('this week from Monday, weeks met before it, games this month', () => {
     // Monday 2026-10-19; weeks before start Oct 12, 5, Sep 28, Sep 21.
     const sets = [

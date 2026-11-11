@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ratingToRpe } from './football';
 import { FOOTBALL } from '@/constants/football';
+import { RUN } from '@/constants/run';
 import { rirToRpe, rpeToRir, setRpe } from './rpe';
 
 describe('rpe', () => {
@@ -30,6 +31,11 @@ describe('rpe', () => {
     expect(setRpe('Squat', { setType: 'warmup', rir: 3 })).toBe(7);
     expect(setRpe('Squat', { setType: 'normal' })).toBeNull();
     expect(setRpe('Squat', { setType: 'failure', rir: 0 })).toBeNull();
+  });
+
+  it('saves a run’s effort as picked, not as reps left', () => {
+    expect(setRpe(RUN, { setType: 'normal', effort: 3, rir: 1 })).toBe(3);
+    expect(setRpe(RUN, { setType: 'normal' })).toBeNull();
   });
 
   it('saves the football rating, nothing when not picked', () => {

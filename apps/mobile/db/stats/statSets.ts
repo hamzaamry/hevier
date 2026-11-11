@@ -3,6 +3,7 @@ import { cached } from '@/db/historyCache';
 import { durationSecondsOf } from '@/lib/workout/duration';
 import { muscleGroup, parseList, secondaryGroups } from '@/lib/domain/muscles';
 import { rpeToRir } from '@/lib/training/rpe';
+import { RUN } from '@/constants/run';
 import type { MuscleGroup } from '@/types/muscles';
 import type { StatSet } from '@/types/stats';
 import { SELECT_STAT_SETS } from './queries';
@@ -45,8 +46,9 @@ async function loadStatSets(): Promise<StatSet[]> {
       reps: r.reps,
       failure: r.set_type === 'failure',
       warmup: r.set_type === 'warmup',
-      rir: rpeToRir(r.rpe),
+      rir: r.name === RUN ? null : rpeToRir(r.rpe),
       seconds: r.duration_seconds,
+      distanceKm: r.distance_km,
       rpe: r.rpe,
     };
   });

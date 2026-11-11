@@ -6,7 +6,11 @@ import { Desktop } from 'phosphor-react-native/src/icons/Desktop';
 import { MapPin } from 'phosphor-react-native/src/icons/MapPin';
 import { PersonSimple } from 'phosphor-react-native/src/icons/PersonSimple';
 
+import { RunSettingsRows } from '@/components/run/RunSettingsRows';
 import { InnerHeader } from '@/components/ui/InnerHeader';
+import { getRunSettings, isRunOn, saveRunSettings } from '@/db/run/settings';
+import { RUN_SETTINGS_SECTION } from '@/constants/runCopy';
+import type { RunSettings } from '@/types/run';
 import { COLORS, TYPE } from '@/constants/theme';
 import { LAYOUT, SPACE } from '@/constants/layout';
 import { ICON_SIZES, SETTINGS_SIZES, SIZES } from '@/constants/sizes';
@@ -17,7 +21,7 @@ import { currentGym } from '@/lib/gym/timeline';
 import { setDrawings, useDrawings } from '@/stores/drawings';
 
 // Settings, opened from the gear on Profile: which figure the exercise
-// pictures show (a tap switches it), and Sync with PC.
+// pictures show (a tap switches it), the gym, Running (the run readiness) and Sync with PC.
 export default function SettingsScreen() {
   const router = useRouter();
   const drawings = useDrawings();
@@ -30,6 +34,26 @@ export default function SettingsScreen() {
         .catch((e) => console.warn('[settings] gym load failed', e));
     }, [])
   );
+  const [run, setRun] = useState<RunSettings | null>(null);
+  // Whether the run readiness shows: the choice, or (not chosen yet) whether a run was logged.
+  const [runOn, setRunOn] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      getRunSettings()
+        .then((s) => {
+          setRun(s);
+          return isRunOn(s).then(setRunOn);
+        })
+        .catch((e) => console.warn('[run] settings load failed', e));
+    }, [])
+  );
+  const changeRun = (patch: Partial<RunSettings>) => {
+    if (!run) return;
+    const next = { ...run, ...patch };
+    setRun(next);
+    if (patch.enabled !== undefined) setRunOn(!!patch.enabled);
+    saveRunSettings(next).catch((e) => console.warn('[run] settings save failed', e));
+  };
   return (
     <Screen>
       <Stack.Screen options={{ headerShown: false }} />
@@ -51,6 +75,8 @@ export default function SettingsScreen() {
           </Text>
           <CaretRight size={ICON_SIZES.md} color={COLORS.textSecondary} style={styles.caret} />
         </Pressable>
+        <Text style={styles.section}>{RUN_SETTINGS_SECTION}</Text>
+        {run && <RunSettingsRows settings={run} on={runOn} onChange={changeRun} />}
         <Text style={styles.section}>Data</Text>
         <Pressable style={({ pressed }) => [styles.row, pressed && styles.pressed]} onPress={() => router.push('/sync')}>
           <Desktop size={ICON_SIZES.xxl} color={COLORS.text} />

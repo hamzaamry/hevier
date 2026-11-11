@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { ArrowsClockwise } from 'phosphor-react-native/src/icons/ArrowsClockwise';
 import { ClipboardText } from 'phosphor-react-native/src/icons/ClipboardText';
+import { PersonSimpleRun } from 'phosphor-react-native/src/icons/PersonSimpleRun';
 import { Plus } from 'phosphor-react-native/src/icons/Plus';
 
 import { ActionBar } from '@/components/ui/ActionBar';
@@ -23,6 +24,8 @@ import { movedOverview } from '@/lib/workout/routineOverview';
 import { LAYOUT, SPACE } from '@/constants/layout';
 import { ICON_SIZES, WORKOUT_TAB_SIZES } from '@/constants/sizes';
 import { SCROLL_EVENTS } from '@/constants/motion';
+import { RUN_LOG_TITLE } from '@/constants/runCopy';
+import { isRunOn } from '@/db/run/settings';
 import { noop } from '@/lib/misc';
 import type { DragListItem, RoutineFolder, RoutineOverview, RoutineSummary } from '@/types/routine';
 import { Screen } from '@/components/ui/Screen';
@@ -44,8 +47,13 @@ export default function WorkoutTab() {
   // Runs once the sheet has slid away (e.g. open the delete confirmation).
   const afterSheet = useAfterSheetClose();
 
+  const [runOn, setRunOn] = useState(false);
+
   const reload = useCallback(() => {
     getRoutineOverview().then(setOverview);
+    isRunOn()
+      .then(setRunOn)
+      .catch((e) => console.warn('[run] setting check failed', e));
   }, []);
   useFocusEffect(reload);
 
@@ -195,6 +203,14 @@ export default function WorkoutTab() {
             label="Start Empty Workout"
             onPress={() => start(null)}
           />
+          {runOn && (
+            <ActionBar
+              style={styles.startEmpty}
+              icon={<PersonSimpleRun size={ICON_SIZES.xxl} color={COLORS.text} />}
+              label={RUN_LOG_TITLE}
+              onPress={() => router.push('/run/log')}
+            />
+          )}
 
           <View style={styles.routinesRow}>
             <Text style={TYPE.titleSemibold}>Routines</Text>

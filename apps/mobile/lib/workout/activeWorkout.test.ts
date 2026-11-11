@@ -2,11 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { SET_FIELDS } from '@/constants/setFields';
 import { DEFAULT_WORKOUT_SETTINGS } from '@/constants/defaults';
 import { FOOTBALL } from '@/constants/football';
+import { RUN } from '@/constants/run';
 import type { ActiveExercise, ActiveSet, ActiveWorkout } from '@/types/workout';
 
 let nextId = 0;
 vi.mock('expo-crypto', () => ({ randomUUID: () => `id${++nextId}` }));
-const { elapsedSeconds, needsBodyWeight, newSet, nextSetLike, orderByKeys, shouldAskRating, shouldAskRepsLeft, workoutStats } = await import('./activeWorkout');
+const { elapsedSeconds, needsBodyWeight, newSet, nextSetLike, orderByKeys, shouldAskEffort, shouldAskRating, shouldAskRepsLeft, startingRest, workoutStats } = await import('./activeWorkout');
 
 const set = (from: Partial<ActiveSet>) => newSet(from);
 const exercise = (name: string, sets: ActiveSet[]) => ({ key: name, name, sets }) as unknown as ActiveExercise;
@@ -48,6 +49,20 @@ describe('shouldAskRepsLeft', () => {
   it('not on a failure set, nor when turned off', () => {
     expect(shouldAskRepsLeft(SET_FIELDS.weight_reps, set({ done: true, setType: 'failure' }), on)).toBe(false);
     expect(shouldAskRepsLeft(SET_FIELDS.weight_reps, set({ done: true }), { ...on, repsLeft: false })).toBe(false);
+  });
+});
+
+describe('Run', () => {
+  it('asks how hard once the run is ticked', () => {
+    expect(shouldAskEffort(exercise(RUN, [set({ done: true })]))).toBe(true);
+    expect(shouldAskEffort(exercise(RUN, [set({ done: false })]))).toBe(false);
+    expect(shouldAskEffort(exercise(FOOTBALL, [set({ done: true })]))).toBe(false);
+  });
+
+  it('has no rest timer, like Football, unless one is set', () => {
+    expect(startingRest(RUN, null)).toBe(0);
+    expect(startingRest(RUN, 90)).toBe(90);
+    expect(startingRest('Squat', null)).toBeNull();
   });
 });
 

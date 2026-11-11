@@ -1,5 +1,6 @@
 import type { RadarMuscle } from '@/types/muscles';
 import type { FootballRating } from '@/types/football';
+import type { RUN_EFFORT_CHOICES } from '@/constants/run';
 import type { SetType } from '@/types/workout';
 import type { ExerciseType } from '@/types/exercise';
 import type { RecordKind } from '@/types/records';
@@ -78,6 +79,18 @@ export const FOOTBALL_RATING_LABELS: Record<FootballRating, string> = {
   easy: 'Easy',
   normal: 'Normal',
   hard: 'Hard',
+};
+
+// components/log-workout/LogExercise.tsx: how hard a run felt, 1–10.
+export const RUN_EFFORT_LABEL = 'How hard (1–10)?';
+
+// The talk test in words for each effort chip (RUN_EFFORT_CHOICES in constants/run.ts).
+export const RUN_EFFORT_WORDS: Record<(typeof RUN_EFFORT_CHOICES)[number], string> = {
+  2: 'Very easy',
+  3: 'Easy, full sentences',
+  4: 'Steady, short sentences',
+  6: 'Hard, a few words',
+  8: 'Very hard',
 };
 
 // app/statistics/index.tsx: the Advanced statistics rows.

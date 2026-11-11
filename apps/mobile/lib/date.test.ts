@@ -2,7 +2,7 @@
 // runs in its own worker, so the zone set here stays here.
 import { describe, expect, it } from 'vitest';
 
-import { clampedDayKey, daysUpToToday, monthsUpToToday, dateOfDayKey, dayKey, dayKeyBefore, daysBetween, daysInMonth, secondsSince, secondsUntil, startOfDay, startOfMonth, startOfWeek, weeksBetween } from './date';
+import { clampedDayKey, daysUpToToday, monthsUpToToday, dateOfDayKey, dayKey, dayKeyBefore, daysBetween, daysInMonth, secondsSince, secondsUntil, shiftDays, startOfDay, startOfMonth, startOfWeek, weeksBetween } from './date';
 
 process.env.TZ = 'Europe/Paris';
 
@@ -34,6 +34,13 @@ describe('daysBetween', () => {
     expect(daysBetween(new Date(2026, 9, 14, 23).getTime(), new Date(2026, 9, 15, 1).getTime())).toBe(1);
     expect(daysBetween(new Date(2026, 9, 15, 1).getTime(), new Date(2026, 9, 15, 23).getTime())).toBe(0);
     expect(daysBetween(new Date(2026, 9, 1).getTime(), new Date(2026, 10, 1).getTime())).toBe(31);
+  });
+});
+
+describe('shiftDays', () => {
+  it('keeps the clock time across a clock change', () => {
+    expect(shiftDays(new Date(2026, 9, 24, 6, 30), 2)).toEqual(new Date(2026, 9, 26, 6, 30)); // 25-hour day between
+    expect(shiftDays(new Date(2026, 10, 1, 6, 30), -3)).toEqual(new Date(2026, 9, 29, 6, 30)); // across months
   });
 });
 

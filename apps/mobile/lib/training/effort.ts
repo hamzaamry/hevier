@@ -12,6 +12,7 @@ import {
   ZONES,
 } from '@/constants/training';
 import { FOOTBALL, FOOTBALL_FATIGUED, FOOTBALL_RECOVERING } from '@/constants/football';
+import { RUN } from '@/constants/run';
 import type { MuscleGroup } from '@/types/muscles';
 import type { RecoveryState, SetEffort, StatSet } from '@/types/stats';
 
@@ -140,6 +141,7 @@ export function recovery(sets: StatSet[], efforts: SetEffort[], now = new Date()
       }
       return;
     }
+    if (s.name === RUN) return; // running tires no muscle group's window
     for (const m of [s.primary, ...s.secondary]) worse(m, 'ready');
     if (t0 - t > longest) return;
     const add = (m: MuscleGroup, v: number) => {
