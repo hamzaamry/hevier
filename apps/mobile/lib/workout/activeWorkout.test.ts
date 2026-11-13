@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { SET_FIELDS } from '@/constants/setFields';
 import { DEFAULT_WORKOUT_SETTINGS } from '@/constants/defaults';
-import { FOOTBALL } from '@/constants/football';
+import { FOOTBALL } from '@/constants/cardio';
 import type { ActiveExercise, ActiveSet, ActiveWorkout } from '@/types/workout';
 
 let nextId = 0;

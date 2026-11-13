@@ -15,7 +15,7 @@ import { HIT_SLOPS, LAYOUT, RADIUS, SPACE } from '@/constants/layout';
 import { ICON_SIZES, LOG_WORKOUT_SIZES } from '@/constants/sizes';
 import { LOG_WORKOUT_LIMITS } from '@/constants/limits';
 import { FOOTBALL_RATING_LABELS } from '@/constants/labels';
-import { FOOTBALL_RATINGS } from '@/constants/football';
+import { FOOTBALL_RATINGS } from '@/constants/cardio';
 import { SET_FIELDS } from '@/constants/setFields';
 import { restOf } from '@/db/workoutSettings';
 import { restLabel } from '@/lib/format/duration';

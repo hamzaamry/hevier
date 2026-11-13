@@ -1,7 +1,7 @@
 import type { SetRecord, Bests } from './records';
 import type { SET_TYPES } from '@/constants/workout';
 import type { ExerciseType } from './exercise';
-import type { FootballRating } from './football';
+import type { FootballRating } from './cardio';
 import type { GymChoice } from './gym';
 import type { EditorSet } from './routine';
 
