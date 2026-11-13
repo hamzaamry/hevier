@@ -80,8 +80,8 @@ never counts as sets.
 
 ## Gaps
 
-- **The cardio loads and reference minutes are estimates.** Football's follow small-sided-game studies;
-  the other activities have no source, only "running, hiking and walking load the legs progressively less".
+- **The cardio loads and reference minutes are estimates.** No study gives them per muscle, football's
+  included; the only rule behind them is that running, hiking and walking load the legs progressively less.
 
 - **About 1 set (30 h, red 12 h) is an estimate.** No study measures recovery after a single set.
 - **No study compares 1, 2 and 3 sets directly.** The 2–3 vs 4+ split follows the protocols tested:
