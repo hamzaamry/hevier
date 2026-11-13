@@ -71,13 +71,17 @@ source).
 The hours above already come from failure studies. Earlier versions counted a failure set 1.25×
 for fatigue; that number had no source and is gone.
 
-## Football
+## Cardio
 
-Football keeps its own curve (`lib/training/football.ts`, numbers in `constants/football.ts`). A game's fatigue stays full for
-24 h, then halves every 30 h. Above 0.6 shows red, from 0.3 orange. It adds to the legs only, and it
+Football, tennis, sprints, running, hiking and walking keep their own curve (`lib/training/cardio.ts`, numbers
+in `constants/cardio.ts`). A session's fatigue stays full for 24 h, then halves every 30 h. Above 0.6 shows
+red, from 0.3 orange. Each activity has its own muscles (the legs, plus the shoulders for tennis), and it
 never counts as sets.
 
 ## Gaps
+
+- **The cardio loads and reference minutes are estimates.** No study gives them per muscle, football's
+  included; the only rule behind them is that running, hiking and walking load the legs progressively less.
 
 - **About 1 set (30 h, red 12 h) is an estimate.** No study measures recovery after a single set.
 - **No study compares 1, 2 and 3 sets directly.** The 2–3 vs 4+ split follows the protocols tested:

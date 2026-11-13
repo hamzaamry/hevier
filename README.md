@@ -11,13 +11,22 @@
 </p>
 
 <p align="center">
-  <b>Log your sets fast, follow a training cycle, and see what your training does to each muscle.</b><br>
-  Everything stays on your phone. No account, no ads, no subscription.
+  <b>A free, open-source workout tracker that shows what your training does to each muscle.</b><br>
+  Lifting and cardio. On your phone only. No account, no ads, no subscription.
 </p>
 
-> **Unofficial.** Hevier is a hobby project inspired by the Hevy app. It is not
-> affiliated with, endorsed by or connected to Hevy or its makers. "Hevy" is
-> their trademark. Hevier contains no Hevy code or assets.
+<table align="center">
+  <tr>
+    <td align="center"><b>All features free</b><br><sub>no paywall, no lock icons</sub></td>
+    <td align="center"><b>Offline, private</b><br><sub>SQLite on the phone, PC backup</sub></td>
+    <td align="center"><b>Cited science</b><br><sub>every rule names its study</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Recovery map</b><br><sub>lifting <i>and</i> cardio</sub></td>
+    <td align="center"><b>5,600+ exercises</b><br><sub>from openGym</sub></td>
+    <td align="center"><b>Works when closed</b><br><sub>notification timer, 4 widgets</sub></td>
+  </tr>
+</table>
 
 <table align="center">
   <tr>
@@ -27,31 +36,19 @@
   </tr>
 </table>
 
-## Why Hevier
-
-- **Every feature is free.** Long-range charts, set counts per muscle and the
-  advanced statistics often sit behind a subscription elsewhere. Here they're
-  part of the app, and the code is open.
-- **Your data stays yours.** It lives on the phone in a SQLite database. No
-  sign-up, no cloud, no tracking. Back it up to your own PC when you want.
-- **Numbers with sources.** How sets are counted and how long a muscle stays
-  tired come from published studies, each one cited in
-  [`docs/science/`](docs/science/).
-- **It works with the app closed.** The rest timer runs in the notification, with
-  buttons, and four home-screen widgets keep your week in view.
+> **Unofficial.** Hevier is a hobby project inspired by the Hevy app. It is not
+> affiliated with, endorsed by or connected to Hevy or its makers. "Hevy" is
+> their trademark. Hevier contains no Hevy code or assets.
 
 ## Features
 
 ### Logging
-- Sets with weight and reps, time or distance; **warm-up** and **failure** sets
-- **Rest timer** per exercise, with a buzz and a chime when it's over
-- **Live PR medals** the moment a set beats your best: heaviest weight,
-  estimated 1RM, best set volume, most reps, longest time or distance
+- **Fast sets:** weight and reps, time or distance, plus warm-up and failure sets
+- **Rest timer** per exercise, with a clock, a stopwatch and Keep Awake
+- **Live PR medals:** weight, e1RM, volume, reps, time, distance
 - **"Reps left"** after your last set, so the app knows how hard it was
 - **Per-hand weight** for dumbbell exercises
-- A **clock** with a timer and a stopwatch, and Keep Awake while you train
-- Edit, copy or delete a past workout, save one as a routine, or log a workout
-  for a past day from the calendar
+- **Past workouts:** edit, copy or delete, log one for a past day, save as a routine
 
 ### Routines and cycle
 - Routines in folders, reordered by drag and drop
@@ -69,70 +66,64 @@
   </tr>
 </table>
 
-- **Body graph**: this week's sets per muscle, in zones from below maintenance
-  to growth
-- **Recovery map**: how recovered each muscle is right now
-- **Muscle distribution** radar, compared with the period before
-- **Push / pull balance**, with a warning when one side runs far ahead
-- **Set count per muscle group**, main exercises and a **monthly report**
-- Profile chart of duration, volume or reps over the last 15 or 30 days, 3 or
-  6 months, a year or all time
-- Exercise pages with progress charts, personal records and history
+- **Body graph:** this week's sets per muscle, from below maintenance to growth
+- **Recovery map:** what's ready to train, after [lifting and cardio](#cardio-counts-too)
+- **Muscle distribution** radar and **push / pull balance**, with a warning
+- **Monthly report** and set counts per muscle group
+
+<table>
+<tr>
+<td valign="top">
 
 ### Based on research, not guesses
+- **Hard sets count.** At or within 3 reps of failure = 1 set; easier counts less (Robinson 2024).
+- **Helpers count half.** Triceps in a bench press = ½ set (Pelland 2024).
+- **Zones with sources.** 3 hard sets/week **maintain** (Bickel 2011); 4+ **grow** (Pelland 2024).
+- **Recovery from studies.** 1 hard set ≈ a day tired; 4+ up to three days.
 
-<img src="docs/images/screens/how-sets-count.png" alt="How sets are counted, explained in the app" width="230" align="right">
+An estimate, labelled as one. Gaps are written down in [`docs/science/`](docs/science/).
 
-Most apps count every set the same. Hevier counts what builds muscle, and
-every rule names the study it comes from ([`docs/science/`](docs/science/)):
-
-- **Hard sets count.** A set at failure or within 3 reps of it counts fully;
-  easier sets count less (Robinson et al. 2024). Warm-ups get a small credit.
-- **Helper muscles count half.** Your triceps in a bench press get half a set,
-  the way that best fits 67 studies (Pelland et al. 2024).
-- **Zones with sources.** 3 hard sets a week **maintains** a muscle (Bickel et
-  al. 2011); 4 or more is the smallest dose shown to make it **grow**
-  (Pelland et al. 2024).
-- **Recovery windows from recovery studies.** One hard set leaves a muscle
-  tired for about a day, four or more for up to three days.
-
-It's an estimate, and the app says so. Where the research has gaps, the notes
-say that too.
-
-<br clear="right">
-
-### 5,600+ exercises
-
-<img src="docs/images/screens/exercises.png" alt="Exercise search: many variations of each movement" width="230" align="right">
-
-The library has **5,600+ exercises** with their muscles and step-by-step
-instructions (from [openGym](#credits)): every common movement in barbell,
-dumbbell, cable, machine, band and bodyweight versions. Search by name, filter
-by equipment or muscle, and each one gets its own page with your progress
-chart, records and history.
-
-<br clear="right">
+</td>
+<td width="250" valign="top"><img src="docs/images/screens/how-sets-count.png" alt="How sets are counted, explained in the app" width="230"></td>
+</tr>
+<tr>
+<td valign="top">
 
 ### Cardio counts too
-Cardio sessions feed a **Conditioning** card that tracks your weekly minutes
-against the WHO guideline (75 minutes of vigorous activity a week, or twice
-that at a moderate pace). It shows when you've met it, without pushing for more.
+- **Six activities:** sprints, running, hiking, walking, tennis, football.
+- **Each loads its own muscles:** the legs for all; the shoulders too for tennis.
+- **Tap Easy, Normal or Hard.** Skipping the tap counts as Normal.
+- **Longer tires more,** but less per minute.
+- **Rest timer off** by default.
+- **Conditioning card:** weekly minutes vs. the WHO guideline, without pushing for more.
+
+The cardio numbers are estimates, not study results: [`recovery.md`](docs/science/recovery.md).
+
+</td>
+<td width="250" valign="top"><img src="docs/images/screens/cardio-recovery.png" alt="Recovery map: legs marked heavy after a run and a sprint session" width="230"></td>
+</tr>
+<tr>
+<td valign="top">
+
+### 5,600+ exercises
+- Barbell, dumbbell, cable, machine, band and bodyweight versions.
+- Muscles and step-by-step instructions ([openGym](#credits)).
+- Search by name; filter by equipment or muscle.
+- Each exercise has a page with your chart, records and history.
+
+</td>
+<td width="250" valign="top"><img src="docs/images/screens/exercises.png" alt="Exercise search: many variations of each movement" width="230"></td>
+</tr>
+</table>
 
 ### Notification and widgets
 
-<p align="center">
-  <img src="docs/images/screens/notification.png" alt="Workout notification with rest countdown and Skip, -15s, +15s buttons" width="480">
-</p>
-
-- An ongoing **workout notification** shows the next set and the rest
-  countdown, with **Complete Set**, **Skip**, **-15s** and **+15s** buttons that
-  work even when the app is in the background
-- **Home-screen widgets**: this month's calendar, weekly volume, next in cycle,
-  and the recovery map
-
-<p align="center">
-  <img src="docs/images/screens/widgets.png" alt="Four home-screen widgets: calendar, weekly volume, next in cycle, recovery" width="480">
-</p>
+<table align="center">
+  <tr>
+    <td align="center" valign="top"><img src="docs/images/screens/notification.png" alt="Workout notification with rest countdown and Skip, -15s, +15s buttons" width="360"><br><sub><b>Workout notification</b> · next set and rest countdown, with Complete Set, Skip, -15s and +15s, even in the background</sub></td>
+    <td align="center" valign="top"><img src="docs/images/screens/widgets.png" alt="Four home-screen widgets: calendar, weekly volume, next in cycle, recovery" width="360"><br><sub><b>Home-screen widgets</b> · calendar, weekly volume, next in cycle, recovery map</sub></td>
+  </tr>
+</table>
 
 ### Your data
 - **Import** your history from a Hevy CSV export
@@ -178,6 +169,9 @@ apps/mobile/scripts/load-device.sh path/to/workouts.csv
 This **replaces** the app's data on the device. Hevy's export has workouts
 only, so make your routines in the app.
 
+<details>
+<summary>Import details</summary>
+
 - **Units:** pounds and miles are converted to kg and km.
 - **Time zone:** Hevy's dates have no time zone, so they're read in this
   computer's zone (printed when the import runs). If you trained elsewhere:
@@ -187,6 +181,8 @@ only, so make your routines in the app.
 - **Bad rows:** skipped and listed.
 - **Safety:** if nothing can be read, or more than 1 row in 10 is skipped,
   the import stops and your app's data is left alone.
+
+</details>
 
 ### Exercise pictures
 
@@ -225,33 +221,10 @@ A release build isn't debuggable unless you prebuild with `HEVIER_DEBUGGABLE=1`.
 `apps/mobile/scripts/load-device.sh` needs that to copy data in, but it also lets anyone
 with the phone on USB read the app's data.
 
-## Project layout
-
-```
-apps/
-  mobile/            the Android app (Expo)
-    app/             screens (Expo Router)
-    components/      screen pieces, by feature; shared ones in components/ui/
-    lib/             plain logic: formatting, stats, training maths
-    db/              database access by topic, and migrations
-    constants/       colours, sizes, labels, training numbers
-    types/           every type and interface
-    hooks/ stores/   React hooks and shared state
-    modules/         native Kotlin: workout notification, home-screen widgets
-    scripts/         import, device loading, design tools
-  sync/              Hevier Sync, the PC backup program
-  web/               landing page (not built yet)
-packages/
-  shared/            the sync protocol, used by the app and Hevier Sync
-  catalogue/         the exercise catalogue from openGym
-  config-typescript/ shared tsconfig
-  config-eslint/     shared eslint config
-```
-
 ## Contributing
 
 Pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has the code
-rules and the checks to run first.
+rules, the [repo layout](CONTRIBUTING.md#repo-layout) and the checks to run first.
 
 ## Licence
 

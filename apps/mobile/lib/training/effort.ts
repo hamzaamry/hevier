@@ -1,4 +1,4 @@
-import { footballFatigue, rpeToRating } from './football';
+import { cardioActivity, cardioFatigue, rpeToRating } from './cardio';
 import { MS_PER_DAY, MS_PER_HOUR, SECONDS_PER_MINUTE } from '@/constants/time';
 import {
   HARD_RIR,
@@ -11,7 +11,7 @@ import {
   WEIGHT_PER_RIR,
   ZONES,
 } from '@/constants/training';
-import { FOOTBALL, FOOTBALL_FATIGUED, FOOTBALL_RECOVERING } from '@/constants/football';
+import { FOOTBALL_FATIGUED, FOOTBALL_RECOVERING } from '@/constants/cardio';
 import type { MuscleGroup } from '@/types/muscles';
 import type { RecoveryState, SetEffort, StatSet } from '@/types/stats';
 
@@ -112,20 +112,20 @@ export function recoveryWindow(sets: number): { redHours: number; hours: number 
   return found;
 }
 
-// A football game's minutes: its TIME, else how long the workout lasted.
-function footballMinutes(s: StatSet): number {
+// A cardio session's minutes: its TIME, else how long the workout lasted.
+function cardioMinutes(s: StatSet): number {
   return (s.seconds || s.durationSeconds) / SECONDS_PER_MINUTE;
 }
 
 // Each muscle's state now. Every workout in the last 72 h gives a state, the
-// worst one counts. Football games keep their own curve (lib/training/football.ts):
+// worst one counts. Cardio (football, tennis, running...) keeps its own curve (lib/training/cardio.ts):
 // fatigue above FOOTBALL_FATIGUED = red, from FOOTBALL_RECOVERING = orange. Muscles not trained in the
 // last week are left out (nothing to recover from).
 export function recovery(sets: StatSet[], efforts: SetEffort[], now = new Date()): Map<MuscleGroup, RecoveryState> {
   const t0 = now.getTime();
   const longest = RECOVERY_WINDOWS[RECOVERY_WINDOWS.length - 1].hours * MS_PER_HOUR;
   const perSession = new Map<string, { muscle: MuscleGroup; sets: number; at: number }>();
-  const football = new Map<MuscleGroup, number>();
+  const cardio = new Map<MuscleGroup, number>();
   const result = new Map<MuscleGroup, RecoveryState>();
   const worse = (m: MuscleGroup, state: RecoveryState) => {
     const was = result.get(m);
@@ -134,9 +134,10 @@ export function recovery(sets: StatSet[], efforts: SetEffort[], now = new Date()
   sets.forEach((s, i) => {
     const t = startMsOf(s);
     if (!(t <= t0 && t0 - t <= RECENT)) return;
-    if (s.name === FOOTBALL) {
-      for (const [m, v] of footballFatigue(footballMinutes(s), rpeToRating(s.rpe), (t0 - t) / MS_PER_HOUR)) {
-        football.set(m, (football.get(m) ?? 0) + v);
+    const activity = cardioActivity(s.name);
+    if (activity) {
+      for (const [m, v] of cardioFatigue(activity, cardioMinutes(s), rpeToRating(s.rpe), (t0 - t) / MS_PER_HOUR)) {
+        cardio.set(m, (cardio.get(m) ?? 0) + v);
       }
       return;
     }
@@ -157,6 +158,6 @@ export function recovery(sets: StatSet[], efforts: SetEffort[], now = new Date()
     const hours = (t0 - at) / MS_PER_HOUR;
     worse(muscle, hours < w.redHours ? 'fatigued' : hours < w.hours ? 'recovering' : 'ready');
   }
-  for (const [m, v] of football) worse(m, v > FOOTBALL_FATIGUED ? 'fatigued' : v >= FOOTBALL_RECOVERING ? 'recovering' : 'ready');
+  for (const [m, v] of cardio) worse(m, v > FOOTBALL_FATIGUED ? 'fatigued' : v >= FOOTBALL_RECOVERING ? 'recovering' : 'ready');
   return result;
 }

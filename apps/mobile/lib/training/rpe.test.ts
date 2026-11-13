@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { ratingToRpe } from './football';
-import { FOOTBALL } from '@/constants/football';
+import { ratingToRpe } from './cardio';
+import { FOOTBALL } from '@/constants/cardio';
 import { rirToRpe, rpeToRir, setRpe } from './rpe';
 
 describe('rpe', () => {
