@@ -27,9 +27,9 @@ describe('importCsvToDatabase (sample CSV)', () => {
     const { one } = await importSample();
     expect(one('SELECT COUNT(*) FROM workouts')).toBe(6);
     // 8 exercises in the CSV, plus Football, which every database gets (migration 006).
-    expect(one('SELECT COUNT(*) FROM exercises')).toBe(9);
+    expect(one('SELECT COUNT(*) FROM exercises')).toBe(11);
     expect(one('SELECT COUNT(*) FROM sets')).toBe(16);
-    expect(one('PRAGMA user_version')).toBe(15);
+    expect(one('PRAGMA user_version')).toBe(16);
     expect(one('SELECT COUNT(*) FROM routines')).toBe(0);
   });
 
@@ -75,8 +75,8 @@ describe('importCsvToDatabase (sample CSV)', () => {
     expect(one("SELECT type FROM exercises WHERE name = 'Pull Up'")).toBe('reps_only');
     expect(one("SELECT is_custom FROM exercises WHERE name = 'Warm Up'")).toBe(1);
     expect(one('SELECT COUNT(DISTINCT catalogue_id) FROM exercises WHERE catalogue_id IS NOT NULL')).toBe(catalogue.length);
-    // 8 CSV exercises + Football + the catalogue minus the 7 entries they link to.
-    expect(one('SELECT COUNT(*) FROM exercises')).toBe(8 + 1 + catalogue.length - 7);
+    // 8 CSV exercises + Football, Tennis, Hiking + the catalogue minus the 7 entries they link to.
+    expect(one('SELECT COUNT(*) FROM exercises')).toBe(8 + 3 + catalogue.length - 7);
   });
 
   it('leaves a body weight exercise counting the logged body weight, and links Lat Pulldown to the bar pulldown', async () => {

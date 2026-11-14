@@ -1,7 +1,7 @@
 import { startMsOf } from './effort';
 import { DAYS_PER_WEEK, MS_PER_DAY, SECONDS_PER_MINUTE } from '@/constants/time';
 import { CARDIO_WEEKS_LOOKBACK, MODERATE_CARDIO_SHARE, WEEKLY_CARDIO_TARGET_MIN } from '@/constants/training';
-import { FOOTBALL } from '@/constants/football';
+import { FOOTBALL } from '@/constants/cardio';
 import { startOfWeek } from '@/lib/date';
 import type { Conditioning, StatSet } from '@/types/stats';
 

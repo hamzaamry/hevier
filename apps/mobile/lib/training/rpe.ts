@@ -1,5 +1,4 @@
-import { ratingToRpe } from './football';
-import { FOOTBALL } from '@/constants/football';
+import { cardioActivity, ratingToRpe } from './cardio';
 import { RPE_SCALE_MAX } from '@/constants/training';
 import type { ActiveSet } from '@/types/workout';
 
@@ -14,9 +13,9 @@ export function rpeToRir(rpe: number | null): number | null {
   return rpe === null ? null : Math.max(0, RPE_SCALE_MAX - rpe);
 }
 
-// What goes in sets.rpe: Football's easy / normal / hard, else reps left on
+// What goes in sets.rpe: a cardio session's easy / normal / hard, else reps left on
 // the RPE scale (none on a failure set marked after answering).
 export function setRpe(exerciseName: string, s: Pick<ActiveSet, 'setType' | 'rir' | 'rating'>): number | null {
-  if (exerciseName === FOOTBALL) return s.rating ? ratingToRpe(s.rating) : null;
+  if (cardioActivity(exerciseName)) return s.rating ? ratingToRpe(s.rating) : null;
   return s.setType === 'failure' ? null : rirToRpe(s.rir);
 }

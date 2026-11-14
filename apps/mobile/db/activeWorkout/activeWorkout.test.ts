@@ -314,10 +314,12 @@ describe('active workout', () => {
       INSERT INTO workout_exercises (id, workout_id, exercise_id, order_index) VALUES ('we1', 'w1', 'squat', 0), ('we2', 'w2', 'squat', 0);
     `);
     const { getPickerExercises } = await import('@/db/exercisePicker/pickerExercises');
-    // Football comes with every database (migration 006).
+    // Football, Hiking and Tennis come with every database (migrations 006, 015).
     expect(await getPickerExercises()).toEqual([
       { id: 'football', name: 'Football', type: 'duration', catalogueId: null, muscle: 'Cardio', equipment: 'None', timesDone: 0, lastDone: null },
+      { id: 'hiking', name: 'Hiking', type: 'duration', catalogueId: null, muscle: 'Cardio', equipment: 'None', timesDone: 0, lastDone: null },
       { id: 'squat', name: 'Squat', type: 'weight_reps', catalogueId: null, muscle: 'Quadriceps', equipment: 'Machine', timesDone: 2, lastDone: '2026-10-08T18:00:00Z' },
+      { id: 'tennis', name: 'Tennis', type: 'duration', catalogueId: null, muscle: 'Cardio', equipment: 'None', timesDone: 0, lastDone: null },
       { id: 'warm', name: 'Warm Up', type: 'duration', catalogueId: null, muscle: 'Other', equipment: 'Other', timesDone: 0, lastDone: null },
     ]);
   });

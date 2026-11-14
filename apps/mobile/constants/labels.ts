@@ -1,5 +1,5 @@
 import type { RadarMuscle } from '@/types/muscles';
-import type { FootballRating } from '@/types/football';
+import type { FootballRating } from '@/types/cardio';
 import type { SetType } from '@/types/workout';
 import type { ExerciseType } from '@/types/exercise';
 import type { RecordKind } from '@/types/records';

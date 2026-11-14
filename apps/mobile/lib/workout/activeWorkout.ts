@@ -3,7 +3,7 @@ import { parseClock, parseNumber, setTextOf } from '@/lib/format/setFormat';
 import { SECONDS_PER_HOUR } from '@/constants/time';
 import { setVolumeKg } from '@/lib/volume';
 import { BACKDATED_DURATION_HOURS, BACKDATED_START_HOUR } from '@/constants/training';
-import { FOOTBALL } from '@/constants/football';
+import { cardioActivity } from '@/lib/training/cardio';
 import type { BodyWeightContext } from '@/types/bodyWeight';
 import type { Bests } from '@/types/records';
 import type { EditorSet } from '@/types/routine';
@@ -37,10 +37,10 @@ export function shouldAskRepsLeft(fields: SetInputField[], last: ActiveSet | und
   return !!(settings.repsLeft && fields.some((f) => f.field === 'reps') && last?.done && last.setType !== 'failure');
 }
 
-// Football: how hard the game was, once it's ticked (lib/training/football.ts scales
+// Cardio: how hard the session was, once it's ticked (lib/training/cardio.ts scales
 // its fatigue by it). Nothing picked counts as normal.
 export function shouldAskRating(exercise: ActiveExercise): boolean {
-  return exercise.name === FOOTBALL && exercise.sets[exercise.sets.length - 1]?.done;
+  return !!cardioActivity(exercise.name) && exercise.sets[exercise.sets.length - 1]?.done;
 }
 
 // A planned set (routine or copied workout) as a set to do.
@@ -58,10 +58,10 @@ export function backdatedStart(day: Date, now: Date, seconds = BACKDATED_DURATIO
 }
 
 // How long a workout logged for a past day lasts until changed: the game's
-// TIME when it has Football, else an hour.
+// TIME when it has cardio, else an hour.
 export function backdatedSeconds(workout: ActiveWorkout): number {
   const game = workout.exercises
-    .filter((e) => e.name === FOOTBALL)
+    .filter((e) => cardioActivity(e.name))
     .flatMap((e) => e.sets)
     .reduce((total, s) => total + (parseClock(s.time) ?? 0), 0);
   return game || BACKDATED_DURATION_HOURS * SECONDS_PER_HOUR;
@@ -74,9 +74,9 @@ export function bestsOf(bests: Map<string, Bests>, exerciseId: string): Bests | 
 }
 
 // An exercise's rest timer when a workout gets it: its own, else the default,
-// except Football: OFF (nobody rests after a game), from a routine too.
+// except cardio: OFF (nobody rests after a game or a run), from a routine too.
 export function startingRest(name: string, restSeconds: number | null): number | null {
-  return restSeconds ?? (name === FOOTBALL ? 0 : null);
+  return restSeconds ?? (cardioActivity(name) ? 0 : null);
 }
 
 // Volume and Sets above the exercises: completed sets only. Body weight

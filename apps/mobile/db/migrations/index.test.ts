@@ -53,7 +53,7 @@ describe('runMigrations', () => {
     ]);
 
     const version = rawDb.exec('PRAGMA user_version')[0].values[0][0];
-    expect(version).toBe(15);
+    expect(version).toBe(16);
   });
 
   it('is idempotent: running twice does not error or duplicate', async () => {
@@ -77,7 +77,7 @@ describe('runMigrations', () => {
 
     const row = rawDb.exec("SELECT is_custom, catalogue_id FROM exercises WHERE id = 'e1'")[0].values[0];
     expect(row).toEqual([1, null]);
-    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(15);
+    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(16);
   });
 
   it('allows warm-up sets and keeps the existing sets', async () => {
@@ -156,6 +156,17 @@ describe('runMigrations', () => {
     ]);
     const football = rawDb.exec("SELECT name, type FROM exercises WHERE id = 'football'")[0].values;
     expect(football).toEqual([['Football', 'duration']]);
+  });
+
+  it('adds Tennis and Hiking as duration exercises', async () => {
+    const rawDb = new SQL.Database();
+    await runMigrations(wrap(rawDb));
+
+    const rows = rawDb.exec("SELECT name, type FROM exercises WHERE id IN ('tennis', 'hiking') ORDER BY id")[0].values;
+    expect(rows).toEqual([
+      ['Hiking', 'duration'],
+      ['Tennis', 'duration'],
+    ]);
   });
 
   it('adds the indexes the history lookups use', async () => {
