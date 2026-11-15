@@ -32,7 +32,8 @@ logic needs tests: `pnpm test:coverage` shows what they cover.
 
 ### Screenshots
 
-Every pull request shows its change with screenshots in the description:
+Every pull request shows its change with screenshots in the description (the
+pull request template has a Screenshots section for them):
 
 - **Bug fix:** before and after, side by side, so the reviewer sees what was
   wrong and that it's gone.
