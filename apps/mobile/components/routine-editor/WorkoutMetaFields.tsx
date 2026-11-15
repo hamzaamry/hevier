@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text, TextInput } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Divider } from '@/components/ui/Divider';
+import { MediaStrip } from '@/components/workout/MediaStrip';
 import { COLORS, TYPE } from '@/constants/theme';
 import { LAYOUT, SPACE } from '@/constants/layout';
 import { ROUTINE_EDITOR_SIZES } from '@/constants/sizes';
@@ -8,8 +9,8 @@ import { weekdayDateTime } from '@/lib/format/date';
 import type { WorkoutMetaFieldsProps } from './types';
 
 // Edit Workout only: Start and Duration (they open the Log Workout duration
-// wheels) and the description.
-export function WorkoutMetaFields({ meta, onTime, onDescription }: WorkoutMetaFieldsProps) {
+// wheels), the description and the photos / videos.
+export function WorkoutMetaFields({ meta, onTime, onDescription, onAddMedia, onRemoveMedia }: WorkoutMetaFieldsProps) {
   return (
     <>
       <Pressable style={styles.row} onPress={onTime}>
@@ -30,6 +31,9 @@ export function WorkoutMetaFields({ meta, onTime, onDescription }: WorkoutMetaFi
         cursorColor={COLORS.primary}
         multiline
       />
+      <View style={styles.media}>
+        <MediaStrip media={meta.media} onAdd={onAddMedia} onRemove={onRemoveMedia} />
+      </View>
       <Divider />
     </>
   );
@@ -54,5 +58,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: LAYOUT.screenMargin,
     paddingVertical: SPACE.md,
     ...TYPE.body,
+  },
+  media: {
+    paddingHorizontal: LAYOUT.screenMargin,
+    paddingBottom: SPACE.md,
   },
 });

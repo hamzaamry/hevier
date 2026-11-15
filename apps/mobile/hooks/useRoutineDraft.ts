@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { getRoutineForEdit } from '@/db/routines/editor';
 import { getWorkoutForEdit } from '@/db/workouts/edit';
+import { getWorkoutMedia } from '@/db/workouts/media';
 import { durationSecondsOf } from '@/lib/workout/duration';
 import { snapshot, toDraftExercises } from '@/components/routine-editor/draft';
 import type { DraftExercise, WorkoutMeta } from '@/components/routine-editor/types';
 import type { RoutineDraftSource } from '@/types/routine';
 
-const NO_META: WorkoutMeta = { description: '', startTime: 0, durationSeconds: 0 };
+const NO_META: WorkoutMeta = { description: '', startTime: 0, durationSeconds: 0, media: [] };
 
 // The routine editor's draft: loaded from a routine (`id`), a workout to copy
 // into a new routine (`fromWorkout`, Save as Routine) or a workout to edit
@@ -43,12 +44,14 @@ export function useRoutineDraft({ id, fromWorkout, workout }: RoutineDraftSource
 
   useEffect(() => {
     if (!workout) return;
-    getWorkoutForEdit(workout).then((w) => {
+    // The media is loaded here only: Copy Workout and Save as Routine never get it.
+    Promise.all([getWorkoutForEdit(workout), getWorkoutMedia(workout)]).then(([w, media]) => {
       if (!w) return;
       const loaded = {
         description: w.description ?? '',
         startTime: Date.parse(w.startTime),
         durationSeconds: durationSecondsOf(w.startTime, w.endTime),
+        media,
       };
       const draft = toDraftExercises(w.exercises);
       setName(w.title);
@@ -68,5 +71,5 @@ export function useRoutineDraft({ id, fromWorkout, workout }: RoutineDraftSource
 }
 
 function metaParts(m: WorkoutMeta): unknown[] {
-  return [m.description, m.startTime, m.durationSeconds];
+  return [m.description, m.startTime, m.durationSeconds, m.media.map((x) => x.file)];
 }

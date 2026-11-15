@@ -1,5 +1,5 @@
 import type { EditorExercise } from '@/types/routine';
-import type { SetText, SetType } from '@/types/workout';
+import type { MediaItem, SetText, SetType } from '@/types/workout';
 
 // Props and local types of the routine editor pieces (components/routine-editor/).
 
@@ -20,6 +20,7 @@ export interface WorkoutMeta {
   description: string;
   startTime: number;
   durationSeconds: number;
+  media: MediaItem[];
 }
 
 export interface ExerciseEditorProps {
@@ -36,6 +37,8 @@ export interface WorkoutMetaFieldsProps {
   meta: WorkoutMeta;
   onTime: () => void;
   onDescription: (description: string) => void;
+  onAddMedia: () => void;
+  onRemoveMedia: (file: string) => void;
 }
 
 export interface EditorExerciseMenuProps {
