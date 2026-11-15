@@ -58,7 +58,7 @@ export function useRoutineDraft({ id, fromWorkout, workout }: RoutineDraftSource
       setExercises(draft);
       setMeta(loaded);
       setSaved(snapshot(w.title, draft, metaParts(loaded)));
-    });
+    }).catch((e) => console.warn('[routineDraft] workout load failed', e));
   }, [workout]);
 
   // Only Cancel needs it, so the JSON snapshot of the whole draft is taken

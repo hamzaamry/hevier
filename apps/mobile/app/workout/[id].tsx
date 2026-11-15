@@ -39,7 +39,7 @@ export default function WorkoutScreen() {
   // Photos and videos: adding is the action itself (no Save), a ✕ asks first.
   const [removing, setRemoving] = useState<string | null>(null);
   const reload = useCallback(() => {
-    if (id) getWorkoutCard(id).then(setWorkout);
+    if (id) getWorkoutCard(id).then(setWorkout).catch((e) => console.warn('[workout] reload failed', e));
   }, [id]);
   const mediaSource = useMediaSource(async (items) => {
     if (!id) return;
