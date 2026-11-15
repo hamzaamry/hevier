@@ -1,0 +1,65 @@
+name: Vercel preview
+
+# Does nothing until VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID are set,
+# and never on fork pull requests (they get no secrets).
+on:
+  pull_request:
+    paths:
+      - apps/web/**
+      - pnpm-lock.yaml
+      - .github/workflows/vercel-preview.yml
+
+concurrency:
+  group: vercel-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_CLI: vercel@65.12.1
+    steps:
+      - name: Check the secrets
+        id: gate
+        run: |
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "The Vercel secrets are not set: skipping the preview." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.gate.outputs.enabled == 'true'
+
+      - uses: ./.github/actions/setup
+        if: steps.gate.outputs.enabled == 'true'
+
+      - name: Deploy
+        id: deploy
+        if: steps.gate.outputs.enabled == 'true'
+        run: |
+          pnpm dlx "$VERCEL_CLI" pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          pnpm dlx "$VERCEL_CLI" build --token="$VERCEL_TOKEN"
+          url=$(pnpm dlx "$VERCEL_CLI" deploy --prebuilt --token="$VERCEL_TOKEN" | tail -1)
+          [[ "$url" =~ ^https://[A-Za-z0-9.-]+$ ]] || { echo "Unexpected deploy output"; exit 1; }
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment the URL
+        if: steps.gate.outputs.enabled == 'true' && vars.VERCEL_PR_COMMENT == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          gh pr comment "$PR" --edit-last --create-if-none --body "Preview: $URL"

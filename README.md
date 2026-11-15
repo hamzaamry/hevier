@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hamzaamry/hevier/actions/workflows/check.yml"><img src="https://github.com/hamzaamry/hevier/actions/workflows/check.yml/badge.svg" alt="Checks"></a>
+  <a href="https://github.com/hamzaamry/hevier/actions/workflows/ci.yml"><img src="https://github.com/hamzaamry/hevier/actions/workflows/ci.yml/badge.svg" alt="Checks"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=hamzaamry_hevier"><img src="https://sonarcloud.io/api/project_badges/measure?project=hamzaamry_hevier&metric=alert_status" alt="Quality gate"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=hamzaamry_hevier"><img src="https://sonarcloud.io/api/project_badges/measure?project=hamzaamry_hevier&metric=coverage" alt="Coverage"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-008CFF" alt="License: AGPL-3.0"></a>

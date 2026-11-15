@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.."
 MEDIA=../../packages/catalogue/media
 ADB="${ANDROID_HOME:-$HOME/Android/Sdk}/platform-tools/adb"
 DEVICE_ARGS=()
-[ $# -ge 2 ] && DEVICE_ARGS=(-s "$2")
+[[ $# -ge 2 ]] && DEVICE_ARGS=(-s "$2")
 adb() { "$ADB" "${DEVICE_ARGS[@]}" "$@"; }
 
 APP=com.hevier.app
@@ -31,7 +31,7 @@ adb shell rm -f /data/local/tmp/hevier-seed.db
 
 # The media isn't in the repo (licence: see THIRD-PARTY-NOTICES.md); without it
 # the app shows a placeholder instead of each exercise's picture.
-if [ ! -d "$MEDIA" ]; then
+if [[ ! -d "$MEDIA" ]]; then
   echo "4/4  No packages/catalogue/media folder: skipping exercise pictures"
   echo "Done. Open Hevier on the device."
   exit 0

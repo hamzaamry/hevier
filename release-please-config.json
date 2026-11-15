@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "bootstrap-sha": "28face949aa3c6261ce4bb91e2738b17aa095c05",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "draft": true,
+  "force-tag-creation": true,
+  "pull-request-title-pattern": "chore(release): ${version}",
+  "changelog-path": "CHANGELOG.md",
+  "changelog-sections": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug fixes" },
+    { "type": "perf", "section": "Performance" },
+    { "type": "refactor", "section": "Refactoring" },
+    { "type": "docs", "section": "Documentation", "hidden": true },
+    { "type": "test", "section": "Tests", "hidden": true },
+    { "type": "ci", "section": "CI", "hidden": true },
+    { "type": "chore", "section": "Chores", "hidden": true }
+  ],
+  "packages": {
+    ".": {
+      "package-name": "hevier",
+      "extra-files": [
+        { "type": "json", "path": "apps/mobile/app.json", "jsonpath": "$.expo.version" },
+        { "type": "json", "path": "apps/mobile/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "apps/sync/package.json", "jsonpath": "$.version" }
+      ]
+    }
+  }
+}

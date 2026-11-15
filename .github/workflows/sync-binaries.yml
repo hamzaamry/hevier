@@ -1,0 +1,75 @@
+name: Sync binaries
+
+on:
+  pull_request:
+    paths:
+      - apps/sync/**
+      - packages/shared/**
+      - pnpm-lock.yaml
+      - .github/workflows/sync-binaries.yml
+      - .github/scripts/smoke-sync.sh
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version in the file names (1.2.3), the short commit when empty
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      version:
+        description: Version in the file names (1.2.3)
+        type: string
+        default: ''
+
+concurrency:
+  group: sync-binaries-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ./.github/actions/setup
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+
+      # Bun cross-compiles every target from this one runner, so no macOS or Windows runner is needed.
+      - name: Build
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ -n "$VERSION" && ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::version must look like 1.2.3"
+            exit 1
+          fi
+          version=${VERSION:-${GITHUB_SHA::7}}
+          mkdir -p dist
+          for target in linux-x64 windows-x64 darwin-arm64 darwin-x64; do
+            bin=hevier-sync
+            [ "$target" = windows-x64 ] && bin=hevier-sync.exe
+            bun build --compile --minify --target="bun-$target" apps/sync/main.ts --outfile "build/$target/$bin"
+            if [ "$target" = windows-x64 ]; then
+              (cd "build/$target" && zip -q "$GITHUB_WORKSPACE/dist/hevier-sync-$version-$target.zip" "$bin")
+            else
+              tar -czf "dist/hevier-sync-$version-$target.tar.gz" -C "build/$target" "$bin"
+            fi
+          done
+          ls -lh dist
+
+      - name: Smoke test (linux)
+        run: .github/scripts/smoke-sync.sh build/linux-x64/hevier-sync
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: hevier-sync
+          path: dist/*
+          retention-days: 7
+          if-no-files-found: error

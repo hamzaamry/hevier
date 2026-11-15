@@ -1,0 +1,179 @@
+name: Android
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Build the release APK and AAB, signed when the keystore secrets exist
+        type: boolean
+        default: false
+      version:
+        description: Version to stamp into the app on a release build (1.2.3)
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      release:
+        type: boolean
+        default: true
+      version:
+        description: Version to stamp into the app (1.2.3)
+        type: string
+        default: ''
+    secrets:
+      ANDROID_KEYSTORE_BASE64:
+        required: false
+      ANDROID_KEYSTORE_PASSWORD:
+        required: false
+      ANDROID_KEY_ALIAS:
+        required: false
+      ANDROID_KEY_PASSWORD:
+        required: false
+    outputs:
+      signed:
+        description: Whether the release was signed with the release key
+        value: ${{ jobs.build.outputs.signed }}
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: apk (${{ inputs.release && 'release' || 'debug' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      signed: ${{ steps.signing.outputs.signed }}
+    env:
+      CI: '1'
+      VARIANT: ${{ inputs.release && 'Release' || 'Debug' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+
+      - name: Find the NDK React Native wants
+        id: ndk
+        run: |
+          version=$(sed -n 's/^ndkVersion = "\(.*\)"/\1/p' apps/mobile/node_modules/react-native/gradle/libs.versions.toml)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "dir=$ANDROID_HOME/ndk/$version" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the NDK
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.ndk.outputs.dir }}
+          key: android-ndk-${{ steps.ndk.outputs.version }}
+
+      - name: Version
+        id: version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          if [ -z "$RELEASE_VERSION" ]; then
+            echo "name=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::version must look like 1.2.3"; exit 1; }
+          IFS=. read -r major minor patch <<< "${RELEASE_VERSION%%[-+]*}"
+          code=$((major * 1000000 + minor * 1000 + patch))
+          jq --arg v "$RELEASE_VERSION" --argjson c "$code" \
+            '.expo.version = $v | .expo.android.versionCode = $c' apps/mobile/app.json > "$RUNNER_TEMP/app.json"
+          mv "$RUNNER_TEMP/app.json" apps/mobile/app.json
+          echo "name=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version $RELEASE_VERSION, versionCode $code" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Prebuild
+        working-directory: apps/mobile
+        run: pnpm exec expo prebuild --platform android --no-install
+
+      # withHevierRelease signs the release build with the key described in
+      # ~/.config/hevier/keystore.properties, or with the debug key without it.
+      - name: Signing key
+        id: signing
+        env:
+          IS_RELEASE: ${{ inputs.release }}
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ "$IS_RELEASE" != true ]; then
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          elif [ -z "$KEYSTORE_BASE64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::The signing secrets are not set: the release APK is signed with the debug key and no AAB is built."
+            echo "### Not signed with the release key" >> "$GITHUB_STEP_SUMMARY"
+            echo "The ANDROID_KEYSTORE_* and ANDROID_KEY_* secrets are missing. The APK is signed with the debug key: it cannot update an app signed with the release key." >> "$GITHUB_STEP_SUMMARY"
+          else
+            dir="$HOME/.config/hevier"
+            mkdir -p "$dir"
+            printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$dir/release.jks"
+            {
+              echo "storeFile=$dir/release.jks"
+              echo "storePassword=$STORE_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "keyPassword=$KEY_PASSWORD"
+            } > "$dir/keystore.properties"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Build
+        working-directory: apps/mobile/android
+        env:
+          SIGNED: ${{ steps.signing.outputs.signed }}
+        run: |
+          tasks=("assemble$VARIANT")
+          args=(-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g")
+          [ "$VARIANT" = Debug ] && args+=(-PreactNativeArchitectures=arm64-v8a)
+          [ "$SIGNED" = true ] && tasks+=(bundleRelease)
+          ./gradlew "${tasks[@]}" "${args[@]}"
+
+      - name: Collect
+        env:
+          SIGNED: ${{ steps.signing.outputs.signed }}
+          NAME: hevier-${{ steps.version.outputs.name }}
+        run: |
+          out=apps/mobile/android/app/build/outputs
+          mkdir -p dist
+          if [ "$VARIANT" = Debug ]; then
+            cp "$out/apk/debug/app-debug.apk" "dist/$NAME-debug.apk"
+          elif [ "$SIGNED" = true ]; then
+            cp "$out/apk/release/app-release.apk" "dist/$NAME.apk"
+            cp "$out/bundle/release/app-release.aab" "dist/$NAME.aab"
+          else
+            cp "$out/apk/release/app-release.apk" "dist/$NAME-debug-key.apk"
+          fi
+          apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
+          for apk in dist/*.apk; do
+            certs=$("$apksigner" verify --print-certs "$apk")
+            if [ "$SIGNED" = true ] && grep -q 'CN=Android Debug' <<< "$certs"; then
+              echo "::error::$apk is signed with the debug key"
+              exit 1
+            fi
+            {
+              echo "### $(basename "$apk") ($(du -h "$apk" | cut -f1))"
+              grep 'certificate SHA-256' <<< "$certs"
+            } >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-${{ inputs.release && 'release' || 'debug' }}
+          path: dist/*
+          retention-days: 7
+          if-no-files-found: error
