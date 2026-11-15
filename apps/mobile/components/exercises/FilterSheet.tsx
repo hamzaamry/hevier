@@ -13,6 +13,7 @@ import type { FilterSheetProps, ShowButtonProps } from './types';
 // The Equipment / Muscle Group sheets: a tall sheet of 2-column cards (picture + name), several can be picked;
 // Clear Filters / "Show N results" at the bottom. The picks apply only on
 // Show; closing the sheet another way leaves the filter as it was.
+// Also Create Exercise's pickers: `single` (a tap picks and closes) or `applyLabel`.
 
 
 export function FilterSheet<K extends string>({
@@ -21,6 +22,8 @@ export function FilterSheet<K extends string>({
   visible,
   selected,
   countFor,
+  applyLabel,
+  single = false,
   onApply,
   onDismiss,
 }: FilterSheetProps<K>) {
@@ -38,6 +41,10 @@ export function FilterSheet<K extends string>({
   const bodyHeight = height - insets.top - 77.4 - 65 - insets.bottom - 8;
 
   function toggle(key: K) {
+    if (single) {
+      onApply([key]);
+      return;
+    }
     setPicks((p) => (p.includes(key) ? p.filter((k) => k !== key) : [...p, key]));
   }
 
@@ -67,10 +74,12 @@ export function FilterSheet<K extends string>({
             </View>
           ))}
         </ScrollView>
-        <View style={styles.bar}>
-          <Button label="Clear Filters" variant="neutral" size="compact" style={styles.barButton} onPress={() => setPicks([])} />
-          <ShowButton picks={picks} countFor={countFor} onApply={onApply} />
-        </View>
+        {!single && (
+          <View style={styles.bar}>
+            <Button label="Clear Filters" variant="neutral" size="compact" style={styles.barButton} onPress={() => setPicks([])} />
+            <ShowButton picks={picks} countFor={countFor} applyLabel={applyLabel} onApply={onApply} />
+          </View>
+        )}
       </View>
     </BottomSheet>
   );
@@ -81,12 +90,13 @@ export function FilterSheet<K extends string>({
 function ShowButton<K extends string>({
   picks,
   countFor,
+  applyLabel,
   onApply,
 }: ShowButtonProps<K>) {
-  const count = countFor(picks);
+  const count = countFor?.(picks) ?? 0;
   return (
     <Button
-      label={`Show ${count.toLocaleString('en-US')} ${plural(count, 'result')}`}
+      label={applyLabel ?? `Show ${count.toLocaleString('en-US')} ${plural(count, 'result')}`}
       size="compact"
       style={styles.barButton}
       onPress={() => onApply(picks)}

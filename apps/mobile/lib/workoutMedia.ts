@@ -22,11 +22,12 @@ export function mediaUri(file: string): string {
 }
 
 // The phone's photo picker (no permission needed); null when nothing was picked.
-export async function pickMedia(): Promise<MediaItem[] | null> {
+// limit 1: a single photo or video (a custom exercise's).
+export async function pickMedia(limit = MAX_MEDIA_PER_PICK): Promise<MediaItem[] | null> {
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ['images', 'videos'],
-    allowsMultipleSelection: true,
-    selectionLimit: MAX_MEDIA_PER_PICK,
+    allowsMultipleSelection: limit > 1,
+    selectionLimit: limit,
     quality: 1,
   });
   return result.canceled ? null : keepAssets(result.assets);

@@ -53,13 +53,18 @@ export interface FilterSheetProps<K extends string> {
   sections: FilterSection<K>[];
   visible: boolean;
   selected: K[];
-  countFor: (picks: K[]) => number;
+  // The bottom button: "Show N results" from countFor, or applyLabel (Create Exercise's "Done").
+  countFor?: (picks: K[]) => number;
+  applyLabel?: string;
+  // One pick: a tap applies it and closes, no bottom buttons (Create Exercise's Equipment, Muscle).
+  single?: boolean;
   onApply: (picks: K[]) => void;
   onDismiss: () => void;
 }
 
 export interface ShowButtonProps<K extends string> {
   picks: K[];
-  countFor: (picks: K[]) => number;
+  countFor?: (picks: K[]) => number;
+  applyLabel?: string;
   onApply: (picks: K[]) => void;
 }
