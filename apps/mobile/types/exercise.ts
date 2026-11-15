@@ -1,6 +1,6 @@
 import type { useRouter } from 'expo-router';
 import type { CHART_UNITS, EXERCISE_TYPES } from '@/constants/exercise';
-import type { WorkoutSet } from './workout';
+import type { MediaItem, WorkoutSet } from './workout';
 import type { MuscleGroup } from '@/types/muscles';
 import type { EquipmentGroup } from '@/types/equipment';
 
@@ -82,3 +82,27 @@ export interface PickRequest {
 }
 
 export type Router = ReturnType<typeof useRouter>;
+
+// What the Create / Edit Exercise form holds, in the app's own groups
+// (lib/domain/exerciseInput.ts turns it into table columns).
+export interface ExerciseInput {
+  name: string;
+  type: ExerciseType;
+  equipment: EquipmentGroup;
+  primary: MuscleGroup;
+  secondary: MuscleGroup[];
+  media: MediaItem | null;
+}
+
+// An ExerciseInput as the exercises table stores it: catalogue words, so the
+// stats and filters read a user's exercise like a built-in one.
+export interface ExerciseColumns {
+  name: string;
+  type: ExerciseType;
+  body_part: string | null;
+  target_muscle: string | null;
+  secondary_muscles: string; // JSON array of catalogue words
+  equipment: string | null;
+  media_file: string | null;
+  media_kind: MediaItem['kind'] | null;
+}

@@ -87,8 +87,55 @@ export const MUSCLE_OF_SECONDARY: Record<string, MuscleGroup> = {
   calves: 'Calves',
   soleus: 'Calves',
   adductors: 'Adductors',
+  abductors: 'Abductors',
   groin: 'Adductors',
   'inner thighs': 'Adductors',
+};
+
+// The other way round, for exercises the user makes (lib/domain/exerciseInput.ts):
+// the catalogue words that read back as each group.
+export const TARGET_WORD_OF: Record<MuscleGroup, { target: string | null; bodyPart: string | null }> = {
+  Abdominals: { target: 'abs', bodyPart: null },
+  Biceps: { target: 'biceps', bodyPart: null },
+  Chest: { target: 'pectorals', bodyPart: null },
+  Forearms: { target: 'forearms', bodyPart: null },
+  Lats: { target: 'lats', bodyPart: null },
+  'Lower Back': { target: 'spine', bodyPart: null },
+  Neck: { target: 'levator scapulae', bodyPart: null },
+  Shoulders: { target: 'delts', bodyPart: null },
+  Traps: { target: 'traps', bodyPart: null },
+  Triceps: { target: 'triceps', bodyPart: null },
+  'Upper Back': { target: 'upper back', bodyPart: null },
+  Abductors: { target: 'abductors', bodyPart: null },
+  Adductors: { target: 'adductors', bodyPart: null },
+  Calves: { target: 'calves', bodyPart: null },
+  Glutes: { target: 'glutes', bodyPart: null },
+  Hamstrings: { target: 'hamstrings', bodyPart: null },
+  Quadriceps: { target: 'quads', bodyPart: null },
+  Cardio: { target: 'cardiovascular system', bodyPart: 'cardio' },
+  'Full Body': { target: null, bodyPart: 'full body' },
+  Other: { target: null, bodyPart: null },
+};
+
+// Secondary muscles: only body muscles (not Cardio, Full Body or Other).
+export const SECONDARY_WORD_OF: Partial<Record<MuscleGroup, string>> = {
+  Abdominals: 'abdominals',
+  Biceps: 'biceps',
+  Chest: 'chest',
+  Forearms: 'forearms',
+  Lats: 'lats',
+  'Lower Back': 'lower back',
+  Neck: 'sternocleidomastoid',
+  Shoulders: 'shoulders',
+  Traps: 'traps',
+  Triceps: 'triceps',
+  'Upper Back': 'upper back',
+  Abductors: 'abductors',
+  Adductors: 'adductors',
+  Calves: 'calves',
+  Glutes: 'glutes',
+  Hamstrings: 'hamstrings',
+  Quadriceps: 'quadriceps',
 };
 
 // The "Nice work!" radar card's body parts (lib/stats/stats.ts), clockwise from the

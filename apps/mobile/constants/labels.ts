@@ -112,6 +112,14 @@ export const WORKOUT_COLUMN_LABELS: Record<ExerciseType, string> = {
   distance_duration: 'DISTANCE & TIME',
 };
 
+// Create / Edit Exercise (app/exercise-editor.tsx): the Exercise type choices.
+export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
+  weight_reps: 'Weight & reps',
+  reps_only: 'Reps only',
+  duration: 'Duration',
+  distance_duration: 'Distance & time',
+};
+
 // components/body/BodyFigure.tsx: the recovery legend.
 export const RECOVERY_LABELS: Record<RecoveryState, string> = {
   ready: 'Likely ready',
