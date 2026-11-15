@@ -57,6 +57,15 @@ export const INSERT_WORKOUT = `
   INSERT INTO workouts (id, title, start_time, end_time, description, gym_id)
   VALUES (?, ?, ?, ?, ?, ?)`;
 
+// A workout's photos and videos in order, for Edit Workout.
+export const SELECT_WORKOUT_MEDIA_FOR_EDIT = 'SELECT file, kind FROM workout_media WHERE workout_id = ? ORDER BY position';
+
+// Where the next photo goes: after the last one.
+export const SELECT_LAST_MEDIA_POSITION = 'SELECT MAX(position) AS position FROM workout_media WHERE workout_id = ?';
+
+// One photo or video, removed on its own.
+export const DELETE_WORKOUT_MEDIA_FILE = 'DELETE FROM workout_media WHERE workout_id = ? AND file = ?';
+
 // One photo or video of a finished workout, at its place.
 export const INSERT_WORKOUT_MEDIA = `
   INSERT INTO workout_media (id, workout_id, file, kind, position)

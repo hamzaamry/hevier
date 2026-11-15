@@ -12,6 +12,7 @@ import {
   UPDATE_WORKOUT,
 } from './queries';
 import type { WorkoutExerciseSetRow, WorkoutForEditRow } from './rows';
+import { replaceWorkoutMedia } from './media';
 import { insertWorkoutExercises } from './write';
 
 // A saved workout as the editors see it: the card ⋯ menu's Save as Routine
@@ -63,14 +64,18 @@ export async function getWorkoutForEdit(id: string): Promise<EditableWorkout | n
   };
 }
 
-// Edit Workout's Save: the workout's own fields, and its exercises and sets
-// replaced by the edited ones, all or nothing.
-export async function saveWorkoutEdit(draft: WorkoutDraft): Promise<void> {
+// Edit Workout's Save: the workout's own fields, and its exercises, sets and
+// media replaced by the edited ones, all or nothing. Returns the media files no
+// longer in use, for the caller to delete (as deleteWorkout does).
+export async function saveWorkoutEdit(draft: WorkoutDraft): Promise<string[]> {
   const db = await getDb();
+  let unused: string[] = [];
   await runInTransaction(db, async () => {
     await db.runAsync(UPDATE_WORKOUT, [draft.title, draft.description, draft.startTime, draft.endTime, draft.id]);
     await db.runAsync(DELETE_WORKOUT_SETS, [draft.id]);
     await db.runAsync(DELETE_WORKOUT_EXERCISES, [draft.id]);
     await insertWorkoutExercises(db, draft.id, draft.exercises);
+    if (draft.media) unused = await replaceWorkoutMedia(db, draft.id, draft.media);
   }).finally(invalidateHistory); // also after a rollback: a load may have read the undone rows
+  return unused;
 }

@@ -54,4 +54,26 @@ describe('workout editing', () => {
     expect(rows<{ n: number }>('SELECT COUNT(*) AS n FROM sets')[0].n).toBe(2);
     expect((await getWorkoutForEdit('w2'))!.exercises[0].sets[0].weightKg).toBe(100);
   });
+
+  it('replaces the media in order and returns the files no longer used; no media in the draft leaves them', async () => {
+    raw.exec(`INSERT INTO workout_media (id, workout_id, file, kind, position) VALUES
+      ('m1', 'w1', 'a.jpg', 'photo', 0), ('m2', 'w1', 'b.mp4', 'video', 1), ('m3', 'w2', 'z.jpg', 'photo', 0)`);
+    const draft = {
+      id: 'w1',
+      title: 'LOWER B',
+      description: null,
+      startTime: '2026-10-13T17:44:00.000Z',
+      endTime: '2026-10-13T18:28:00.000Z',
+      exercises: [],
+    };
+    const files = (id: string) => rows<{ file: string }>(`SELECT file FROM workout_media WHERE workout_id = '${id}' ORDER BY position`).map((r) => r.file);
+
+    expect(await saveWorkoutEdit(draft)).toEqual([]);
+    expect(files('w1')).toEqual(['a.jpg', 'b.mp4']);
+
+    const unused = await saveWorkoutEdit({ ...draft, media: [{ file: 'new.jpg', kind: 'photo' }, { file: 'b.mp4', kind: 'video' }] });
+    expect(unused).toEqual(['a.jpg']);
+    expect(files('w1')).toEqual(['new.jpg', 'b.mp4']);
+    expect(files('w2')).toEqual(['z.jpg']);
+  });
 });
