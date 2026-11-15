@@ -19,6 +19,7 @@ export interface CardExercise {
   name: string;
   type: ExerciseType;
   catalogueId: string | null;
+  archived: boolean; // a user's exercise they archived since
   notes: string | null;
   sets: CardSet[];
 }

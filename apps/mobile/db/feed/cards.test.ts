@@ -13,6 +13,7 @@ const row = (workout: string, we: string, name: string, set: string | null, weig
   name,
   type: 'weight_reps' as const,
   catalogue_id: null,
+  archived: 0,
   notes: null,
   set_id: set,
   set_type: set ? ('normal' as const) : null,
@@ -27,6 +28,18 @@ const row = (workout: string, we: string, name: string, set: string | null, weig
 });
 
 describe('workout cards', () => {
+  it('marks an archived exercise, the others not', () => {
+    const [card] = buildCards(
+      [{ id: 'w1', title: 'CORE', start_time: '2026-10-06T18:00:00Z', end_time: null }],
+      [{ ...row('w1', 'a', 'Twist', 's1', null, 12), archived: 1 }, row('w1', 'b', 'Plank', 's2', null, 1)],
+      NO_CHANGES
+    );
+    expect(card.exercises.map((e) => [e.name, e.archived])).toEqual([
+      ['Twist', true],
+      ['Plank', false],
+    ]);
+  });
+
   it('counts sets, volume and records per workout', () => {
     const cards = buildCards(
       [
