@@ -45,7 +45,7 @@ describe('routine draft', () => {
     const routine = routinePayload(null, 'f1', ' Legs ', [e]);
     expect(routine.name).toBe('Legs');
     expect(routine.exercises[0]).toMatchObject({ exerciseId: 'squat', notes: 'heavy', restSeconds: 120 });
-    const w = workoutPayload('w1', 'Legs', { description: ' ', startTime: Date.UTC(2026, 0, 1), durationSeconds: 3600 }, [e]);
+    const w = workoutPayload('w1', 'Legs', { description: ' ', startTime: Date.UTC(2026, 0, 1), durationSeconds: 3600, media: [] }, [e]);
     expect([w.description, w.startTime, w.endTime]).toEqual([null, '2026-01-01T00:00:00.000Z', '2026-01-01T01:00:00.000Z']);
   });
 });

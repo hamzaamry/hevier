@@ -1,4 +1,5 @@
 import type { EditorExercise, EditorSet } from '@/types/routine';
+import type { MediaItem } from '@/types/workout';
 
 // A saved workout as the editors see it (db/workouts/edit.ts).
 export interface EditableWorkout {
@@ -18,6 +19,7 @@ export interface WorkoutDraft {
   startTime: string;
   endTime: string | null;
   exercises: WorkoutDraftExercise[];
+  media?: MediaItem[]; // the photos and videos in order; left alone when missing
 }
 
 // One exercise of a workout as it is written: its sets in order

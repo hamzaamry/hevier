@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { InnerHeader } from '@/components/ui/InnerHeader';
 import { MediaStrip } from '@/components/workout/MediaStrip';
 import { MoreButton } from '@/components/routines/RoutineList';
@@ -16,6 +17,9 @@ import { LINE_HEIGHTS, TYPE } from '@/constants/theme';
 import { LAYOUT, SPACE } from '@/constants/layout';
 import { getWorkoutCard } from '@/db/feed/cards';
 import { getProfileNames } from '@/db/profile/names';
+import { addWorkoutMedia, removeWorkoutMedia } from '@/db/workouts/media';
+import { useMediaSource } from '@/hooks/useMediaSource';
+import { deleteMediaFiles } from '@/lib/workoutMedia';
 import { getStatSets } from '@/db/stats/statSets';
 import { muscleSplit } from '@/lib/stats/stats';
 import { longDateTime } from '@/lib/format/date';
@@ -32,6 +36,33 @@ export default function WorkoutScreen() {
   const [split, setSplit] = useState<SplitPart[]>([]);
   const { openMenu, menu } = useWorkoutMenu(() => router.back());
   const openExercise = useCallback((exerciseId: string) => router.push(`/exercises/${exerciseId}`), [router]);
+  // Photos and videos: adding is the action itself (no Save), a ✕ asks first.
+  const [removing, setRemoving] = useState<string | null>(null);
+  const reload = useCallback(() => {
+    if (id) getWorkoutCard(id).then(setWorkout).catch((e) => console.warn('[workout] reload failed', e));
+  }, [id]);
+  const mediaSource = useMediaSource(async (items) => {
+    if (!id) return;
+    try {
+      await addWorkoutMedia(id, items);
+      reload();
+    } catch (e) {
+      console.warn('[media] add failed', e);
+      deleteMediaFiles(items.map((m) => m.file)); // no row, so no use for the copies
+    }
+  });
+  async function confirmRemove() {
+    const file = removing;
+    setRemoving(null);
+    if (!id || !file) return;
+    try {
+      await removeWorkoutMedia(id, file);
+      deleteMediaFiles([file]);
+      reload();
+    } catch (e) {
+      console.warn('[media] remove failed', e);
+    }
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -60,11 +91,9 @@ export default function WorkoutScreen() {
           <WorkoutSummary workout={workout} username={profile.username} name={profile.name} when={longDateTime(new Date(workout.startTime))} />
           {/* What was written and added on the Save Workout page. */}
           {!!workout.description && <Text style={styles.description}>{workout.description}</Text>}
-          {!!workout.media?.length && (
-            <View style={styles.media}>
-              <MediaStrip media={workout.media} />
-            </View>
-          )}
+          <View style={styles.media}>
+            <MediaStrip media={workout.media ?? []} onAdd={mediaSource.open} onRemove={setRemoving} />
+          </View>
           <View style={shared.divider} />
           {split.length > 0 && <MuscleSplit split={split} />}
           <Text style={shared.section}>Workout</Text>
@@ -74,6 +103,14 @@ export default function WorkoutScreen() {
         </ScrollView>
       )}
       {menu}
+      {mediaSource.sheet}
+      <ConfirmDialog
+        visible={removing !== null}
+        message="Are you sure you want to delete this photo or video?"
+        confirmLabel="Delete"
+        onConfirm={confirmRemove}
+        onCancel={() => setRemoving(null)}
+      />
     </Screen>
   );
 }

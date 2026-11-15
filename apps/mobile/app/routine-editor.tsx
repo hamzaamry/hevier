@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Barbell } from 'phosphor-react-native/src/icons/Barbell';
@@ -9,6 +9,8 @@ import { TimeSheet } from '@/components/workout/DurationSheet';
 import { openExercisePicker } from '@/stores/exercisePickRequest';
 import { HeaderPillButton, HeaderTextLeft, InnerHeader } from '@/components/ui/InnerHeader';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
+import { useMediaSource } from '@/hooks/useMediaSource';
+import { deleteMediaFiles } from '@/lib/workoutMedia';
 import { EditorExerciseMenu } from '@/components/routine-editor/EditorExerciseMenu';
 import { ExerciseEditor } from '@/components/routine-editor/ExerciseEditor';
 import { WorkoutMetaFields } from '@/components/routine-editor/WorkoutMetaFields';
@@ -80,6 +82,27 @@ export default function RoutineEditor() {
   );
   const openSetMenu = useCallback((exercise: number, set: number) => setSetMenu({ exercise, set }), []);
 
+  // Edit Workout's photos: a picked file is copied into media/ at once, but the
+  // workout only keeps it on Save. Files added in this session that Save didn't keep
+  // are deleted when the editor closes, however it closes (Cancel, back, Discard).
+  const added = useRef<string[]>([]);
+  const saved = useRef(false);
+  useEffect(() => () => {
+    if (!saved.current) deleteMediaFiles(added.current);
+  }, []);
+  const mediaSource = useMediaSource((items) => {
+    added.current.push(...items.map((m) => m.file));
+    setMeta((m) => ({ ...m, media: [...m.media, ...items] }));
+  });
+  function removeMedia(file: string) {
+    // One of this session's own: gone for good. A saved one is deleted after Save.
+    if (added.current.includes(file)) {
+      deleteMediaFiles([file]);
+      added.current = added.current.filter((f) => f !== file);
+    }
+    setMeta((m) => ({ ...m, media: m.media.filter((x) => x.file !== file) }));
+  }
+
   // Set before saving or going back: a double tap ran two saves at once (overlapping
   // transactions) or went back twice.
   const leaving = useRef(false);
@@ -88,8 +111,11 @@ export default function RoutineEditor() {
     if (leaving.current) return;
     leaving.current = true;
     try {
-      if (workout) await saveWorkoutEdit(workoutPayload(workout, name, meta, exercises));
-      else await saveRoutine(routinePayload(id ?? null, folder ?? null, name, exercises));
+      if (workout) {
+        const unused = await saveWorkoutEdit(workoutPayload(workout, name, meta, exercises));
+        saved.current = true;
+        deleteMediaFiles(unused);
+      } else await saveRoutine(routinePayload(id ?? null, folder ?? null, name, exercises));
       router.back();
     } catch (e) {
       console.warn('Save failed', e);
@@ -164,6 +190,8 @@ export default function RoutineEditor() {
             meta={meta}
             onTime={() => setTimeSheet(Date.now())}
             onDescription={(description) => setMeta((m) => ({ ...m, description }))}
+            onAddMedia={mediaSource.open}
+            onRemoveMedia={removeMedia}
           />
         )}
 
@@ -232,6 +260,8 @@ export default function RoutineEditor() {
           onDuration={(durationSeconds) => setMeta((m) => ({ ...m, durationSeconds }))}
         />
       )}
+
+      {mediaSource.sheet}
 
       <ConfirmDialog
         visible={discarding}

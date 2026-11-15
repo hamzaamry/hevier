@@ -6,7 +6,7 @@ import { MAX_MEDIA_PER_PICK } from '@/constants/training';
 import { STORAGE_FOLDERS } from '@/constants/storage';
 import type { MediaItem } from '@/types/workout';
 
-// Photos and videos of a workout (the Save Workout page). The picker hands out
+// Photos and videos of a workout (Save Workout, the workout page, Edit Workout). The picker hands out
 // temporary copies, so each one is copied into the app's documents (media/);
 // the workout keeps only the file names.
 
@@ -29,10 +29,22 @@ export async function pickMedia(): Promise<MediaItem[] | null> {
     selectionLimit: MAX_MEDIA_PER_PICK,
     quality: 1,
   });
-  if (result.canceled) return null;
+  return result.canceled ? null : keepAssets(result.assets);
+}
+
+// The camera, one photo or video; null when cancelled or the camera permission is refused.
+export async function takeMedia(): Promise<MediaItem[] | null> {
+  const { granted } = await ImagePicker.requestCameraPermissionsAsync();
+  if (!granted) return null;
+  const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images', 'videos'], quality: 1 });
+  return result.canceled ? null : keepAssets(result.assets);
+}
+
+// Copied into media/ before anything is written to the database, so a crash can't leave a row with no file.
+async function keepAssets(assets: ImagePicker.ImagePickerAsset[]): Promise<MediaItem[]> {
   const dir = folder();
   const items: MediaItem[] = [];
-  for (const asset of result.assets) {
+  for (const asset of assets) {
     const kind = asset.type === 'video' ? 'video' : 'photo';
     const ext = (asset.fileName?.split('.').pop() || asset.uri.split('.').pop() || (kind === 'video' ? 'mp4' : 'jpg'))
       .toLowerCase()

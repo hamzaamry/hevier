@@ -83,5 +83,6 @@ export function workoutPayload(id: string, name: string, meta: WorkoutMeta, exer
       notes: e.notes?.trim() || null,
       sets: e.sets.map(fromDraftSet),
     })),
+    media: meta.media,
   };
 }
