@@ -59,11 +59,13 @@ export default function ExerciseEditor() {
 
   useEffect(() => {
     if (!id) return;
-    getExerciseForEdit(id).then((e) => {
-      if (!e) return;
-      setDraft(e.input);
-      setTypeLocked(e.typeLocked);
-    });
+    getExerciseForEdit(id)
+      .then((e) => {
+        if (!e) return;
+        setDraft(e.input);
+        setTypeLocked(e.typeLocked);
+      })
+      .catch((e) => console.warn('[exercise] load failed', e));
   }, [id]);
 
   useEffect(
@@ -75,7 +77,9 @@ export default function ExerciseEditor() {
   useEffect(() => {
     if (!name) return;
     let current = true;
-    findByName(name, id).then((found) => current && setTaken(found && { name, ...found }));
+    findByName(name, id)
+      .then((found) => current && setTaken(found && { name, ...found }))
+      .catch((e) => console.warn('[exercise] name check failed', e));
     return () => {
       current = false;
     };
