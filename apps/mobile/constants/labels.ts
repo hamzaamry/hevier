@@ -266,3 +266,14 @@ export const EXERCISE_EDITOR_LABELS = {
   none: 'None',
   done: 'Done',
 };
+
+// The exercise page's ⋯ for an exercise the user made (components/exercise-page/ExerciseMenu.tsx).
+export const EXERCISE_MENU_LABELS = {
+  more: 'More',
+  edit: 'Edit Exercise',
+  archive: 'Archive Exercise',
+  restore: 'Restore Exercise',
+  archiveMessage: (name: string) =>
+    `Archive ${name}? It leaves the exercise list. Past workouts and routines keep it.`,
+  archived: 'Archived',
+};
