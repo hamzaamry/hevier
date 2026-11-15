@@ -12,10 +12,10 @@ import { HIT_SLOPS, RADIUS, SPACE } from '@/constants/layout';
 import { ICON_SIZES, MEDIA_STRIP_SIZES, SIZES } from '@/constants/sizes';
 import type { DashedProps, MediaStripProps } from './types';
 
-// The Save Workout page's "Add a photo / video":
+// "Add a photo / video" (Save Workout, the workout page, Edit Workout):
 // a dashed box; once something is picked, a row of tiles with ✕, and a small
 // dashed + to add more. Videos show as a dark tile with ▶. Without onAdd it
-// only shows the tiles (the workout page).
+// only shows the tiles.
 
 function roundedRectPath(width: number, height: number, r: number) {
   return [
