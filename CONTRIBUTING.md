@@ -30,8 +30,20 @@ Coverage counts the logic (`apps/mobile/lib/`, `db/`, `stores/`,
 hooks have no unit tests and don't count (see `sonar-project.properties`). New
 logic needs tests: `pnpm test:coverage` shows what they cover.
 
-If you changed a screen, try it on an emulator or phone, and add a screenshot
-to the pull request.
+### Screenshots
+
+Every pull request shows its change with screenshots in the description:
+
+- **Bug fix:** before and after, side by side, so the reviewer sees what was
+  wrong and that it's gone.
+- **Feature:** the feature in use: each new screen and the main steps through
+  it, on an emulator or phone.
+- **Chore** (scripts, tooling, build, dependencies): a screenshot of the
+  result, such as a script's output, the command running, or the build passing.
+
+A change with nothing to show skips this rule (a dependency bump, a config
+tweak, a rename, a refactor that changes nothing on screen). Say so in the
+description: "No screenshots: nothing changes on screen."
 
 Keep one change per pull request, and one change per commit. Write commit
 messages that say what changed, in plain words.
