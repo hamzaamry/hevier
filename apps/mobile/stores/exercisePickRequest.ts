@@ -40,3 +40,17 @@ export function takeInfoPick() {
   infoPick = null;
   return handler;
 }
+
+// Create Exercise, opened from the picker, leaves the new exercise's id here;
+// the picker takes it when it comes back into view and ticks (or swaps in) it.
+let createdExercise: string | null = null;
+
+export function setCreatedExercise(id: string) {
+  createdExercise = id;
+}
+
+export function takeCreatedExercise() {
+  const id = createdExercise;
+  createdExercise = null;
+  return id;
+}

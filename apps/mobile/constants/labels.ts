@@ -247,3 +247,22 @@ export const GYM_LABELS = {
   recordsAt: 'At',
   allGyms: 'all gyms',
 };
+
+// Create / Edit Exercise (app/exercise-editor.tsx).
+export const EXERCISE_EDITOR_LABELS = {
+  createTitle: 'Create Exercise',
+  editTitle: 'Edit Exercise',
+  save: 'Save',
+  cancel: 'Cancel',
+  name: 'Name',
+  namePlaceholder: 'Exercise name',
+  nameTaken: 'You already have an exercise with this name.',
+  equipment: 'Equipment',
+  primary: 'Primary muscle',
+  secondary: 'Other muscles',
+  type: 'Exercise type',
+  typeLocked: "The type can't change once the exercise is in a workout or routine.",
+  select: 'Select',
+  none: 'None',
+  done: 'Done',
+};
