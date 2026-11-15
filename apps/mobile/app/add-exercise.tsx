@@ -1,10 +1,10 @@
 import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { SectionList, StyleSheet, View } from 'react-native';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getActiveWorkout, updateActiveWorkout } from '@/stores/activeWorkoutStore';
-import { currentPickRequest, deliverPicks, setInfoPick } from '@/stores/exercisePickRequest';
+import { currentPickRequest, deliverPicks, setInfoPick, takeCreatedExercise } from '@/stores/exercisePickRequest';
 import { FilterSheet } from '@/components/exercises/FilterSheet';
 import { HeaderTextButton, HeaderTextLeft, InnerHeader } from '@/components/ui/InnerHeader';
 import { Screen } from '@/components/ui/Screen';
@@ -51,8 +51,25 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
   const [muscles, setMuscles] = useState<MuscleGroup[]>([]);
   const [sheet, setSheet] = useState<PickerFilter | null>(null);
 
+  // Loaded again each time the picker comes back into view: an exercise made
+  // in Create Exercise shows up, ticked (or swapped in when replacing).
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      getPickerExercises().then((list) => {
+        if (!active) return;
+        setAll(list);
+        const createdId = takeCreatedExercise();
+        const created = list.find((e) => e.id === createdId);
+        if (created && !browse) handlers.current.choose(created);
+      });
+      return () => {
+        active = false;
+      };
+    }, [browse])
+  );
+
   useEffect(() => {
-    getPickerExercises().then(setAll);
     if (replace) {
       getActiveWorkout().then((w) => {
         const e = w?.exercises.find((x) => x.key === replace);
@@ -132,6 +149,10 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
 
   const noResults = all !== null && sections.length === 0;
 
+  function openCreate(name?: string) {
+    router.push({ pathname: '/exercise-editor', params: name ? { name } : {} });
+  }
+
   // Stable row callbacks (by exercise) reading the latest choose / openInfo, so a
   // pick redraws only the rows whose selection changed.
   const handlers = useRef({ choose, openInfo });
@@ -161,14 +182,12 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
     <Screen>
       <Stack.Screen options={{ headerShown: false }} />
       {browse ? (
-        // No Create button: custom exercises aren't supported yet.
-        <InnerHeader title="Exercises" />
+        <InnerHeader title="Exercises" right={<HeaderTextButton label="Create" onPress={() => openCreate()} />} />
       ) : (
         <InnerHeader
           title={replaceMode ? 'Replace Exercise' : 'Add Exercise'}
           left={<HeaderTextLeft label="Cancel" onPress={() => router.back()} />}
-          // Create Custom Exercise comes in a later step.
-          right={<HeaderTextButton label="Create" onPress={() => {}} />}
+          right={<HeaderTextButton label="Create" onPress={() => openCreate()} />}
         />
       )}
 
@@ -188,8 +207,14 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
         <EmptyState
           title={query.trim() ? `Can't find ${query.trim()}` : 'No exercises'}
           message="We don't have that exercise in our database yet."
-          // Opens Create Custom Exercise (a later step).
-          action={!browse && <Button label="Create Custom Exercise" size="compact" style={styles.emptyButton} />}
+          action={
+            <Button
+              label="Create Custom Exercise"
+              size="compact"
+              style={styles.emptyButton}
+              onPress={() => openCreate(query.trim())}
+            />
+          }
           style={styles.empty}
         />
       ) : (
