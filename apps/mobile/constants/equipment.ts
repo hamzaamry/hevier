@@ -40,3 +40,17 @@ export const EQUIPMENT_OF: Record<string, EquipmentGroup> = {
   'resistance band': 'Resistance Band',
   'suspension trainer': 'Suspension Band',
 };
+
+// The other way round, for exercises the user makes (lib/domain/exerciseInput.ts).
+// Other is no word at all: equipmentGroup(null) is Other.
+export const EQUIPMENT_WORD_OF: Record<EquipmentGroup, string | null> = {
+  None: 'body weight',
+  Barbell: 'barbell',
+  Dumbbell: 'dumbbell',
+  Kettlebell: 'kettlebell',
+  Machine: 'leverage machine',
+  Plate: 'weight plate',
+  'Resistance Band': 'resistance band',
+  'Suspension Band': 'suspension trainer',
+  Other: null,
+};

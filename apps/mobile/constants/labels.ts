@@ -112,6 +112,14 @@ export const WORKOUT_COLUMN_LABELS: Record<ExerciseType, string> = {
   distance_duration: 'DISTANCE & TIME',
 };
 
+// Create / Edit Exercise (app/exercise-editor.tsx): the Exercise type choices.
+export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
+  weight_reps: 'Weight & reps',
+  reps_only: 'Reps only',
+  duration: 'Duration',
+  distance_duration: 'Distance & time',
+};
+
 // components/body/BodyFigure.tsx: the recovery legend.
 export const RECOVERY_LABELS: Record<RecoveryState, string> = {
   ready: 'Likely ready',
@@ -238,4 +246,37 @@ export const GYM_LABELS = {
   justThisWorkout: 'Just This Workout',
   recordsAt: 'At',
   allGyms: 'all gyms',
+};
+
+// Create / Edit Exercise (app/exercise-editor.tsx).
+export const EXERCISE_EDITOR_LABELS = {
+  createTitle: 'Create Exercise',
+  editTitle: 'Edit Exercise',
+  save: 'Save',
+  cancel: 'Cancel',
+  name: 'Name',
+  namePlaceholder: 'Exercise name',
+  nameTaken: 'You already have an exercise with this name.',
+  nameArchived: 'You archived an exercise with this name.',
+  restore: 'Restore it',
+  equipment: 'Equipment',
+  primary: 'Primary muscle',
+  secondary: 'Secondary muscles',
+  primaryFirst: 'Pick a primary first',
+  type: 'Exercise type',
+  typeLocked: "The type can't change once the exercise is in a workout or routine.",
+  select: 'Select',
+  none: 'None',
+  done: 'Done',
+};
+
+// The exercise page's ⋯ for an exercise the user made (components/exercise-page/ExerciseMenu.tsx).
+export const EXERCISE_MENU_LABELS = {
+  more: 'More',
+  edit: 'Edit Exercise',
+  archive: 'Archive Exercise',
+  restore: 'Restore Exercise',
+  archiveMessage: (name: string) =>
+    `Archive ${name}? It leaves the exercise list. Past workouts and routines keep it.`,
+  archived: 'Archived',
 };

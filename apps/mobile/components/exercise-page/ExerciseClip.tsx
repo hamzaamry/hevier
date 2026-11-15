@@ -11,6 +11,7 @@ import { HIT_SLOPS, RADIUS } from '@/constants/layout';
 import { EXERCISE_PAGE_SIZES, ICON_SIZES } from '@/constants/sizes';
 import { STORAGE_FOLDERS } from '@/constants/storage';
 import { mediaIdFor } from '@/lib/domain/drawings';
+import { mediaUri as userMediaUri } from '@/lib/workoutMedia';
 import { useDrawings } from '@/stores/drawings';
 import type { CatalogueMediaKind, ClipVideoProps, ExerciseClipProps } from './types';
 
@@ -44,13 +45,15 @@ function ClipVideo({ uri }: ClipVideoProps) {
 }
 
 // The exercise's clip on a loop, muted, with ⏸ / ▶; the still when there's no
-// clip, a plain barbell for custom exercises.
+// clip, a plain barbell for custom exercises; a user's exercise plays its own
+// photo or video.
 // Memoized: it checks the files on disk, so not on every chart tap.
-export const ExerciseClip = memo(function ExerciseClip({ catalogueId }: ExerciseClipProps) {
+export const ExerciseClip = memo(function ExerciseClip({ catalogueId, media }: ExerciseClipProps) {
   const drawings = useDrawings();
   const mediaId = catalogueId ? mediaIdFor(catalogueId, drawings) : null;
-  const clip = mediaId ? mediaUri('clip', mediaId, 'mp4') : null;
-  const still = mediaId ? mediaUri('still', mediaId, 'webp') : null;
+  const own = media ? userMediaUri(media.file) : null;
+  const clip = media?.kind === 'video' ? own : mediaId ? mediaUri('clip', mediaId, 'mp4') : null;
+  const still = media?.kind === 'photo' ? own : mediaId ? mediaUri('still', mediaId, 'webp') : null;
   return (
     <View style={styles.clip}>
       {clip ? (

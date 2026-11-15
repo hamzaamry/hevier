@@ -58,7 +58,7 @@ export function SummaryTab({ detail }: ExerciseTabProps) {
 
   return (
     <>
-      <ExerciseClip catalogueId={detail.catalogueId} />
+      <ExerciseClip catalogueId={detail.catalogueId} media={detail.media} />
       <View style={shared.body}>
         <Text style={shared.name}>{detail.name}</Text>
         <Text style={styles.muscles}>Primary: {detail.primary}</Text>

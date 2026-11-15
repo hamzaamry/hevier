@@ -7,8 +7,8 @@ import { usePerHand } from '@/stores/perHand';
 import { setBadges, setValue } from '@/lib/format/setFormat';
 import { SetBadge } from '@/components/set-table/SetBadge';
 import { COLORS, LINE_HEIGHTS, TYPE } from '@/constants/theme';
-import { WORKOUT_COLUMN_LABELS } from '@/constants/labels';
-import { LAYOUT, SPACE } from '@/constants/layout';
+import { EXERCISE_MENU_LABELS, WORKOUT_COLUMN_LABELS } from '@/constants/labels';
+import { BORDER_WIDTHS, LAYOUT, RADIUS, SPACE } from '@/constants/layout';
 import { ICON_SIZES, SIZES, WORKOUT_PAGE_SIZES } from '@/constants/sizes';
 import type { WorkoutExerciseBlockProps } from './types';
 
@@ -25,6 +25,7 @@ export const WorkoutExerciseBlock = memo(function WorkoutExerciseBlock({ exercis
         <Text style={styles.exerciseName} numberOfLines={1}>
           {exercise.name}
         </Text>
+        {exercise.archived && <Text style={styles.archived}>{EXERCISE_MENU_LABELS.archived}</Text>}
       </Pressable>
       {exercise.notes ? <Text style={styles.notes}>{exercise.notes}</Text> : null}
 
@@ -51,6 +52,16 @@ const styles = StyleSheet.create({
   exerciseTitle: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  // A small outlined tag after the name.
+  archived: {
+    ...TYPE.small,
+    color: COLORS.textSecondary,
+    borderWidth: BORDER_WIDTHS.thin,
+    borderColor: COLORS.track,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: SPACE.xs,
+    marginLeft: SPACE.sm,
   },
   exerciseName: {
     flex: 1,

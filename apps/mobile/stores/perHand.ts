@@ -15,17 +15,21 @@ function changed() {
   for (const l of listeners) l();
 }
 
+function load() {
+  getPerHand()
+    .then((p) => {
+      eligible = new Set(p.eligible);
+      on = new Set(p.on);
+      changed();
+    })
+    .catch((e) => console.warn('[perHand] load failed', e));
+}
+
 function subscribe(l: () => void) {
   listeners.add(l);
   if (!loaded) {
     loaded = true;
-    getPerHand()
-      .then((p) => {
-        eligible = new Set(p.eligible);
-        on = new Set(p.on);
-        changed();
-      })
-      .catch((e) => console.warn('[perHand] load failed', e));
+    load();
   }
   return () => {
     listeners.delete(l);
@@ -49,4 +53,10 @@ export function togglePerHand(exerciseId: string) {
   else on.add(exerciseId);
   changed();
   savePerHand([...on]).catch((e) => console.warn('[perHand] save failed', e));
+}
+
+// An exercise was made or its equipment changed (Create / Edit Exercise): which
+// ones are two-dumbbell moves may have changed.
+export function reloadPerHand() {
+  if (loaded) load();
 }

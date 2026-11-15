@@ -63,6 +63,7 @@ export function buildCards(workouts: WorkoutRow[], rows: WorkoutSetRow[], timeli
         name: r.name,
         type: r.type,
         catalogueId: r.catalogue_id,
+        archived: r.archived === 1,
         notes: r.notes,
         sets: [],
       });

@@ -10,6 +10,7 @@ const ex = (name: string, extra: Partial<PickerExercise> = {}): PickerExercise =
   catalogueId: null,
   muscle: 'Biceps',
   equipment: 'Dumbbell',
+  media: null,
   timesDone: 0,
   lastDone: null,
   ...extra,

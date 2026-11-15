@@ -256,5 +256,6 @@ export interface FormRowProps {
   icon: ReactNode;
   label: string;
   value: string;
+  disabled?: boolean;
   onPress: () => void;
 }

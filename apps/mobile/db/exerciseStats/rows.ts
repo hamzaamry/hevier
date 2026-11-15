@@ -1,5 +1,5 @@
 import type { ExerciseType } from '@/types/exercise';
-import type { SetType } from '@/types/workout';
+import type { MediaItem, SetType } from '@/types/workout';
 
 // What the exercise page's queries return.
 
@@ -15,6 +15,10 @@ export interface ExerciseDetailRow {
   secondary_muscles: string | null;
   description: string | null;
   instructions: string | null;
+  user_created: number;
+  archived_at: string | null;
+  media_file: string | null;
+  media_kind: MediaItem['kind'] | null;
 }
 
 // SELECT_EXERCISE_HISTORY

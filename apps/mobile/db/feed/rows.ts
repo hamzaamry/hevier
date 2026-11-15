@@ -19,6 +19,7 @@ export interface WorkoutSetRow {
   name: string;
   type: ExerciseType;
   catalogue_id: string | null;
+  archived: number; // 1 = archived exercise
   notes: string | null;
   set_id: string | null;
   set_type: SetType | null;

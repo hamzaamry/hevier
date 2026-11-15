@@ -12,7 +12,7 @@ import type { ExerciseTabProps } from './types';
 export function HowToTab({ detail }: ExerciseTabProps) {
   return (
     <>
-      <ExerciseClip catalogueId={detail.catalogueId} />
+      <ExerciseClip catalogueId={detail.catalogueId} media={detail.media} />
       <View style={shared.body}>
         <Text style={shared.name}>{detail.name}</Text>
         {detail.description ? <Text style={styles.howtoText}>{detail.description}</Text> : null}

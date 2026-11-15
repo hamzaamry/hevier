@@ -53,7 +53,7 @@ describe('runMigrations', () => {
     ]);
 
     const version = rawDb.exec('PRAGMA user_version')[0].values[0][0];
-    expect(version).toBe(16);
+    expect(version).toBe(17);
   });
 
   it('is idempotent: running twice does not error or duplicate', async () => {
@@ -77,7 +77,22 @@ describe('runMigrations', () => {
 
     const row = rawDb.exec("SELECT is_custom, catalogue_id FROM exercises WHERE id = 'e1'")[0].values[0];
     expect(row).toEqual([1, null]);
-    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(16);
+    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(17);
+  });
+
+  it('017 adds the custom exercise columns, off for existing exercises', async () => {
+    const rawDb = new SQL.Database();
+    for (const m of MIGRATIONS.slice(0, 16)) rawDb.exec(m.sql);
+    rawDb.exec('PRAGMA user_version = 16');
+    rawDb.exec("INSERT INTO exercises (id, name, type) VALUES ('e1', 'Pull Up', 'reps_only')");
+
+    await runMigrations(wrap(rawDb));
+
+    const columns = rawDb.exec('PRAGMA table_info(exercises)')[0].values.map((c) => c[1]);
+    expect(columns).toEqual(expect.arrayContaining(['user_created', 'archived_at', 'media_file', 'media_kind']));
+    const row = rawDb.exec("SELECT user_created, archived_at, media_file, media_kind FROM exercises WHERE id = 'e1'")[0].values[0];
+    expect(row).toEqual([0, null, null, null]);
+    expect(() => rawDb.exec("UPDATE exercises SET media_kind = 'gif' WHERE id = 'e1'")).toThrow();
   });
 
   it('allows warm-up sets and keeps the existing sets', async () => {
