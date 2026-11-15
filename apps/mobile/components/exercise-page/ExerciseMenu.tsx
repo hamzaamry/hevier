@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Archive } from 'phosphor-react-native/src/icons/Archive';
 import { ArrowCounterClockwise } from 'phosphor-react-native/src/icons/ArrowCounterClockwise';
@@ -11,7 +11,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAfterSheetClose } from '@/hooks/useAfterSheetClose';
 import { EXERCISE_MENU_LABELS as L } from '@/constants/labels';
 import { COLORS } from '@/constants/theme';
-import { HIT_SLOPS } from '@/constants/layout';
+import { HIT_SLOPS, SPACE } from '@/constants/layout';
 import { ICON_SIZES } from '@/constants/sizes';
 import { archiveExercise, restoreExercise } from '@/db/exercises/write';
 import type { ExerciseDetail } from '@/types/exercise';
@@ -43,7 +43,7 @@ export function useExerciseMenu(detail: ExerciseDetail | null, onChanged: () => 
   }
 
   const button = detail?.userCreated ? (
-    <Pressable onPress={() => setOpen(true)} hitSlop={HIT_SLOPS.md} accessibilityLabel={L.more}>
+    <Pressable onPress={() => setOpen(true)} hitSlop={HIT_SLOPS.md} accessibilityLabel={L.more} style={styles.more}>
       <DotsThree size={ICON_SIZES.xxl} weight="bold" color={COLORS.text} />
     </Pressable>
   ) : null;
@@ -92,3 +92,10 @@ export function useExerciseMenu(detail: ExerciseDetail | null, onChanged: () => 
 
   return { button, menu };
 }
+
+const styles = StyleSheet.create({
+  // The header's right side has no inner margin (text buttons bring their own).
+  more: {
+    marginRight: SPACE.lg,
+  },
+});

@@ -76,7 +76,14 @@ export function FilterSheet<K extends string>({
         </ScrollView>
         {!single && (
           <View style={styles.bar}>
-            <Button label="Clear Filters" variant="neutral" size="compact" style={styles.barButton} onPress={() => setPicks([])} />
+            {/* applyLabel: a picker, not a filter (Create Exercise's Secondary muscles). */}
+            <Button
+              label={applyLabel ? 'Clear' : 'Clear Filters'}
+              variant="neutral"
+              size="compact"
+              style={styles.barButton}
+              onPress={() => setPicks([])}
+            />
             <ShowButton picks={picks} countFor={countFor} applyLabel={applyLabel} onApply={onApply} />
           </View>
         )}

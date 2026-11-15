@@ -184,25 +184,21 @@ export default function ExerciseEditor() {
           {clash?.archived && id && <Text style={styles.error}>{L.nameTaken}</Text>}
 
           <FormRow icon={null} label={L.equipment} value={draft.equipment ?? L.select} onPress={() => setSheet('equipment')} />
+          <FormRow icon={null} label={L.primary} value={draft.primary ?? L.select} onPress={() => setSheet('primary')} />
+          {/* Its choices leave out the primary muscle, so it waits for one. */}
           <FormRow
-            icon={draft.primary ? <MuscleIcon group={draft.primary} /> : null}
-            label={L.primary}
-            value={draft.primary ?? L.select}
-            onPress={() => setSheet('primary')}
+            icon={null}
+            label={L.secondary}
+            value={!draft.primary ? L.primaryFirst : draft.secondary.length ? draft.secondary.join(', ') : L.none}
+            disabled={!draft.primary}
+            onPress={() => setSheet('secondary')}
           />
-          {draft.primary && (
-            <FormRow
-              icon={null}
-              label={L.secondary}
-              value={draft.secondary.length ? draft.secondary.join(', ') : L.none}
-              onPress={() => setSheet('secondary')}
-            />
-          )}
           <FormRow
             icon={null}
             label={L.type}
             value={EXERCISE_TYPE_LABELS[draft.type]}
-            onPress={() => !typeLocked && setSheet('type')}
+            disabled={typeLocked}
+            onPress={() => setSheet('type')}
           />
           {typeLocked && <Text style={styles.note}>{L.typeLocked}</Text>}
         </ScrollView>
