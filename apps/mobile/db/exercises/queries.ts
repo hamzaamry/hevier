@@ -17,13 +17,15 @@ export const SELECT_EXERCISE_FOR_EDIT = `
   SELECT id, name, type, body_part, target_muscle, secondary_muscles, equipment, media_file, media_kind
   FROM exercises WHERE id = ?`;
 
-// Whether another exercise already has this name, any case, archived ones included.
-export const SELECT_NAME_TAKEN = 'SELECT 1 AS taken FROM exercises WHERE name = ? COLLATE NOCASE AND id <> ? LIMIT 1';
+// Another exercise with this name, any case, archived ones included.
+export const SELECT_BY_NAME = 'SELECT id, archived_at FROM exercises WHERE name = ? COLLATE NOCASE AND id <> ? LIMIT 1';
 
-// Whether a workout or routine uses the exercise (its type can't change then).
+// Whether a workout, a routine or the workout in progress (saved in app_state)
+// uses the exercise: its type can't change then.
 export const SELECT_EXERCISE_USED = `
   SELECT 1 AS used WHERE EXISTS (SELECT 1 FROM workout_exercises WHERE exercise_id = ?)
-                      OR EXISTS (SELECT 1 FROM routine_exercises WHERE exercise_id = ?)`;
+                      OR EXISTS (SELECT 1 FROM routine_exercises WHERE exercise_id = ?)
+                      OR EXISTS (SELECT 1 FROM app_state WHERE value LIKE '%' || ? || '%')`;
 
 export const ARCHIVE_EXERCISE = 'UPDATE exercises SET archived_at = ? WHERE id = ?';
 export const RESTORE_EXERCISE = 'UPDATE exercises SET archived_at = NULL WHERE id = ?';

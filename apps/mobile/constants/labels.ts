@@ -257,6 +257,8 @@ export const EXERCISE_EDITOR_LABELS = {
   name: 'Name',
   namePlaceholder: 'Exercise name',
   nameTaken: 'You already have an exercise with this name.',
+  nameArchived: 'You archived an exercise with this name.',
+  restore: 'Restore it',
   equipment: 'Equipment',
   primary: 'Primary muscle',
   secondary: 'Other muscles',

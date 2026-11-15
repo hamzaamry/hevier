@@ -59,6 +59,8 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
       getPickerExercises().then((list) => {
         if (!active) return;
         setAll(list);
+        // A ticked exercise archived from its ⓘ page meanwhile is no longer there.
+        setPicked((p) => p.filter((id) => list.some((e) => e.id === id)));
         const createdId = takeCreatedExercise();
         const created = list.find((e) => e.id === createdId);
         if (created && !browse) handlers.current.choose(created);

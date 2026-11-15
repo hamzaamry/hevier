@@ -35,9 +35,10 @@ export default function ExercisePage() {
     if (id) getExerciseDetail(id).then(setDetail);
   }, [id]);
   useFocusEffect(load);
-  const { button: menuButton, menu } = useExerciseMenu(detail, load);
 
   const picking = pick === 'add' || pick === 'replace';
+  // No ⋯ while picking (opened from ⓘ in the picker): it is there to add the exercise.
+  const { button: menuButton, menu } = useExerciseMenu(picking ? null : detail, load);
   // Once only: a double tap went back twice, closing the picker's caller too.
   const added = useRef(false);
 

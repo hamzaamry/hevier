@@ -9,9 +9,8 @@ vi.mock('expo-crypto', () => {
   return { randomUUID: () => `id${++n}` };
 });
 
-const { archiveExercise, createExercise, isNameTaken, isTypeLocked, restoreExercise, updateExercise } = await import(
-  './write'
-);
+const { archiveExercise, createExercise, findByName, isTypeLocked, NameTakenError, restoreExercise, updateExercise } =
+  await import('./write');
 const { getExerciseForEdit } = await import('./read');
 
 const twist: ExerciseInput = {
@@ -38,12 +37,9 @@ describe('exercises the user makes', () => {
   });
 
   it('finds a taken name whatever its case or spaces, archived ones too', async () => {
-    expect(await isNameTaken(' bench press (barbell) ')).toBe(true);
-    expect(await isNameTaken('Bench Press (Barbell)', 'bp')).toBe(false);
-    expect(await isNameTaken('Bench Press')).toBe(false);
-    const id = await createExercise(twist);
-    await archiveExercise(id);
-    expect(await isNameTaken('landmine twist')).toBe(true);
+    expect(await findByName(' bench press (barbell) ')).toEqual({ id: 'bp', archived: false });
+    expect(await findByName('Bench Press (Barbell)', 'bp')).toBeNull();
+    expect(await findByName('Bench Press')).toBeNull();
   });
 
   it('hands back the replaced media file, nothing when it stays', async () => {
@@ -74,6 +70,27 @@ describe('exercises the user makes', () => {
     expect(rows('SELECT id FROM workout_exercises')).toEqual([{ id: 'we' }]);
     await restoreExercise(id);
     expect(rows('SELECT archived_at FROM exercises WHERE id = ?', [id])).toEqual([{ archived_at: null }]);
+  });
+
+  it('locks the type while the workout in progress has it', async () => {
+    const id = await createExercise(twist);
+    raw.run("INSERT INTO app_state (key, value) VALUES ('activeWorkout', ?)", [JSON.stringify({ exercises: [{ exerciseId: id }] })]);
+    expect(await isTypeLocked(id)).toBe(true);
+  });
+
+  it('refuses a taken name on save, any case, without writing', async () => {
+    await expect(createExercise({ ...twist, name: 'BENCH PRESS (BARBELL)' })).rejects.toBeInstanceOf(NameTakenError);
+    const id = await createExercise(twist);
+    await expect(updateExercise(id, { ...twist, name: 'bench press (barbell)' })).rejects.toBeInstanceOf(NameTakenError);
+    expect(rows('SELECT name FROM exercises WHERE id = ?', [id])).toEqual([{ name: 'Landmine Twist' }]);
+  });
+
+  it('finds who has a name, and whether it is archived', async () => {
+    const id = await createExercise(twist);
+    expect(await findByName(' landmine twist')).toEqual({ id, archived: false });
+    await archiveExercise(id);
+    expect(await findByName('Landmine Twist')).toEqual({ id, archived: true });
+    expect(await findByName('Landmine Twist', id)).toBeNull();
   });
 
   it('gives nothing to edit for a missing exercise', async () => {

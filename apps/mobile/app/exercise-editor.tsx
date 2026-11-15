@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -19,10 +19,11 @@ import { COLORS, TYPE } from '@/constants/theme';
 import { SPACE } from '@/constants/layout';
 import { EDIT_PROFILE_SIZES, SIZES } from '@/constants/sizes';
 import { getExerciseForEdit } from '@/db/exercises/read';
-import { createExercise, isNameTaken, updateExercise } from '@/db/exercises/write';
+import { createExercise, findByName, NameTakenError, restoreExercise, updateExercise } from '@/db/exercises/write';
 import { secondaryOptions } from '@/lib/domain/exerciseInput';
 import { deleteMediaFiles } from '@/lib/workoutMedia';
 import { setCreatedExercise } from '@/stores/exercisePickRequest';
+import { reloadPerHand } from '@/stores/perHand';
 import type { EquipmentGroup } from '@/types/equipment';
 import type { ExerciseInput } from '@/types/exercise';
 import type { MuscleGroup } from '@/types/muscles';
@@ -48,8 +49,8 @@ export default function ExerciseEditor() {
   const { id, name: prefill } = useLocalSearchParams<{ id?: string; name?: string }>();
   const [draft, setDraft] = useState<Draft | null>(id ? null : { ...EMPTY, name: prefill ?? '' });
   const [typeLocked, setTypeLocked] = useState(false);
-  // Which trimmed name was found taken; only the current one counts.
-  const [takenName, setTakenName] = useState<string | null>(null);
+  // The exercise found with the typed name, for the name it was looked up for.
+  const [taken, setTaken] = useState<{ name: string; id: string; archived: boolean } | null>(null);
   const [sheet, setSheet] = useState<Sheet | null>(null);
   // Files picked on this screen; whichever isn't saved is deleted on close.
   const picked = useRef<string[]>([]);
@@ -70,16 +71,17 @@ export default function ExerciseEditor() {
     []
   );
 
-  const name = useDeferredValue(draft?.name.trim() ?? '');
+  const name = draft?.name.trim() ?? '';
   useEffect(() => {
     if (!name) return;
     let current = true;
-    isNameTaken(name, id).then((taken) => current && setTakenName(taken ? name : null));
+    findByName(name, id).then((found) => current && setTaken(found && { name, ...found }));
     return () => {
       current = false;
     };
   }, [name, id]);
-  const nameTaken = !!draft && takenName === draft.name.trim();
+  // Only an answer for the name in the box counts (a slower one may arrive late).
+  const clash = taken && taken.name === name ? taken : null;
 
   const media = useMediaSource(
     ([item]: MediaItem[]) => {
@@ -98,19 +100,41 @@ export default function ExerciseEditor() {
     setSheet(null);
   }
 
-  const valid = !!draft?.name.trim() && !!draft.equipment && !!draft.primary && !nameTaken;
+  const valid = !!name && !!draft?.equipment && !!draft.primary && !clash;
 
   async function save() {
     if (!valid || !draft?.equipment || !draft.primary || leaving.current) return;
     leaving.current = true;
     const input: ExerciseInput = { ...draft, equipment: draft.equipment, primary: draft.primary };
     saved.current = input.media?.file ?? null;
-    if (id) {
-      const replaced = await updateExercise(id, input);
-      if (replaced) deleteMediaFiles([replaced]);
-    } else {
-      setCreatedExercise(await createExercise(input));
+    try {
+      if (id) {
+        const replaced = await updateExercise(id, input);
+        if (replaced) deleteMediaFiles([replaced]);
+      } else {
+        setCreatedExercise(await createExercise(input));
+      }
+      reloadPerHand();
+      router.back();
+    } catch (e) {
+      // Nothing was written: the form stays, Save works again.
+      saved.current = null;
+      leaving.current = false;
+      if (!(e instanceof NameTakenError)) {
+        console.warn('[exercise] save failed', e);
+        return;
+      }
+      const found = await findByName(input.name, id);
+      setTaken(found && { name: input.name.trim(), ...found });
     }
+  }
+
+  // The name is an archived exercise's: bring that one back instead (the picker ticks it).
+  async function restoreClash() {
+    if (!clash || leaving.current) return;
+    leaving.current = true;
+    await restoreExercise(clash.id);
+    setCreatedExercise(clash.id);
     router.back();
   }
 
@@ -148,7 +172,16 @@ export default function ExerciseEditor() {
             />
           </View>
           <Divider />
-          {nameTaken && <Text style={styles.error}>{L.nameTaken}</Text>}
+          {clash && !clash.archived && <Text style={styles.error}>{L.nameTaken}</Text>}
+          {clash?.archived && !id && (
+            <Text style={styles.error}>
+              {L.nameArchived}{' '}
+              <Text style={styles.link} onPress={restoreClash}>
+                {L.restore}
+              </Text>
+            </Text>
+          )}
+          {clash?.archived && id && <Text style={styles.error}>{L.nameTaken}</Text>}
 
           <FormRow icon={null} label={L.equipment} value={draft.equipment ?? L.select} onPress={() => setSheet('equipment')} />
           <FormRow
@@ -257,6 +290,9 @@ const styles = StyleSheet.create({
     ...TYPE.small,
     color: COLORS.danger,
     marginTop: SPACE.xs,
+  },
+  link: {
+    color: COLORS.primary,
   },
   note: {
     ...TYPE.small,
