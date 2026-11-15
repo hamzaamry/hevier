@@ -2,7 +2,8 @@
 
 // One exercise, with what its page shows.
 export const SELECT_EXERCISE_DETAIL = `
-  SELECT id, name, type, equipment, catalogue_id, target_muscle, body_part, secondary_muscles, description, instructions
+  SELECT id, name, type, equipment, catalogue_id, target_muscle, body_part, secondary_muscles, description, instructions,
+         user_created, archived_at, media_file, media_kind
   FROM exercises WHERE id = ?`;
 
 // Every set ever logged for one exercise, one row per set (or one set-less row

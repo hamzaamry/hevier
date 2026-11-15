@@ -15,6 +15,7 @@ export interface PickerExercise {
   catalogueId: string | null;
   muscle: MuscleGroup; // grey line under the name
   equipment: EquipmentGroup;
+  media: MediaItem | null; // the user's photo or video (user-made exercises)
   timesDone: number;
   lastDone: string | null; // ISO start of the latest workout with it
 }
@@ -53,6 +54,9 @@ export interface ExerciseDetail {
   secondary: MuscleGroup[];
   description: string | null;
   instructions: string[];
+  userCreated: boolean; // made in the app: can be edited and archived
+  archived: boolean;
+  media: MediaItem | null;
   sessions: ExerciseSession[]; // oldest first
   // Set only for a machine or cable exercise once the user has changed gym: the
   // gym whose records the page shows.

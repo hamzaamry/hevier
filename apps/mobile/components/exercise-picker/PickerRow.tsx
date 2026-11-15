@@ -26,7 +26,8 @@ export const PickerRow = memo(function PickerRow({ exercise, selected, onPress, 
       style={({ pressed }) => [styles.row, selected && styles.rowSelected, pressed && !selected && styles.rowPressed]}
       onPress={() => onPress(exercise)}>
       <View>
-        <ExerciseThumb catalogueId={exercise.catalogueId} size={ADD_EXERCISE_SIZES.exerciseThumb} />
+        {/* ponytail: user media shows only here and on the exercise page; thread media through the other queries if users ask */}
+        <ExerciseThumb catalogueId={exercise.catalogueId} media={exercise.media} size={ADD_EXERCISE_SIZES.exerciseThumb} />
         {selected && (
           <View style={styles.badge}>
             <Check size={ICON_SIZES.xxs} weight="bold" color={COLORS.text} />

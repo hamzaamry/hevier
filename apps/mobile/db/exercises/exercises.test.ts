@@ -80,3 +80,28 @@ describe('exercises the user makes', () => {
     expect(await getExerciseForEdit('nope')).toBeNull();
   });
 });
+
+describe('reading exercises the user makes', () => {
+  beforeEach(async () => {
+    await freshDb();
+  });
+
+  it('the picker leaves out archived ones and gives the media', async () => {
+    const { getPickerExercises } = await import('@/db/exercisePicker/pickerExercises');
+    const kept = await createExercise(twist);
+    const gone = await createExercise({ ...twist, name: 'Old Twist', media: null });
+    await archiveExercise(gone);
+    const list = await getPickerExercises();
+    expect(list.map((e) => e.id)).toContain(kept);
+    expect(list.map((e) => e.id)).not.toContain(gone);
+    expect(list.find((e) => e.id === kept)?.media).toEqual({ file: 'a.mp4', kind: 'video' });
+  });
+
+  it('the exercise page says made by the user, archived, and gives the media', async () => {
+    const { getExerciseDetail } = await import('@/db/exerciseStats/detail');
+    const id = await createExercise(twist);
+    expect(await getExerciseDetail(id)).toMatchObject({ userCreated: true, archived: false, media: twist.media });
+    await archiveExercise(id);
+    expect(await getExerciseDetail(id)).toMatchObject({ archived: true });
+  });
+});

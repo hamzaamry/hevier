@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react';
 import type { EquipmentGroup } from '@/types/equipment';
 import type { MuscleGroup } from '@/types/muscles';
+import type { MediaItem } from '@/types/workout';
 
 // Props of the exercises components (components/exercises/).
 
 export interface ExerciseThumbProps {
   catalogueId: string | null;
+  media?: MediaItem | null; // a user's exercise: its own photo or video
   size?: number;
 }
 

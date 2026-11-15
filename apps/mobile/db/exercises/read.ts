@@ -1,4 +1,5 @@
 import { getDb } from '@/db/client';
+import { mediaFromColumns } from '@/lib/domain/exerciseInput';
 import { equipmentGroup, muscleGroup, parseList, secondaryGroups } from '@/lib/domain/muscles';
 import type { ExerciseInput } from '@/types/exercise';
 import { isTypeLocked } from './write';
@@ -18,7 +19,7 @@ export async function getExerciseForEdit(id: string): Promise<{ input: ExerciseI
       equipment: equipmentGroup(row.equipment),
       primary,
       secondary: secondaryGroups(parseList(row.secondary_muscles), primary),
-      media: row.media_file && row.media_kind ? { file: row.media_file, kind: row.media_kind } : null,
+      media: mediaFromColumns(row.media_file, row.media_kind),
     },
     typeLocked: await isTypeLocked(id),
   };

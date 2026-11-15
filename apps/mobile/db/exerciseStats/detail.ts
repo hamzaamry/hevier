@@ -2,6 +2,7 @@ import { getDb } from '@/db/client';
 import { getGymTimeline } from '@/db/gym/gym';
 import { gymName, isPerGym, recordKey, workoutGym } from '@/lib/gym/timeline';
 import { NO_GYM } from '@/constants/gym';
+import { mediaFromColumns } from '@/lib/domain/exerciseInput';
 import { muscleGroup, parseList, secondaryGroups } from '@/lib/domain/muscles';
 import type { ExerciseDetail } from '@/types/exercise';
 import { getExerciseHistory } from './history';
@@ -29,6 +30,9 @@ export async function getExerciseDetail(id: string): Promise<ExerciseDetail | nu
     secondary: secondaryGroups(parseList(row.secondary_muscles), primary),
     description: row.description,
     instructions: parseList(row.instructions),
+    userCreated: row.user_created === 1,
+    archived: row.archived_at !== null,
+    media: mediaFromColumns(row.media_file, row.media_kind),
     sessions: history.map((h) => ({
       workoutId: h.workout.id,
       title: h.workout.title,

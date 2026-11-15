@@ -1,5 +1,6 @@
 import type { CATALOGUE_MEDIA_KINDS, EXERCISE_PAGE_TABS } from '@/constants/exercise';
 import type { ExerciseDetail } from '@/types/exercise';
+import type { MediaItem } from '@/types/workout';
 
 // Props and local types of the exercise page pieces (components/exercise-page/).
 
@@ -19,6 +20,7 @@ export interface ExercisePageTabsProps {
 
 export interface ExerciseClipProps {
   catalogueId: string | null;
+  media?: MediaItem | null;
 }
 
 export interface GymRecordsInfoSheetProps {
