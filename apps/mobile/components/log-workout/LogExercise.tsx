@@ -43,6 +43,7 @@ export const LogExercise = memo(function LogExercise({ exercise, settings, timer
         onNotes={(notes) => actions.notes(exercise.key, notes)}
         onMenu={() => actions.menu(exercise.key)}
         onOpen={() => actions.open(exercise.exerciseId)}
+        foldLongNotes
       />
 
       <OptionRow

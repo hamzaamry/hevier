@@ -18,5 +18,10 @@ export const SET_TABLE_LAYOUTS = ['log', 'editor'] as const;
 // The faint stripes in a share card's corner (components/share-cards/).
 export const SHARE_CARD_STRIPES = ['streak', 'pr'] as const;
 
+// An exercise's note in Log Workout shows this many lines until "Show more" is
+// tapped; a note over either limit counts as long (lib/domain/exerciseNotes.ts).
+export const NOTES_COLLAPSED_LINES = 3;
+export const NOTES_COLLAPSED_MAX_CHARS = 140;
+
 // The Clock sheet's two modes (components/workout/ClockSheet.tsx).
 export const CLOCK_MODES = ['timer', 'stopwatch'] as const;
