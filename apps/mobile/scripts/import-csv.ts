@@ -59,10 +59,11 @@ export async function importCsvToDatabase(
   db.exec(`PRAGMA user_version = ${MIGRATIONS[MIGRATIONS.length - 1].version}`);
 
   const exerciseIds = new Map<string, string>();
+  // The migrations already add some (Football, Tennis, Hiking): the CSV's own
+  // workouts of those use that row.
   for (const [name, type] of exerciseTypes) {
-    const id = crypto.randomUUID();
-    exerciseIds.set(name, id);
-    db.run('INSERT INTO exercises (id, name, type) VALUES (?, ?, ?)', [id, name, type]);
+    db.run('INSERT OR IGNORE INTO exercises (id, name, type) VALUES (?, ?, ?)', [crypto.randomUUID(), name, type]);
+    exerciseIds.set(name, String(db.exec('SELECT id FROM exercises WHERE name = ?', [name])[0].values[0][0]));
   }
 
   if (catalogue.length > 0) insertCatalogue(db, catalogue, exerciseIds);
