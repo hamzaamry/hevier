@@ -53,7 +53,7 @@ describe('runMigrations', () => {
     ]);
 
     const version = rawDb.exec('PRAGMA user_version')[0].values[0][0];
-    expect(version).toBe(17);
+    expect(version).toBe(18);
   });
 
   it('is idempotent: running twice does not error or duplicate', async () => {
@@ -77,7 +77,7 @@ describe('runMigrations', () => {
 
     const row = rawDb.exec("SELECT is_custom, catalogue_id FROM exercises WHERE id = 'e1'")[0].values[0];
     expect(row).toEqual([1, null]);
-    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(17);
+    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(18);
   });
 
   it('017 adds the custom exercise columns, off for existing exercises', async () => {

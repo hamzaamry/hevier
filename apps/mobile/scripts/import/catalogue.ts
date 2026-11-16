@@ -25,20 +25,36 @@ const EQUIPMENT_PREFIXES: [string, string][] = [
 ];
 
 const LOWERCASE_WORDS = new Set(['a', 'an', 'and', 'at', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'with']);
+// Short forms written in capitals ("EZ Bar", not "Ez Bar").
+const UPPERCASE_WORDS = new Set(['ez', 'rdl', 'sz', 'trx', 'bosu', 'hiit', 'tvs']);
 
 function titleCase(text: string): string {
   return text
     .split(' ')
     .filter((w) => w !== '')
-    .map((w, i) => (i > 0 && LOWERCASE_WORDS.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)))
+    .map((w, i) =>
+      UPPERCASE_WORDS.has(w)
+        ? w.toUpperCase()
+        : i > 0 && LOWERCASE_WORDS.has(w)
+          ? w
+          : w.charAt(0).toUpperCase() + w.slice(1)
+    )
     .join(' ');
 }
 
 // "dumbbell bench press"               -> "Bench Press (Dumbbell)"
 // "cable straight arm pulldown (with rope)" -> "Straight Arm Pulldown - With Rope (Cable)"
 // "dumbbell hammer curl v. 2"          -> "Hammer Curl V2 (Dumbbell)"
+// The figure ("(male)") is left out, a "pov" (camera side) is a "view", and
+// "version 2" is "V2".
 export function toHevyName(catalogueName: string): string {
-  let rest = catalogueName.trim().toLowerCase();
+  let rest = catalogueName
+    .trim()
+    .toLowerCase()
+    .replace(/\((fe)?male\)|\b(fe)?male\b/g, ' ')
+    .replace(/\bpov\b/g, 'view')
+    .replace(/\bversion (\d+)/g, 'v$1')
+    .replace(/\(\s*\)/g, ' ');
 
   let detail = '';
   const paren = rest.match(/\s*\(([^)]*)\)/);

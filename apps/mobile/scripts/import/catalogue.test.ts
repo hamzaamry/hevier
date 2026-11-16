@@ -33,6 +33,15 @@ describe('toHevyName', () => {
     expect(toHevyName('cable straight arm pulldown (with rope)')).toBe('Straight Arm Pulldown - With Rope (Cable)');
     expect(toHevyName('dumbbell hammer curl v. 2')).toBe('Hammer Curl V2 (Dumbbell)');
   });
+
+  it('leaves the figure out and writes short forms in capitals', () => {
+    expect(toHevyName('half sit-up (male)')).toBe('Half Sit-up');
+    expect(toHevyName('arms apart circular toe touch male')).toBe('Arms Apart Circular Toe Touch');
+    expect(toHevyName('ez bar biceps curl')).toBe('EZ Bar Biceps Curl');
+    expect(toHevyName('bodyweight single leg rdl')).toBe('Bodyweight Single Leg RDL');
+    expect(toHevyName('sled 45° leg press (back pov)')).toBe('45° Leg Press - Back View (Machine)');
+    expect(toHevyName('air squat version 2')).toBe('Air Squat V2');
+  });
 });
 
 describe('catalogueExerciseType', () => {

@@ -1,5 +1,5 @@
 import { applyMuscleRules } from './muscleRules';
-import { HIDDEN_EXERCISES } from '@/constants/hiddenExercises';
+import { FEMALE_COPIES, HIDDEN_EXERCISES } from '@/constants/hiddenExercises';
 import type { CatalogueEntry, CatalogueUpdate, OpenGymEntry } from '@/types/import';
 
 // Turns openGym's catalogue into ours: one entry per exercise, without the
@@ -26,11 +26,13 @@ export function fromOpenGym(files: OpenGymEntry[]): CatalogueEntry[] {
 }
 
 // Each exercise's female drawing (openGym's femaleVariant), for users who pick
-// female drawings (lib/exercises/drawings.ts).
+// female drawings (lib/exercises/drawings.ts), and the ones linked by hand
+// (constants/hiddenExercises.ts).
 export function femaleDrawings(files: OpenGymEntry[], kept: CatalogueEntry[]): Record<string, string> {
   const ids = new Set(kept.map((e) => e.id));
   const out: Record<string, string> = {};
   for (const e of files) if (e.femaleVariant && ids.has(e.id)) out[e.id] = e.femaleVariant;
+  for (const [id, female] of Object.entries(FEMALE_COPIES)) if (ids.has(id) && !out[id]) out[id] = female;
   return out;
 }
 
