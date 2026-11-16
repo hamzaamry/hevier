@@ -75,6 +75,8 @@ export interface ExerciseBlockHeaderProps {
   onMenu: () => void;
   // Picture and name open the exercise page (Log Workout).
   onOpen?: () => void;
+  // A long note starts folded to a few lines with Show more (Log Workout).
+  foldLongNotes?: boolean;
 }
 
 export interface PreviousCellProps {
