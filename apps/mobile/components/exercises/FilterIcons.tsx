@@ -170,6 +170,16 @@ const EQUIPMENT: Record<EquipmentGroup, React.ReactNode> = {
       <Rect x={13} y={30.6} width={14} height={3} rx={0.8} fill={INK} />
     </>
   ),
+  // A pulley, its cable and a stirrup handle.
+  Cable: (
+    <>
+      <Circle cx={20} cy={9} r={4.6} stroke={INK} strokeWidth={2} fill="none" />
+      <Circle cx={20} cy={9} r={1.3} fill={INK} />
+      <Rect x={19.1} y={13.4} width={1.8} height={12.6} fill={INK} />
+      <Path d="M20 26 L13 33 L27 33 Z" stroke={INK} strokeWidth={2} fill="none" strokeLinejoin="round" />
+      <Rect x={12} y={32} width={16} height={3} rx={1.2} fill={INK} />
+    </>
+  ),
   Plate: (
     <>
       <Circle cx={20} cy={20} r={14.5} fill={INK} />
