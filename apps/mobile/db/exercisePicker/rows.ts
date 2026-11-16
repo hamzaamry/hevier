@@ -11,6 +11,8 @@ export interface PickerExerciseRow {
   catalogue_id: string | null;
   target_muscle: string | null;
   body_part: string | null;
+  secondary_muscles: string | null; // JSON list
+  category: string | null;
   equipment: string | null;
   media_file: string | null;
   media_kind: MediaItem['kind'] | null;

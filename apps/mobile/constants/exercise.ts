@@ -14,3 +14,36 @@ export const CATALOGUE_MEDIA_KINDS = ['clip', 'still'] as const;
 
 // The exercise picker's two filter sheets (app/add-exercise.tsx).
 export const PICKER_FILTERS = ['equipment', 'muscles'] as const;
+
+// Catalogue categories that are not workout exercises: the picker lists them
+// after the others (lib/domain/exerciseSearch.ts).
+export const STRETCH_CATEGORIES = ['stretching', 'mobility', 'yoga', 'rehab'];
+
+// The picker search's short forms (lib/domain/exerciseSearch.ts), typed words
+// already lowercased and without a final "s": the words they stand for.
+// "adductor" -> "adduct" finds the machine, named "Hip Adduction (Machine)".
+export const SEARCH_ALIASES: Record<string, string[]> = {
+  db: ['dumbbell'],
+  dbs: ['dumbbell'],
+  bb: ['barbell'],
+  kb: ['kettlebell'],
+  rdl: ['romanian', 'deadlift'],
+  sldl: ['stiff', 'leg', 'deadlift'],
+  ohp: ['overhead', 'press'],
+  adductor: ['adduct'],
+  abductor: ['abduct'],
+};
+
+// Gym names an exercise's name doesn't say (lib/domain/exerciseSearch.ts): an
+// exercise whose name matches is also found by these words. "reverse pec deck"
+// finds "Rear Delt Reverse Fly (Machine)", which has "reverse" itself.
+export const SEARCH_NICKNAMES: [RegExp, string][] = [
+  [/\bfly\b.*\(machine\)/i, 'pec deck'],
+  [/\bleg curl/i, 'hamstring curl'],
+  [/\bleg extension/i, 'quad extension'],
+  [/calf extension/i, 'calf raise'],
+  [/lateral raise/i, 'side raise'],
+  [/iso-lateral/i, 'hammer strength'],
+  [/hip thrust/i, 'glute bridge'],
+  [/shoulder press/i, 'overhead press ohp'],
+];
