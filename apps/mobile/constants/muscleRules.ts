@@ -5,6 +5,8 @@ import type { MuscleRule } from '@/types/import';
 //   targets: the main muscles this movement has; another one = not this movement, no fix.
 //   need:    groups the exercise must list (added as the catalogue word given).
 //   drop:    groups a movement like this doesn't train (removed).
+//   main:    the main muscle it always has, where openGym is split (lunges were
+//            glutes, split squats quads): the old one becomes a secondary muscle.
 // Only lifting categories are checked: a stretch lists what it stretches.
 
 export const RULE_CATEGORIES = ['strength', 'calisthenics', 'olympic', 'plyometrics', 'isometric'];
@@ -177,6 +179,32 @@ export const MUSCLE_RULES: MuscleRule[] = [
     targets: ['glutes'],
     need: { Hamstrings: 'hamstrings' },
     drop: ['Chest', 'Triceps', 'Biceps', 'Lats', 'Upper Back', 'Traps', 'Shoulders', 'Forearms'],
+  },
+  {
+    name: 'romanian / stiff-leg deadlift',
+    match: /romanian|stiff[- ]legg?(ed)? deadlift|straight[- ]leg deadlift|\brdl\b|single[- ]leg deadlift|good morning/,
+    targets: ['hamstrings', 'glutes', 'spine'],
+    main: 'hamstrings',
+    need: { Glutes: 'glutes', 'Lower Back': 'lower back' },
+    drop: ['Chest', 'Triceps', 'Biceps'],
+  },
+  {
+    name: 'back extension',
+    match: /hyperextension|back extension/,
+    exclude: /glute|reverse|leg/,
+    targets: ['spine', 'glutes', 'hamstrings'],
+    main: 'spine',
+    need: { Glutes: 'glutes', Hamstrings: 'hamstrings' },
+    drop: ['Chest', 'Triceps', 'Biceps'],
+  },
+  {
+    name: 'lunge / step-up / split squat',
+    match: /lunge|step-?ups?\b|split squat/,
+    exclude: /calf|jump|hop/,
+    targets: ['quads', 'glutes', 'adductors'],
+    main: 'quads',
+    need: { Glutes: 'glutes', Adductors: 'adductors' },
+    drop: ['Chest', 'Triceps', 'Biceps', 'Lats'],
   },
   {
     name: 'deadlift / hinge',

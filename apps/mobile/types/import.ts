@@ -33,6 +33,7 @@ export interface MuscleRule {
   targets: string[];
   need: Partial<Record<MuscleGroup, string>>;
   drop: MuscleGroup[];
+  main?: string; // the catalogue target this movement always has (the old one becomes a secondary muscle)
 }
 
 // What scripts/update-catalogue.ts makes of an openGym update.

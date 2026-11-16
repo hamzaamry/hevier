@@ -25,8 +25,8 @@ describe('muscles', () => {
     expect(muscleGroup('hip flexors', 'upper legs')).toBe('Quadriceps');
   });
 
-  it('groups equipment: cables are Machine', () => {
-    expect(equipmentGroup('cable')).toBe('Machine');
+  it('groups equipment: cables are Cable', () => {
+    expect(equipmentGroup('cable')).toBe('Cable');
     expect(equipmentGroup('body weight')).toBe('None');
     expect(equipmentGroup('ez barbell')).toBe('Barbell');
     expect(equipmentGroup('stability ball')).toBe('Other');

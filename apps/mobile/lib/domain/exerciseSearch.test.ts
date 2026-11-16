@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { PickerExercise } from '@/types/exercise';
 import catalogueJson from '@hevier/catalogue/exercises.json';
+import { HEVY_OFFICIAL_NAMES } from '@/scripts/import/hevyOfficialNames';
+import { toHevyName } from '@/scripts/import/catalogue';
 import { filterExercises, pickerCount, pickerSections, recentExercises, searchExercises, suggestedExercises } from './exerciseSearch';
 
 const ex = (name: string, extra: Partial<PickerExercise> = {}): PickerExercise => ({
@@ -9,6 +11,8 @@ const ex = (name: string, extra: Partial<PickerExercise> = {}): PickerExercise =
   type: 'weight_reps',
   catalogueId: null,
   muscle: 'Biceps',
+  secondary: [],
+  stretch: false,
   equipment: 'Dumbbell',
   media: null,
   timesDone: 0,
@@ -29,7 +33,7 @@ describe('exercise picker', () => {
 
   it('searches every word, any order, case-insensitive; done ones first', () => {
     const all = [
-      ex('21s Bicep Curl'),
+      ex('21s Bicep Curl', { equipment: 'Barbell' }),
       ex('Bicep Curl (Dumbbell)', { timesDone: 12 }),
       ex('Hammer Curl (Dumbbell)'),
       ex('Bench Press (Dumbbell)'),
@@ -69,7 +73,7 @@ describe('exercise picker', () => {
       ex('Wrist Curl (Barbell)', { equipment: 'Barbell', muscle: 'Forearms' }),
       ex('Bench Press (Barbell)', { equipment: 'Barbell', muscle: 'Chest' }),
     ];
-    expect(filterExercises(all, [], [])).toBe(all);
+    expect(filterExercises(all, [], [])).toEqual(all);
     expect(filterExercises(all, ['Barbell'], []).map((e) => e.name)).toEqual([
       'Bicep Curl (Barbell)',
       'Wrist Curl (Barbell)',
@@ -81,19 +85,30 @@ describe('exercise picker', () => {
     ]);
     expect(filterExercises(all, ['Plate'], ['Biceps'])).toEqual([]);
   });
-});
 
-// The first searchExercises, kept as the reference.
-function searchReference(all: PickerExercise[], query: string): PickerExercise[] {
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return all;
-  return all
-    .filter((e) => {
-      const name = e.name.toLowerCase();
-      return words.every((w) => name.includes(w));
-    })
-    .sort((a, b) => b.timesDone - a.timesDone || a.name.localeCompare(b.name));
-}
+  it('lists stretches after the workout exercises, and never suggests one', () => {
+    const all = [
+      ex('Biceps Stretch', { stretch: true, timesDone: 5 }),
+      ex('Bicep Curl'),
+      ex('Hammer Curl', { secondary: ['Forearms'] }),
+    ];
+    expect(filterExercises(all, [], []).map((e) => e.name)).toEqual(['Bicep Curl', 'Hammer Curl', 'Biceps Stretch']);
+    expect(searchExercises(all, 'bicep').map((e) => e.name)).toEqual(['Biceps Stretch', 'Bicep Curl']);
+    expect(suggestedExercises(all, { id: 'Bicep Curl', muscle: 'Biceps' }).map((e) => e.name)).toEqual(['Hammer Curl']);
+  });
+
+  it('counts the other muscles an exercise works, after the main ones', () => {
+    const all = [
+      ex('Seated Cable Row', { muscle: 'Upper Back', secondary: ['Lats', 'Biceps'], equipment: 'Cable' }),
+      ex('Pull Up', { muscle: 'Lats', secondary: ['Biceps'], equipment: 'None' }),
+      ex('Bench Press', { muscle: 'Chest', secondary: ['Triceps'] }),
+    ];
+    expect(filterExercises(all, [], ['Lats']).map((e) => e.name)).toEqual(['Pull Up', 'Seated Cable Row']);
+    expect(filterExercises(all, ['Cable'], ['Lats', 'Upper Back']).map((e) => e.name)).toEqual(['Seated Cable Row']);
+    expect(filterExercises(all, ['Machine'], ['Lats'])).toEqual([]);
+    expect(filterExercises(all, [], ['Forearms'])).toEqual([]);
+  });
+});
 
 describe('picker sections', () => {
   const all = [
@@ -129,21 +144,75 @@ describe('picker sections', () => {
 });
 
 describe('search on the whole catalogue', () => {
-  it('finds and orders exactly as before', () => {
-    const catalogue = catalogueJson as { id: string; name: string }[];
-    // Same names in other cases and with accents, duplicates, and some done
-    // a few times, in the database's order (NOCASE) rather than localeCompare's.
-    const all = [
-      ...catalogue.map((c, i) => ex(c.name, { id: c.id, timesDone: i % 7 === 0 ? i % 5 : 0 })),
-      ex('Bicep Curl (Dumbbell)', { id: 'dup1', timesDone: 3 }),
-      ex('bicep curl (dumbbell)', { id: 'dup2', timesDone: 3 }),
-      ex('Écarté', { id: 'acc' }),
-      ex('ecarte', { id: 'acc2' }),
-      ex('_Warm Up', { id: 'w' }),
-    ].sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : a.name.toLowerCase() > b.name.toLowerCase() ? 1 : 0));
-    for (const q of ['', 'b', 'curl', 'curl dumb', 'PRESS', '  bench  incline ', 'é', 'e', '(', 'zzz', 'up']) {
-      expect(searchExercises(all, q).map((e) => e.id), q).toEqual(searchReference(all, q).map((e) => e.id));
-    }
+  // The library as the app installs it (scripts/import-csv.ts): Hevy's name where
+  // known, else a converted one; a few done as in a real history.
+  const catalogue = catalogueJson as { id: string; name: string }[];
+  const used = new Set<string>();
+  const done: Record<string, number> = {
+    'Pull Up': 67,
+    'Lateral Raise (Dumbbell)': 54,
+    'Triceps Dip': 4,
+    'Chest Dip': 3,
+  };
+  const all = [
+    ...catalogue.filter((c) => HEVY_OFFICIAL_NAMES[c.id]),
+    ...catalogue.filter((c) => !HEVY_OFFICIAL_NAMES[c.id]),
+  ].map((c) => {
+    const base = HEVY_OFFICIAL_NAMES[c.id] ?? toHevyName(c.name);
+    let name = base;
+    for (let n = 2; used.has(name); n++) name = `${base} #${n}`;
+    used.add(name);
+    const equipment = / \((Machine|Cable|Smith Machine)\)/.test(name)
+      ? 'Machine'
+      : name.includes('(Dumbbell)')
+        ? 'Dumbbell'
+        : 'None';
+    return ex(name, { id: c.id, equipment, timesDone: done[name] ?? 0 });
+  });
+  const top = (q: string, n = 5) =>
+    searchExercises(all, q)
+      .slice(0, n)
+      .map((e) => e.name);
+
+  // The program's exercises (Frame Builder PDF) as written there.
+  it.each([
+    ['Pull-up', 'Pull Up'],
+    ['pullup', 'Pull Up'],
+    ['Incline DB press', 'Incline Bench Press (Dumbbell)'],
+    ['Lateral raise (DB, standing)', 'Lateral Raise (Dumbbell)'],
+    ['Lateral raise (DB, seated)', 'Seated Lateral Raise (Dumbbell)'],
+    ['Dips', 'Triceps Dip'],
+    ['DB curl', 'Bicep Curl (Dumbbell)'],
+    ['Romanian deadlift (DB)', 'Romanian Deadlift (Dumbbell)'],
+    ['DB RDL', 'Romanian Deadlift (Dumbbell)'],
+    ['Flat DB press', 'Bench Press (Dumbbell)'],
+    ['Overhead DB triceps ext.', 'Seated Alternate Overhead Triceps Extension (Dumbbell)'],
+    ['Incline DB curl', 'Incline Biceps Curl (Dumbbell)'],
+    ['Adductor machine', 'Hip Adduction (Machine)'],
+    ['Band pull-aparts', 'Pull Apart (Band)'],
+    ['Chin tucks', 'Chin Tuck'],
+    ['Wall slides', 'Serratus Wall Slide'],
+    ['DB pullover', 'Pullover (Dumbbell)'],
+    ['Barbell hip thrust', 'Hip Thrust (Barbell)'],
+    ['Seated row, wide grip', 'Seated Wide Grip Row (Band)'],
+    ['lat pull down', 'Lat Pulldown (Cable)'],
+  ])('finds "%s"', (q, name) => {
+    expect(top(q)).toContain(name);
+  });
+
+  it('matches the start of words, not the middle', () => {
+    expect(searchExercises(all, 'row').some((e) => /narrow/i.test(e.name) && !/\brow\b/i.test(e.name))).toBe(false);
+    expect(searchExercises(all, 'rdl').some((e) => /hurdle/i.test(e.name))).toBe(false);
+  });
+
+  it('knows gym names the exercise names don\'t say', () => {
+    expect(top('reverse pec deck', 1)).toEqual(['Rear Delt Reverse Fly (Machine)']);
+    expect(top('pec deck')).toContain('Chest Fly (Machine)');
+    expect(top('hamstring curl').every((n) => /(leg|hamstring) curl/i.test(n))).toBe(true);
+  });
+
+  it('puts the plain move before its variants', () => {
+    expect(top('hip thrust', 1)).toEqual(['Hip Thrusts']);
+    expect(top('lateral raise', 1)).toEqual(['Lateral Raise (Dumbbell)']);
   });
 });
-

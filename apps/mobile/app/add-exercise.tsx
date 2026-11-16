@@ -210,7 +210,11 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
       {noResults ? (
         <EmptyState
           title={query.trim() ? `Can't find ${query.trim()}` : 'No exercises'}
-          message="We don't have that exercise in our database yet."
+          message={
+            equipment.length || muscles.length
+              ? 'Nothing matches with the filters on. Clear them to search every exercise.'
+              : "We don't have that exercise in our database yet."
+          }
           action={
             <Button
               label="Create Custom Exercise"

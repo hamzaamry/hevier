@@ -14,6 +14,8 @@ export interface PickerExercise {
   type: ExerciseType;
   catalogueId: string | null;
   muscle: MuscleGroup; // grey line under the name
+  secondary: MuscleGroup[]; // the other muscles it works, for the muscle filter
+  stretch: boolean; // a stretch, mobility, yoga or rehab move: listed after the others
   equipment: EquipmentGroup;
   media: MediaItem | null; // the user's photo or video (user-made exercises)
   timesDone: number;

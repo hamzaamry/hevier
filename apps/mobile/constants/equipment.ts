@@ -8,6 +8,7 @@ export const EQUIPMENT_GROUPS = [
   'Dumbbell',
   'Kettlebell',
   'Machine',
+  'Cable',
   'Plate',
   'Resistance Band',
   'Suspension Band',
@@ -15,7 +16,7 @@ export const EQUIPMENT_GROUPS = [
 ] as const;
 
 // The catalogue's equipment in the app's groups.
-// No Cable group: cable exercises are "Machine", as are cardio machines.
+// Cardio machines are "Machine".
 export const EQUIPMENT_OF: Record<string, EquipmentGroup> = {
   'body weight': 'None',
   barbell: 'Barbell',
@@ -28,7 +29,7 @@ export const EQUIPMENT_OF: Record<string, EquipmentGroup> = {
   'leverage machine': 'Machine',
   'smith machine': 'Machine',
   'sled machine': 'Machine',
-  cable: 'Machine',
+  cable: 'Cable',
   assisted: 'Machine',
   'stationary bike': 'Machine',
   'elliptical machine': 'Machine',
@@ -49,6 +50,7 @@ export const EQUIPMENT_WORD_OF: Record<EquipmentGroup, string | null> = {
   Dumbbell: 'dumbbell',
   Kettlebell: 'kettlebell',
   Machine: 'leverage machine',
+  Cable: 'cable',
   Plate: 'weight plate',
   'Resistance Band': 'resistance band',
   'Suspension Band': 'suspension trainer',

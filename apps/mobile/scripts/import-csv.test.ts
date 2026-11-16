@@ -29,7 +29,7 @@ describe('importCsvToDatabase (sample CSV)', () => {
     // 8 exercises in the CSV, plus Football, which every database gets (migration 006).
     expect(one('SELECT COUNT(*) FROM exercises')).toBe(11);
     expect(one('SELECT COUNT(*) FROM sets')).toBe(16);
-    expect(one('PRAGMA user_version')).toBe(17);
+    expect(one('PRAGMA user_version')).toBe(18);
     expect(one('SELECT COUNT(*) FROM routines')).toBe(0);
   });
 
@@ -152,6 +152,15 @@ describe('importCsvToDatabase (exercises without numbers)', () => {
     const bad = bench(99, 'someday');
     const lines = [...indexes(30).map(stretch), bad, bad, ...indexes(8).map((setIndex) => bench(setIndex))];
     await expect(importCsvToDatabase(csv(...lines))).rejects.toThrow('Too many CSV rows could not be read (2 of 10 rows skipped)');
+  });
+
+  it('logs Hiking on the Hiking every database already has (migration 016)', async () => {
+    const hike = `"Hike","${START}","","","Hiking",,"",0,"normal",,,,3600,`;
+    const db = new (await initSqlJs()).Database((await importCsvToDatabase(csv(hike, bench(0)))).bytes);
+    const used = db.exec(
+      "SELECT e.id, COUNT(we.id) FROM exercises e LEFT JOIN workout_exercises we ON we.exercise_id = e.id WHERE e.name = 'Hiking' GROUP BY e.id"
+    );
+    expect(used[0].values).toEqual([['hiking', 1]]);
   });
 
   it('refuses a CSV where no row has numbers', async () => {

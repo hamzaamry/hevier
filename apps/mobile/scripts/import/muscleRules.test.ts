@@ -43,7 +43,22 @@ describe('muscle rules', () => {
     expect(fix(entry('barbell reverse wrist curl', 'forearms', ['biceps', 'brachialis']))).toEqual([]);
   });
 
-  it('never changes the main muscle: another main muscle means another movement', () => {
+  it('gives lunges, Romanian deadlifts and back extensions one main muscle, keeping the old one', () => {
+    expect(applyMuscleRules(entry('dumbbell lunge', 'glutes', ['quadriceps', 'hamstrings']))).toMatchObject({
+      target: 'quads',
+      secondaryMuscles: ['glutes', 'hamstrings', 'adductors'],
+    });
+    expect(applyMuscleRules(entry('barbell romanian deadlift', 'glutes', ['hamstrings', 'lower back']))).toMatchObject({
+      target: 'hamstrings',
+      secondaryMuscles: ['glutes', 'lower back'],
+    });
+    expect(applyMuscleRules(entry('hyperextension', 'glutes', ['hamstrings']))).toMatchObject({
+      target: 'spine',
+      secondaryMuscles: ['glutes', 'hamstrings'],
+    });
+  });
+
+  it('never changes the main muscle to another movement\'s: another main muscle means another movement', () => {
     const lunge = entry('dumbbell lateral lunge with bicep curl', 'glutes', ['quadriceps']);
     expect(ruleFor(lunge)).toBeNull();
     expect(applyMuscleRules(lunge)).toBe(lunge);
