@@ -135,7 +135,24 @@ The cardio numbers are estimates, not study results: [`recovery.md`](docs/scienc
 (see [Exercise pictures](#exercise-pictures)), so the app shows a placeholder
 instead.</sub>
 
-## Getting started
+## Install on your phone
+
+Open [the latest release](https://github.com/hamzaamry/hevier/releases/latest)
+on the phone and download the `.apk` (the file named `hevier-x.y.z.apk`).
+
+1. If Android asks, allow this browser to install unknown apps, once.
+2. Open the file and install.
+3. The next release installs over this one and keeps your workouts. That only
+   works when every release is signed with the same key.
+
+The public APK has no exercise pictures. Their licence does not allow shipping
+them here, so the app shows a placeholder.
+
+Releases are cut automatically when a change lands on `main`: the commit
+message sets the version (see [Releases](CONTRIBUTING.md#releases)). Until the
+first one is published, build from source, below, to install the app.
+
+## Build from source
 
 You need Node.js 22+, [pnpm](https://pnpm.io) (`corepack enable` gives you the
 right version), the Android SDK, and an emulator or an Android phone with
