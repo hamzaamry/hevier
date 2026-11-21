@@ -34,6 +34,13 @@ export interface WorkoutCardData {
   exercises: CardExercise[];
   // Its records (the "Nice work!" PR cards); none = no record.
   prs?: (WorkoutRecord & { name: string })[];
+  // The card's cover (lib/workout/cover.ts) and how many photos and videos the
+  // workout has; cover null = no media.
+  cover: MediaItem | null;
+  mediaCount: number;
+  // The file the user picked; null = the default (the first photo). The workout
+  // page's menu says "Remove as cover" only for this one.
+  coverFile: string | null;
   // Only on the workout page (getWorkoutCard).
   description?: string | null;
   media?: MediaItem[];

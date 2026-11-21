@@ -2,9 +2,9 @@ import { SET_BODY_WEIGHT } from '@/db/bodyWeight/queries';
 
 // SQL for the workout cards (Home feed, Profile "Workouts", the workout page).
 
-// Every workout, oldest first: the cards' title, date and duration.
+// Every workout, oldest first: the cards' title, date, duration and chosen cover.
 export const SELECT_WORKOUTS = `
-  SELECT id, title, start_time, end_time
+  SELECT id, title, start_time, end_time, cover_file
   FROM workouts
   ORDER BY start_time`;
 
@@ -25,3 +25,6 @@ export const SELECT_WORKOUT_DESCRIPTION = 'SELECT description FROM workouts WHER
 
 // One workout's photos and videos, in order, for its page.
 export const SELECT_WORKOUT_MEDIA = 'SELECT file, kind FROM workout_media WHERE workout_id = ? ORDER BY position';
+
+// Every workout's photos and videos, in order, for the cards' covers and counts.
+export const SELECT_WORKOUT_MEDIA_ALL = 'SELECT workout_id, file, kind FROM workout_media ORDER BY workout_id, position';

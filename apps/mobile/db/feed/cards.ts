@@ -5,10 +5,18 @@ import { recordKey } from '@/lib/gym/timeline';
 import type { GymTimeline } from '@/types/gym';
 import { workoutRecords } from '@/lib/stats/records';
 import { durationSecondsOf } from '@/lib/workout/duration';
+import { coverFor } from '@/lib/workout/cover';
 import type { HistorySet } from '@/types/records';
 import type { CardSet, WorkoutCardData } from '@/types/feed';
-import { SELECT_WORKOUT_DESCRIPTION, SELECT_WORKOUT_MEDIA, SELECT_WORKOUT_SETS, SELECT_WORKOUTS } from './queries';
-import type { WorkoutDescriptionRow, WorkoutMediaRow, WorkoutRow, WorkoutSetRow } from './rows';
+import type { MediaItem } from '@/types/workout';
+import {
+  SELECT_WORKOUT_DESCRIPTION,
+  SELECT_WORKOUT_MEDIA,
+  SELECT_WORKOUT_MEDIA_ALL,
+  SELECT_WORKOUT_SETS,
+  SELECT_WORKOUTS,
+} from './queries';
+import type { WorkoutDescriptionRow, WorkoutMediaCardRow, WorkoutMediaRow, WorkoutRow, WorkoutSetRow } from './rows';
 import { setVolumeKg } from '@/lib/volume';
 
 // Saved workouts as the workout cards show them (Profile "Workouts", the
@@ -24,7 +32,8 @@ async function loadWorkoutCards(): Promise<WorkoutCardData[]> {
   const db = await getDb();
   const workouts = await db.getAllAsync<WorkoutRow>(SELECT_WORKOUTS);
   const rows = await db.getAllAsync<WorkoutSetRow>(SELECT_WORKOUT_SETS);
-  return buildCards(workouts, rows, await getGymTimeline()).reverse();
+  const media = await db.getAllAsync<WorkoutMediaCardRow>(SELECT_WORKOUT_MEDIA_ALL);
+  return buildCards(workouts, rows, await getGymTimeline(), media).reverse();
 }
 
 // One workout, for its page. Records need the whole history, so this takes
@@ -38,9 +47,22 @@ export async function getWorkoutCard(id: string): Promise<WorkoutCardData | null
   return { ...card, description: extra?.description ?? null, media };
 }
 
-export function buildCards(workouts: WorkoutRow[], rows: WorkoutSetRow[], timeline: GymTimeline): WorkoutCardData[] {
+export function buildCards(
+  workouts: WorkoutRow[],
+  rows: WorkoutSetRow[],
+  timeline: GymTimeline,
+  mediaRows: WorkoutMediaCardRow[] = []
+): WorkoutCardData[] {
   const cards = new Map<string, WorkoutCardData>();
+  // The workouts' photos and videos in their stored order, one list each.
+  const media = new Map<string, MediaItem[]>();
+  for (const m of mediaRows) {
+    const list = media.get(m.workout_id) ?? [];
+    list.push({ file: m.file, kind: m.kind });
+    media.set(m.workout_id, list);
+  }
   for (const w of workouts) {
+    const items = media.get(w.id) ?? [];
     cards.set(w.id, {
       id: w.id,
       title: w.title,
@@ -49,6 +71,9 @@ export function buildCards(workouts: WorkoutRow[], rows: WorkoutSetRow[], timeli
       volumeKg: 0,
       records: 0,
       exercises: [],
+      cover: coverFor(items, w.cover_file),
+      mediaCount: items.length,
+      coverFile: w.cover_file,
     });
   }
   const history: HistorySet[] = [];

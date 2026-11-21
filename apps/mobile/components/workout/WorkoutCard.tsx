@@ -1,19 +1,23 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { DotsThree } from 'phosphor-react-native/src/icons/DotsThree';
+import { ImageSquare } from 'phosphor-react-native/src/icons/ImageSquare';
+import { Play } from 'phosphor-react-native/src/icons/Play';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { ExerciseThumb } from '@/components/exercises/ExerciseThumb';
 import { Medal } from './PrToast';
-import { COLORS, LINE_HEIGHTS, TYPE } from '@/constants/theme';
+import { COLORS, LINE_HEIGHTS, TYPE, withAlpha } from '@/constants/theme';
 import { durationLabel } from '@/lib/format/feed';
 import { volumeLabel } from '@/lib/format/weight';
-import { HIT_SLOPS, LAYOUT, SPACE } from '@/constants/layout';
+import { HIT_SLOPS, LAYOUT, RADIUS, SPACE } from '@/constants/layout';
 import { ICON_SIZES, WORKOUT_CARD_SIZES } from '@/constants/sizes';
 import { WORKOUT_CARD_LIMITS } from '@/constants/limits';
 import { plural } from '@/lib/format/text';
+import { mediaUri } from '@/lib/workoutMedia';
 import { Stat } from '@/components/ui/Stat';
 import type { WorkoutCardProps, WorkoutSummaryProps } from './types';
+import type { MediaItem } from '@/types/workout';
 
 // A workout card (Home feed, Profile).
 
@@ -31,6 +35,8 @@ export const WorkoutCard = memo(function WorkoutCard({
   return (
     <Pressable style={({ pressed }) => [styles.card, pressed && styles.pressed]} onPress={() => onOpen(workout.id)}>
       <WorkoutSummary workout={workout} username={username} name={name} when={when} onMenu={() => onMenu(workout.id)} />
+
+      {workout.cover && <WorkoutCover cover={workout.cover} count={workout.mediaCount} />}
 
       <View style={styles.divider} />
 
@@ -54,6 +60,28 @@ export const WorkoutCard = memo(function WorkoutCard({
     </Pressable>
   );
 });
+
+// The card's cover: the workout's chosen photo or video, else its first photo
+// (lib/workout/cover.ts), and a count of the ones it doesn't show.
+function WorkoutCover({ cover, count }: { cover: MediaItem; count: number }) {
+  return (
+    <View style={styles.cover}>
+      {cover.kind === 'photo' ? (
+        <Image source={{ uri: mediaUri(cover.file) }} style={styles.coverImage} resizeMode="cover" />
+      ) : (
+        <View style={[styles.coverImage, styles.coverVideo]}>
+          <Play size={WORKOUT_CARD_SIZES.coverPlayIcon} weight="fill" color={COLORS.text} />
+        </View>
+      )}
+      {count > 1 && (
+        <View style={styles.coverBadge}>
+          <ImageSquare size={WORKOUT_CARD_SIZES.coverBadgeIcon} color={COLORS.text} />
+          <Text style={styles.coverBadgeLabel}>+{count - 1}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
 
 // Who, when, title, and Time / Volume / Records: the top of a card and of the workout page.
 export function WorkoutSummary({
@@ -139,6 +167,37 @@ const styles = StyleSheet.create({
   },
   timeStat: {
     minWidth: WORKOUT_CARD_SIZES.timeStatMinWidth,
+  },
+  cover: {
+    marginTop: SPACE.md,
+    aspectRatio: WORKOUT_CARD_SIZES.coverAspect,
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    backgroundColor: COLORS.surface,
+  },
+  coverImage: {
+    width: '100%',
+    height: '100%',
+  },
+  coverVideo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverBadge: {
+    position: 'absolute',
+    right: WORKOUT_CARD_SIZES.coverBadgeOffset,
+    bottom: WORKOUT_CARD_SIZES.coverBadgeOffset,
+    height: WORKOUT_CARD_SIZES.coverBadgeHeight,
+    paddingHorizontal: WORKOUT_CARD_SIZES.coverBadgePadding,
+    borderRadius: RADIUS.round,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: WORKOUT_CARD_SIZES.coverBadgeGap,
+    backgroundColor: withAlpha(COLORS.black, 0.6),
+  },
+  coverBadgeLabel: {
+    ...TYPE.captionMedium,
+    color: COLORS.text,
   },
   divider: {
     height: StyleSheet.hairlineWidth,

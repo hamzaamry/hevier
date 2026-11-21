@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { ImageSquare } from 'phosphor-react-native/src/icons/ImageSquare';
 import { Play } from 'phosphor-react-native/src/icons/Play';
 import { Plus } from 'phosphor-react-native/src/icons/Plus';
+import { Star } from 'phosphor-react-native/src/icons/Star';
 import { X } from 'phosphor-react-native/src/icons/X';
 
 import { COLORS, TYPE, withAlpha } from '@/constants/theme';
@@ -58,6 +59,8 @@ export function MediaStrip({
   media,
   onAdd,
   onRemove,
+  onSelect,
+  coverFile,
 }: MediaStripProps) {
   if (media.length === 0) {
     if (!onAdd) return null;
@@ -72,7 +75,11 @@ export function MediaStrip({
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
       {media.map((m) => (
-        <View key={m.file} style={styles.tile}>
+        <Pressable
+          key={m.file}
+          style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
+          onPress={onSelect ? () => onSelect(m.file) : undefined}
+          disabled={!onSelect}>
           {m.kind === 'photo' ? (
             <Image source={{ uri: mediaUri(m.file) }} style={styles.tileImage} resizeMode="cover" />
           ) : (
@@ -80,12 +87,18 @@ export function MediaStrip({
               <Play size={ICON_SIZES.xxxl} weight="fill" color={COLORS.text} />
             </View>
           )}
+          {m.file === coverFile && (
+            <View style={styles.coverBadge}>
+              <Star size={MEDIA_STRIP_SIZES.coverBadgeIcon} weight="fill" color={COLORS.text} />
+              <Text style={styles.coverLabel}>Cover</Text>
+            </View>
+          )}
           {onRemove && (
             <Pressable style={styles.remove} onPress={() => onRemove(m.file)} hitSlop={HIT_SLOPS.md}>
               <X size={ICON_SIZES.xxs} weight="bold" color={COLORS.text} />
             </Pressable>
           )}
-        </View>
+        </Pressable>
       ))}
       {onAdd && (
         <Pressable style={[styles.tile, styles.addTile]} onPress={onAdd}>
@@ -114,6 +127,25 @@ const styles = StyleSheet.create({
   tile: {
     width: MEDIA_STRIP_SIZES.tile,
     height: MEDIA_STRIP_SIZES.tile,
+  },
+  pressed: {
+    opacity: 0.85,
+  },
+  coverBadge: {
+    position: 'absolute',
+    top: MEDIA_STRIP_SIZES.coverBadgeTop,
+    left: MEDIA_STRIP_SIZES.coverBadgeLeft,
+    height: MEDIA_STRIP_SIZES.coverBadgeHeight,
+    paddingHorizontal: MEDIA_STRIP_SIZES.coverBadgePadding,
+    borderRadius: RADIUS.round,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: MEDIA_STRIP_SIZES.coverBadgeGap,
+    backgroundColor: withAlpha(COLORS.black, 0.6),
+  },
+  coverLabel: {
+    ...TYPE.miniMedium,
+    color: COLORS.text,
   },
   tileImage: {
     width: MEDIA_STRIP_SIZES.tile,

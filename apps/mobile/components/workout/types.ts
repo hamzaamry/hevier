@@ -60,6 +60,10 @@ export interface MediaStripProps {
   media: MediaItem[];
   onAdd?: () => void;
   onRemove?: (file: string) => void;
+  // The workout page: a tap opens that photo or video's menu.
+  onSelect?: (file: string) => void;
+  // The one the card shows first: badged "Cover".
+  coverFile?: string | null;
 }
 
 export interface MedalProps {
