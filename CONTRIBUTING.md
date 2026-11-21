@@ -1,7 +1,7 @@
 # Contributing to Hevier
 
 Thanks for helping. This page covers how to set up, where code goes and the
-rules the codebase follows. Setup itself is in the [README](README.md#getting-started).
+rules the codebase follows. Setup itself is in the [README](README.md#build-from-source).
 
 ## Before you open a pull request
 
