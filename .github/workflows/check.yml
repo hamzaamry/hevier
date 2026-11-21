@@ -1,15 +1,65 @@
 # Types, lint and tests on every push to main and every pull request (one
 # `turbo run check` over all packages); then coverage and a Sonar scan when the
-# SONAR_TOKEN secret is set.
+# SONAR_TOKEN secret is set. The commit message is checked too: release.yml
+# reads it to pick the next version.
 name: Check
 
 on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
+  # release.yml reads the commit message to pick the next version
+  # (scripts/next-version.mjs), so a message without a type would skip the
+  # release without anyone noticing. Squash merges use the pull request title
+  # as the commit, so the title is what gets checked before merge.
+  messages:
+    name: Commit message
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Pull request title
+        if: github.event_name == 'pull_request'
+        env:
+          SUBJECT: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|perf|revert|refactor|docs|test|build|ci|chore|style)(\([^)]+\))?!?: .+'
+          if [[ "$SUBJECT" =~ $pattern ]] || [[ "$SUBJECT" == Revert\ \"*\" ]]; then
+            echo "$SUBJECT" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "::error::The pull request title must look like 'feat(workout): add a rest timer'."
+          {
+            echo "### The title sets the release"
+            echo
+            echo "Types: feat, fix, perf, revert, refactor, docs, test, build, ci, chore, style."
+            echo "A '!' before the colon, or a BREAKING CHANGE line, makes it a major release."
+            echo "See CONTRIBUTING.md -> Releases."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Commits
+        if: github.event_name == 'push'
+        env:
+          COMMITS: ${{ toJSON(github.event.commits) }}
+        run: |
+          pattern='^(feat|fix|perf|revert|refactor|docs|test|build|ci|chore|style)(\([^)]+\))?!?: .+'
+          failed=0
+          while IFS= read -r subject; do
+            [ -z "$subject" ] && continue
+            [[ "$subject" == Merge\ * ]] && continue
+            [[ "$subject" == Revert\ \"*\" ]] && continue
+            [[ "$subject" =~ $pattern ]] && continue
+            echo "::error::This commit message does not follow the release rules: $subject"
+            failed=1
+          done < <(jq -r '.[].message | split("\n")[0]' <<< "$COMMITS")
+          if [ "$failed" != 0 ]; then
+            echo "See CONTRIBUTING.md -> Releases for the types and what they bump." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20

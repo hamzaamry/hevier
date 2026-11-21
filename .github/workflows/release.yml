@@ -1,0 +1,76 @@
+name: Release
+
+# Every push to main decides the next version from the commit messages and,
+# when there is one, publishes it: tag, GitHub Release, signed APK. The rules
+# are in CONTRIBUTING.md -> Releases; the decision is .github/scripts/next-version.mjs.
+#
+# The tag is pushed with the workflow token, which does not start another
+# workflow, so this file calls release-apk.yml itself. Pushing a vX.Y.Z tag by
+# hand still builds it through release-apk.yml: that is the rebuild and
+# hotfix path.
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    name: Next version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      released: ${{ steps.next.outputs.released }}
+      tag: ${{ steps.next.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # every commit since the last tag
+          fetch-tags: true
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Decide the version
+        id: next
+        run: node .github/scripts/next-version.mjs
+
+      # The draft exists before the build so the APK has somewhere to land.
+      # A re-run finds the tag and the draft and keeps both.
+      - name: Tag and draft the release
+        if: steps.next.outputs.released == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.next.outputs.tag }}
+          NOTES: ${{ steps.next.outputs.notes }}
+        run: |
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null; then
+            git tag "$TAG"
+            git push origin "refs/tags/$TAG"
+          fi
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "$TAG already has a release; keeping it." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if [ -n "$NOTES" ]; then
+            printf '%s\n' "$NOTES" > "$RUNNER_TEMP/notes.md"
+            gh release create "$TAG" --draft --verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            gh release create "$TAG" --draft --verify-tag --title "$TAG" --generate-notes
+          fi
+
+  apk:
+    name: APK
+    needs: version
+    if: needs.version.outputs.released == 'true'
+    uses: ./.github/workflows/release-apk.yml
+    with:
+      tag: ${{ needs.version.outputs.tag }}
+    secrets: inherit

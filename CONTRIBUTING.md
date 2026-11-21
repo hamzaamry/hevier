@@ -47,7 +47,79 @@ tweak, a rename, a refactor that changes nothing on screen). Say so in the
 description: "No screenshots: nothing changes on screen."
 
 Keep one change per pull request, and one change per commit. Write commit
-messages that say what changed, in plain words.
+messages that say what changed, in plain words, with the prefix the
+[Releases](#releases) section explains: the prefix sets the next version.
+
+## Releases
+
+Nobody picks a version and nobody pushes a tag. Every push to `main` runs
+[`release.yml`](.github/workflows/release.yml), which reads the commits
+since the last release, decides the next version with
+[`.github/scripts/next-version.mjs`](.github/scripts/next-version.mjs) and, when the commits
+warrant one, pushes the tag, opens the GitHub Release and builds the signed APK
+with [`release-apk.yml`](.github/workflows/release-apk.yml). If the keystore
+secrets are missing the release stays a draft, so an unsigned build is never
+published.
+
+The tag is the version. `apps/mobile/app.json` is stamped during the build, so
+the number committed there is not the last release; a local build reports what
+is in the file.
+
+A pull request title that does not match a type fails the `Commit message`
+check in [`check.yml`](.github/workflows/check.yml) before it can merge.
+Squash merges turn the title into the commit, so the title is the message.
+
+### What bumps the version
+
+| Prefix | Version | Use it for |
+| --- | --- | --- |
+| `feat:` | minor, `1.1.0` | something a person can see: a screen, a flow, a setting, the Hevy import, file backup, starter plans, pounds |
+| `fix:` | patch, `1.0.1` | a bug, wording, styling |
+| `perf:` | patch | faster with the same screens |
+| `revert:` | patch | undoing a change |
+| `docs:`, `test:`, `build:`, `ci:`, `chore:`, `style:`, `refactor:` | no release | nothing a user installs changes |
+
+The highest bump in the batch wins: one `feat:` among five `fix:` commits makes
+a minor. The first release is `1.0.0`.
+
+When you are not sure between patch and minor, choose minor.
+
+### When it is a major
+
+`2.0.0` is not for a new table or column. The app runs every pending migration
+when it opens, so a phone on the first schema catches up to the current one, and
+people skip releases. A new column or table ships in a minor, or in a patch when
+no screen changed.
+
+Write `feat!:` (or add a `BREAKING CHANGE:` line to the message) only for a
+break the app cannot repair on its own:
+
+- **Sync:** an old phone and a new PC backup, in either direction, cannot talk
+  to each other.
+- **Migration:** the database only reaches the current schema after passing
+  through a specific version, so a phone that skipped releases breaks.
+- **Signing key:** the app is signed with a new key. Android will not install it
+  over the old app, so the workouts are lost unless people export them first.
+
+Anything else stays a minor. A major is rare on purpose.
+
+### Checking and rebuilding
+
+See what the next release would be, without releasing:
+
+```bash
+node .github/scripts/next-version.mjs
+```
+
+Rebuild a tag without changing the version (a failed build, a fixed workflow):
+
+```bash
+gh workflow run release-apk.yml --ref v1.0.1
+```
+
+To republish after a failed build, re-run the `Release` workflow for that commit
+(`gh run rerun <run-id>`): it finds the tag at `HEAD` and keeps the same
+version.
 
 ## Native code
 

@@ -10,11 +10,19 @@ name: Release APK
 # over the old app. Without the ANDROID_KEYSTORE_* secrets the release stays
 # a draft, signed with the debug key.
 #
-# To rebuild a tag: gh workflow run release-apk.yml --ref v1.2.3
+# release.yml calls this for every version it cuts on main. The tag trigger and
+# the dispatch stay for a manual tag, a hotfix or a rebuild:
+#   gh workflow run release-apk.yml --ref v1.2.3
 on:
   push:
     tags: ['v[0-9]+.[0-9]+.[0-9]+', 'v[0-9]+.[0-9]+.[0-9]+-*']
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        description: Tag to build and publish
+        required: true
+        type: string
 
 concurrency:
   group: release-apk-${{ github.ref }}
@@ -33,6 +41,8 @@ jobs:
       version: ${{ steps.version.outputs.name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
 
       - uses: ./.github/actions/setup
 
@@ -58,12 +68,14 @@ jobs:
 
       - name: Version
         id: version
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          if [ "${GITHUB_REF_TYPE}" != tag ]; then
-            echo "::error::Run this workflow from a vX.Y.Z tag."
+          if [ -z "$TAG" ]; then
+            echo "::error::No tag to build. Run this workflow from a vX.Y.Z tag."
             exit 1
           fi
-          version="${GITHUB_REF_NAME#v}"
+          version="${TAG#v}"
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::tag must look like v1.2.3"; exit 1; }
           IFS=. read -r major minor patch <<< "${version%%[-+]*}"
           code=$((major * 1000000 + minor * 1000 + patch))
@@ -159,7 +171,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      TAG: ${{ github.ref_name }}
+      TAG: ${{ inputs.tag || github.ref_name }}
       SIGNED: ${{ needs.build.outputs.signed }}
     steps:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

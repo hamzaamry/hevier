@@ -4,6 +4,11 @@ Closes #
 
 <!-- What changed and why, in plain words. -->
 
+<!--
+The title sets the next release: feat → minor, fix → patch, and a '!' before
+the colon only for a break the app cannot repair (see CONTRIBUTING.md → Releases).
+-->
+
 ## Screenshots
 
 <!--

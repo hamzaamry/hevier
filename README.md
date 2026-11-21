@@ -148,8 +148,9 @@ on the phone and download the `.apk` (the file named `hevier-x.y.z.apk`).
 The public APK has no exercise pictures. Their licence does not allow shipping
 them here, so the app shows a placeholder.
 
-There is no release until the first `vX.Y.Z` tag. Building from source, below,
-is how the app is installed until then.
+Releases are cut automatically when a change lands on `main`: the commit
+message sets the version (see [Releases](CONTRIBUTING.md#releases)). Until the
+first one is published, build from source, below, to install the app.
 
 ## Build from source
 
