@@ -228,6 +228,13 @@ export const MEDIA_STRIP_SIZES = {
   // so a border hugging the edge loses its bottom line.
   inset: 1.5,
   tile: 96,
+  // The small "Cover" pill on the card's chosen photo or video.
+  coverBadgeTop: 5,
+  coverBadgeLeft: 5,
+  coverBadgeHeight: 20,
+  coverBadgePadding: 7,
+  coverBadgeGap: 4,
+  coverBadgeIcon: 10,
 };
 
 // components/charts/MuscleBars.tsx
@@ -485,6 +492,15 @@ export const WORKOUT_CARD_SIZES = {
   timeStatMinWidth: 78.5,
   exerciseHeight: 50,
   bandHeight: 16,
+  // The cover: full card width, 16:10, with the count pill bottom right.
+  coverAspect: 1.6,
+  coverBadgeHeight: 27,
+  coverBadgePadding: 10,
+  coverBadgeGap: 5,
+  coverBadgeOffset: 10,
+  coverBadgeIcon: 13,
+  coverPlayButton: 56,
+  coverPlayIcon: 22,
 };
 
 // app/workout/[id].tsx

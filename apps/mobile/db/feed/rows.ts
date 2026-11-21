@@ -9,6 +9,7 @@ export interface WorkoutRow {
   title: string;
   start_time: string;
   end_time: string | null;
+  cover_file: string | null;
 }
 
 // SELECT_WORKOUT_SETS
@@ -41,3 +42,6 @@ export interface WorkoutDescriptionRow {
 
 // SELECT_WORKOUT_MEDIA: the columns are already the page's MediaItem.
 export type WorkoutMediaRow = MediaItem;
+
+// SELECT_WORKOUT_MEDIA_ALL: a MediaItem plus the workout it belongs to.
+export type WorkoutMediaCardRow = MediaItem & { workout_id: string };

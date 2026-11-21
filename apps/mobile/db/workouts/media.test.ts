@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { fakeDb, freshDb, raw } from '@/db/testDb';
+import { fakeDb, freshDb, raw, rows } from '@/db/testDb';
 
 vi.mock('@/db/client', () => ({ getDb: async () => fakeDb }));
 vi.mock('expo-crypto', () => {
@@ -8,7 +8,11 @@ vi.mock('expo-crypto', () => {
   return { randomUUID: () => `id${++n}` };
 });
 
-const { addWorkoutMedia, getWorkoutMedia, removeWorkoutMedia, replaceWorkoutMedia } = await import('./media');
+const { addWorkoutMedia, getWorkoutMedia, removeWorkoutMedia, replaceWorkoutMedia, setWorkoutCover } = await import('./media');
+
+// The card's cover on a workout.
+const cover = (id: string) =>
+  rows<{ cover_file: string | null }>('SELECT cover_file FROM workouts WHERE id = ?', [id])[0].cover_file;
 
 describe('workout media', () => {
   beforeEach(async () => {
@@ -49,5 +53,33 @@ describe('workout media', () => {
       { file: 'b.mp4', kind: 'video' },
     ]);
     expect((await getWorkoutMedia('o')).map((m) => m.file)).toEqual(['z.jpg']);
+  });
+
+  it('sets the cover to one of the workout\'s files, null back to the default', async () => {
+    await setWorkoutCover('w', 'b.mp4');
+    expect(cover('w')).toBe('b.mp4');
+    await setWorkoutCover('w', null);
+    expect(cover('w')).toBeNull();
+  });
+
+  it('refuses another workout\'s file', async () => {
+    await setWorkoutCover('w', 'z.jpg');
+    expect(cover('w')).toBeNull();
+    expect(cover('o')).toBeNull();
+  });
+
+  it('clears the cover when that photo is removed', async () => {
+    await setWorkoutCover('w', 'a.jpg');
+    await removeWorkoutMedia('w', 'a.jpg');
+    expect(cover('w')).toBeNull();
+  });
+
+  it('Edit Workout keeps a cover whose file stays, and clears one whose file goes', async () => {
+    await setWorkoutCover('w', 'a.jpg');
+    await replaceWorkoutMedia(fakeDb as never, 'w', [{ file: 'a.jpg', kind: 'photo' }, { file: 'b.mp4', kind: 'video' }]);
+    expect(cover('w')).toBe('a.jpg');
+
+    await replaceWorkoutMedia(fakeDb as never, 'w', [{ file: 'new.jpg', kind: 'photo' }]);
+    expect(cover('w')).toBeNull();
   });
 });

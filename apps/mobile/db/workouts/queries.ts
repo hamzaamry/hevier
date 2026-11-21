@@ -70,3 +70,17 @@ export const DELETE_WORKOUT_MEDIA_FILE = 'DELETE FROM workout_media WHERE workou
 export const INSERT_WORKOUT_MEDIA = `
   INSERT INTO workout_media (id, workout_id, file, kind, position)
   VALUES (?, ?, ?, ?, ?)`;
+
+// The card's cover: a photo or video of this workout, or NULL for the default
+// (the first photo). A file from another workout changes nothing.
+export const SET_WORKOUT_COVER = `
+  UPDATE workouts SET cover_file = ?
+  WHERE id = ?
+    AND (? IS NULL OR EXISTS (SELECT 1 FROM workout_media WHERE workout_id = ? AND file = ?))`;
+
+// After media changes: a cover that is no longer there is cleared, so the card
+// falls back to the first photo (lib/workout/cover.ts).
+export const CLEAR_LOST_WORKOUT_COVER = `
+  UPDATE workouts SET cover_file = NULL
+  WHERE id = ? AND cover_file IS NOT NULL
+    AND NOT EXISTS (SELECT 1 FROM workout_media WHERE workout_id = ? AND file = cover_file)`;
