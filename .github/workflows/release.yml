@@ -17,13 +17,15 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   version:
     name: Next version
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write # pushes the tag and drafts the release
     outputs:
       released: ${{ steps.next.outputs.released }}
       tag: ${{ steps.next.outputs.tag }}
@@ -70,6 +72,8 @@ jobs:
     name: APK
     needs: version
     if: needs.version.outputs.released == 'true'
+    permissions:
+      contents: write # release-apk.yml publishes the release
     uses: ./.github/workflows/release-apk.yml
     with:
       tag: ${{ needs.version.outputs.tag }}

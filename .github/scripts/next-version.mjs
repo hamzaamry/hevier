@@ -17,7 +17,10 @@ const SUBJECT = /^(feat|fix|perf|revert|refactor|docs|test|build|ci|chore|style)
 const PATCH_TYPES = new Set(['fix', 'perf', 'revert']);
 const FEATURE_TYPES = new Set(['feat']);
 
-const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+// An absolute path, so a writable PATH entry cannot swap in another `git`.
+// GIT_BIN overrides it where git lives elsewhere (macOS, Nix).
+const GIT_BIN = process.env.GIT_BIN ?? '/usr/bin/git';
+const git = (...args) => execFileSync(GIT_BIN, args, { encoding: 'utf8' }).trim();
 
 const output = process.env.GITHUB_OUTPUT;
 
@@ -60,9 +63,7 @@ if (atHead) {
 }
 
 const range = latest ? `${latest}..HEAD` : 'HEAD';
-const commits = execFileSync('git', ['log', range, '--format=%s%x1f%b%x1e'], {
-  encoding: 'utf8',
-})
+const commits = git('log', range, '--format=%s%x1f%b%x1e')
   .split('\x1e')
   .map((entry) => entry.trim())
   .filter(Boolean)
