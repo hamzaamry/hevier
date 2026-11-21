@@ -12,7 +12,7 @@ on:
 
 jobs:
   # release.yml reads the commit message to pick the next version
-  # (scripts/next-version.mjs), so a message without a type would skip the
+  # (.github/scripts/next-version.mjs), so a message without a type would skip the
   # release without anyone noticing. Squash merges use the pull request title
   # as the commit, so the title is what gets checked before merge.
   messages:
@@ -61,6 +61,8 @@ jobs:
           fi
 
   check:
+    # A bad title stops the run before types, tests and Sonar spend any time.
+    needs: messages
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:

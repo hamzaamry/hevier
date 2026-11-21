@@ -65,9 +65,29 @@ The tag is the version. `apps/mobile/app.json` is stamped during the build, so
 the number committed there is not the last release; a local build reports what
 is in the file.
 
-A pull request title that does not match a type fails the `Commit message`
-check in [`check.yml`](.github/workflows/check.yml) before it can merge.
-Squash merges turn the title into the commit, so the title is the message.
+### The title rule
+
+Squash merges turn the pull request title into the commit on `main`, so the
+title is what sets the version. Write it as:
+
+```
+type(scope): what changed
+```
+
+- `type` is one of `feat`, `fix`, `perf`, `revert`, `refactor`, `docs`, `test`,
+  `build`, `ci`, `chore`, `style`, in lower case.
+- `(scope)` is optional: the screen or area, like `(workout)` or `(sync)`.
+- `!` before the colon marks a major release (see below). Use it rarely.
+- After `: ` comes a short sentence in plain words.
+
+Good: `feat(workout): add a rest timer`, `fix(search): keep filters after a
+rename`, `ci: check pull request titles`. Bad: `Update stuff`, `Feat: Timer`,
+`feat add timer`.
+
+The `Commit message` job in [`check.yml`](.github/workflows/check.yml) enforces
+this on every pull request, before types, tests and Sonar run. A title that
+does not match fails the check and cannot merge. Edit the title and the check
+re-runs by itself.
 
 ### What bumps the version
 

@@ -25,7 +25,7 @@ on:
         type: string
 
 concurrency:
-  group: release-apk-${{ github.ref }}
+  group: release-apk-${{ inputs.tag || github.ref }}
   cancel-in-progress: false
 
 permissions:
