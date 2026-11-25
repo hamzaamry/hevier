@@ -76,7 +76,7 @@ export async function importCsvToDatabase(
       const exerciseId = exerciseIds.get(we.exerciseName);
       if (!exerciseId) throw new Error(`Unknown exercise: ${we.exerciseName}`);
       const workoutExerciseId = crypto.randomUUID();
-      db.run(INSERT_WORKOUT_EXERCISE, [workoutExerciseId, workoutId, exerciseId, we.orderIndex, we.notes]);
+      db.run(INSERT_WORKOUT_EXERCISE, [workoutExerciseId, workoutId, exerciseId, we.orderIndex, we.notes, we.supersetId]);
 
       for (const s of we.sets) {
         db.run(INSERT_SET, [

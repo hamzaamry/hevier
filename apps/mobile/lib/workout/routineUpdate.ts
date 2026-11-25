@@ -1,5 +1,6 @@
 import { parseClock, parseNumber } from '@/lib/format/setFormat';
 import { plural } from '@/lib/format/text';
+import { normalizeSupersets } from '@/lib/workout/supersets';
 import type { ActiveWorkout } from '@/types/workout';
 import type { EditorRoutine, RoutineChanges, RoutineDraft } from '@/types/routine';
 
@@ -78,17 +79,20 @@ export function routineFromWorkout(routine: EditorRoutine, workout: ActiveWorkou
   return {
     id: routine.id,
     name: routine.name,
-    exercises: doneExercises(workout).map((e) => ({
-      exerciseId: e.exerciseId,
-      notes: e.notes.trim() || null,
-      restSeconds: e.restSeconds,
-      sets: e.sets.map((s) => ({
-        setType: s.setType,
-        weightKg: parseNumber(s.weight),
-        reps: parseNumber(s.reps),
-        distanceKm: parseNumber(s.km),
-        durationSeconds: parseClock(s.time),
-      })),
-    })),
+    exercises: normalizeSupersets(
+      doneExercises(workout).map((e) => ({
+        exerciseId: e.exerciseId,
+        notes: e.notes.trim() || null,
+        restSeconds: e.restSeconds,
+        supersetId: e.supersetId,
+        sets: e.sets.map((s) => ({
+          setType: s.setType,
+          weightKg: parseNumber(s.weight),
+          reps: parseNumber(s.reps),
+          distanceKm: parseNumber(s.km),
+          durationSeconds: parseClock(s.time),
+        })),
+      }))
+    ),
   };
 }

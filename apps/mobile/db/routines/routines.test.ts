@@ -189,8 +189,8 @@ describe('routine editor', () => {
       id: 'a',
       name: 'Legs',
       exercises: [
-        { exerciseId: 'curl', notes: null, restSeconds: 90, sets: [{ setType: 'failure', weightKg: 45, reps: 10, distanceKm: null, durationSeconds: null }] },
-        { exerciseId: 'squat', notes: 'deep', restSeconds: null, sets: [] },
+        { exerciseId: 'curl', notes: null, restSeconds: 90, supersetId: null, sets: [{ setType: 'failure', weightKg: 45, reps: 10, distanceKm: null, durationSeconds: null }] },
+        { exerciseId: 'squat', notes: 'deep', restSeconds: null, supersetId: null, sets: [] },
       ],
     });
     const page = await getRoutinePage('a');

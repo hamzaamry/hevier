@@ -37,9 +37,10 @@ const COLUMN_STYLES = [
 
 // One exercise of the routine: its picture and name (tap: the exercise page),
 // the rest timer, then the planned sets.
-export const RoutineExerciseBlock = memo(function RoutineExerciseBlock({ exercise, onOpen }: RoutineExerciseBlockProps) {
+export const RoutineExerciseBlock = memo(function RoutineExerciseBlock({ exercise, onOpen, hideRest }: RoutineExerciseBlockProps) {
   const columns = COLUMNS[exercise.type];
   const badges = setBadges(exercise.sets.map((s) => s.setType));
+  const showRest = !!exercise.restSeconds && !hideRest;
   return (
     <View style={styles.exercise}>
       <Pressable style={styles.exerciseTitle} onPress={() => onOpen(exercise.exerciseId)}>
@@ -49,7 +50,7 @@ export const RoutineExerciseBlock = memo(function RoutineExerciseBlock({ exercis
         </Text>
       </Pressable>
 
-      {exercise.restSeconds ? (
+      {showRest ? (
         <OptionRow
           icon={<Timer size={ICON_SIZES.lg} weight="light" color={COLORS.primary} />}
           label={`Rest Timer: ${restLabel(exercise.restSeconds)}`}
@@ -57,7 +58,7 @@ export const RoutineExerciseBlock = memo(function RoutineExerciseBlock({ exercis
         />
       ) : null}
 
-      <View style={[styles.tableHeader, exercise.restSeconds ? styles.tableAfterRest : null]}>
+      <View style={[styles.tableHeader, showRest ? styles.tableAfterRest : null]}>
         <Text style={[styles.cell, styles.setCell, styles.headerCell]}>SET</Text>
         {columns.map((c, i) => (
           <Text key={c.label} style={[styles.cell, COLUMN_STYLES[i], styles.headerCell]}>

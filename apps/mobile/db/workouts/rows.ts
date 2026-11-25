@@ -20,6 +20,7 @@ export interface WorkoutExerciseSetRow {
   type: ExerciseType;
   catalogue_id: string | null;
   notes: string | null;
+  superset_id: string | null;
   set_id: string | null;
   set_type: SetType | null;
   weight_kg: number | null;

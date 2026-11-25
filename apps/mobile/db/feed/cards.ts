@@ -84,12 +84,14 @@ export function buildCards(
     if (!card) continue;
     if (r.workout_exercise_id !== lastWorkoutExercise) {
       card.exercises.push({
+        id: r.workout_exercise_id,
         exerciseId: r.exercise_id,
         name: r.name,
         type: r.type,
         catalogueId: r.catalogue_id,
         archived: r.archived === 1,
         notes: r.notes,
+        supersetId: r.superset_id,
         sets: [],
       });
       lastWorkoutExercise = r.workout_exercise_id;

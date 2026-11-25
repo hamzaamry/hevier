@@ -9,7 +9,7 @@ export const SELECT_WORKOUT_FOR_EDIT = `
 
 // A workout's exercises and their sets in order (an exercise without sets comes once, set columns null).
 export const SELECT_WORKOUT_EXERCISES_FOR_EDIT = `
-  SELECT we.id AS workout_exercise_id, we.exercise_id, e.name, e.type, e.catalogue_id, we.notes,
+  SELECT we.id AS workout_exercise_id, we.exercise_id, e.name, e.type, e.catalogue_id, we.notes, we.superset_id,
          s.id AS set_id, s.set_type, s.weight_kg, s.reps, s.distance_km, s.duration_seconds, s.rpe
   FROM workout_exercises we
   JOIN exercises e ON e.id = we.exercise_id
@@ -35,8 +35,8 @@ export const DELETE_WORKOUT_EXERCISES = `
 
 // One exercise of a workout.
 export const INSERT_WORKOUT_EXERCISE = `
-  INSERT INTO workout_exercises (id, workout_id, exercise_id, order_index, notes)
-  VALUES (?, ?, ?, ?, ?)`;
+  INSERT INTO workout_exercises (id, workout_id, exercise_id, order_index, notes, superset_id)
+  VALUES (?, ?, ?, ?, ?, ?)`;
 
 // One set of a workout's exercise.
 export const INSERT_SET = `

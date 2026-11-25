@@ -5,6 +5,7 @@ import type { PlannedSet, RoutineSession, RoutinePageExercise } from '@/types/ro
 export interface RoutineExerciseBlockProps {
   exercise: RoutinePageExercise;
   onOpen: (exerciseId: string) => void;
+  hideRest?: boolean; // inside a superset, only its last exercise shows the rest timer
 }
 
 export interface RoutineChartProps {

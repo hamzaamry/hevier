@@ -23,13 +23,16 @@ import { ReorderExercises } from '@/components/workout/ReorderExercises';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { ExerciseMenuSheet } from '@/components/log-workout/ExerciseMenuSheet';
 import { LogExercise } from '@/components/log-workout/LogExercise';
+import { SupersetBlocks } from '@/components/workout/SupersetBlocks';
 import { LogHeader } from '@/components/log-workout/LogHeader';
 import { RepsLeftInfoSheet } from '@/components/log-workout/RepsLeftInfoSheet';
 import { RestBar } from '@/components/log-workout/RestBar';
 import { WorkoutStatsRow } from '@/components/log-workout/WorkoutStatsRow';
 import {
   addSet,
+  addToSuperset,
   playSet,
+  removeFromSuperset,
   removeSet,
   reorderExercises,
   updateExercise,
@@ -37,6 +40,7 @@ import {
 } from '@/components/log-workout/workoutOps';
 import type { ExerciseActions } from '@/components/log-workout/types';
 import { RestTimerSheet } from '@/components/set-table/RestTimerSheet';
+import { SupersetPickerSheet } from '@/components/set-table/SupersetMenu';
 import { SetTypeSheet } from '@/components/set-table/SetTypeSheet';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
@@ -65,6 +69,8 @@ export default function LogWorkout() {
   const [setMenu, setSetMenu] = useState<{ exercise: string; set: string } | null>(null);
   const [repsLeftInfo, setRepsLeftInfo] = useState(false);
   const [exerciseMenu, setExerciseMenu] = useState<string | null>(null);
+  // Add To Superset: the exercise waiting for its partner.
+  const [supersetFor, setSupersetFor] = useState<string | null>(null);
   const [dialog, setDialog] = useState<'discard' | 'empty' | null>(null);
   const [durationOpen, setDurationOpen] = useState(false);
   const [clockOpen, setClockOpen] = useState(false);
@@ -150,16 +156,20 @@ export default function LogWorkout() {
       <Divider />
 
       <ScrollView contentContainerStyle={{ paddingBottom: resting ? 120 : 48 }} keyboardShouldPersistTaps="handled">
-        {workout.exercises.map((exercise) => (
-          <LogExercise
-            key={exercise.key}
-            exercise={exercise}
-            settings={settings}
-            // Only the exercise whose set is counting down gets the ▶ timer.
-            timer={setTimer && exercise.sets.some((s) => s.key === setTimer.setKey) ? setTimer : null}
-            actions={actions}
-          />
-        ))}
+        <SupersetBlocks
+          exercises={workout.exercises}
+          keyOf={(e) => e.key}
+          renderExercise={(exercise, hideRest) => (
+            <LogExercise
+              hideRest={hideRest}
+              exercise={exercise}
+              settings={settings}
+              // Only the exercise whose set is counting down gets the ▶ timer.
+              timer={setTimer && exercise.sets.some((s) => s.key === setTimer.setKey) ? setTimer : null}
+              actions={actions}
+            />
+          )}
+        />
 
         <Button
           label="Add Exercise"
@@ -218,9 +228,19 @@ export default function LogWorkout() {
 
       <ExerciseMenuSheet
         exerciseKey={exerciseMenu}
+        exercises={workout.exercises}
         onDismiss={() => setExerciseMenu(null)}
         onReorder={() => setReordering(true)}
         onReplace={(key) => router.push({ pathname: '/add-exercise', params: { replace: key } })}
+        onAddToSuperset={setSupersetFor}
+        onRemoveFromSuperset={removeFromSuperset}
+      />
+
+      <SupersetPickerSheet
+        exerciseKey={supersetFor}
+        exercises={workout.exercises}
+        onPick={addToSuperset}
+        onDismiss={() => setSupersetFor(null)}
       />
 
       <ReorderExercises

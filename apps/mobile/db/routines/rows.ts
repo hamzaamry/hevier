@@ -42,6 +42,7 @@ export interface RoutineExerciseForCopyRow {
   order_index: number;
   rest_seconds: number | null;
   notes: string | null;
+  superset_id: string | null;
 }
 
 // SELECT_ROUTINE
@@ -58,6 +59,7 @@ export interface RoutineExerciseSetRow {
   name: string;
   type: ExerciseType;
   rest_seconds: number | null;
+  superset_id: string | null;
   set_index: number | null;
   set_type: SetType | null;
   weight_kg: number | null;

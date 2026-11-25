@@ -15,6 +15,7 @@ import { Screen } from '@/components/ui/Screen';
 import { SCREEN_STYLES } from '@/components/ui/screenStyles';
 import { MuscleSplit } from '@/components/workout-page/MuscleSplit';
 import { WorkoutExerciseBlock } from '@/components/workout-page/WorkoutExerciseBlock';
+import { SupersetBlocks } from '@/components/workout/SupersetBlocks';
 import { shared } from '@/components/workout-page/styles';
 import { COLORS, LINE_HEIGHTS, TYPE } from '@/constants/theme';
 import { ICON_SIZES } from '@/constants/sizes';
@@ -129,9 +130,12 @@ export default function WorkoutScreen() {
           <View style={shared.divider} />
           {split.length > 0 && <MuscleSplit split={split} />}
           <Text style={shared.section}>Workout</Text>
-          {workout.exercises.map((e, i) => (
-            <WorkoutExerciseBlock key={i} exercise={e} onOpen={openExercise} />
-          ))}
+          <SupersetBlocks
+            padded
+            exercises={workout.exercises}
+            keyOf={(e) => e.id}
+            renderExercise={(e) => <WorkoutExerciseBlock exercise={e} onOpen={openExercise} />}
+          />
         </ScrollView>
       )}
       {menu}

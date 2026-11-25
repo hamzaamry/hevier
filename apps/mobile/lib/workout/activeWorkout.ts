@@ -25,12 +25,6 @@ export function nextSetLike(sets: ActiveSet[]): ActiveSet {
   return newSet(last ? { weight: last.weight, reps: last.reps, km: last.km, time: last.time } : {});
 }
 
-// The exercises in the order of `keys` (Reorder Exercises); unknown keys are skipped.
-export function orderByKeys<T extends { key: string }>(list: T[], keys: string[]): T[] {
-  const byKey = new Map(list.map((item) => [item.key, item]));
-  return keys.map((k) => byKey.get(k)).filter((item): item is T => item !== undefined);
-}
-
 // Reps left, asked once the last set is ticked (lib/training/effort.ts: 4+ makes the
 // set count less). Not on a failure set: that already says 0 left.
 export function shouldAskRepsLeft(fields: SetInputField[], last: ActiveSet | undefined, settings: WorkoutSettings): boolean {

@@ -15,12 +15,14 @@ export interface CardSet {
 }
 
 export interface CardExercise {
+  id: string; // the workout_exercises row
   exerciseId: string;
   name: string;
   type: ExerciseType;
   catalogueId: string | null;
   archived: boolean; // a user's exercise they archived since
   notes: string | null;
+  supersetId: string | null;
   sets: CardSet[];
 }
 

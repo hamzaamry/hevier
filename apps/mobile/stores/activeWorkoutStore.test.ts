@@ -70,6 +70,7 @@ function workout(over: Partial<ActiveWorkout> = {}): ActiveWorkout {
         type: 'weight_reps',
         notes: '',
         restSeconds: 120,
+        supersetId: null,
         previous: [],
         sets: [
           { key: 's1', setType: 'normal', weight: '100', reps: '5', km: '', time: '', done: false },

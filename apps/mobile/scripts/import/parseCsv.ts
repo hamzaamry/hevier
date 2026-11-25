@@ -18,6 +18,7 @@ import type {
   TransformedWorkout,
   TransformedWorkoutExercise,
 } from '@/types/import';
+import { normalizeSupersets } from '@/lib/workout/supersets';
 import { machineTimeZone, parseHevyDate } from './parseHevyDate';
 
 // Hevy also has drop sets; Hevier doesn't, so they come in as normal sets.
@@ -124,6 +125,7 @@ function parseRow(row: CsvRow, timeZone: string): ParsedRow | { reason: string }
       endTime: row.end_time.trim() === '' ? null : parseHevyDate(row.end_time, timeZone),
       exerciseName: row.exercise_title,
       notes: nullIfBlank(row.exercise_notes),
+      supersetId: nullIfBlank(row.superset_id),
       set,
     };
   } catch (error) {
@@ -169,13 +171,15 @@ export function transformRows(csvRows: CsvRow[], { timeZone = machineTimeZone() 
   const workouts: TransformedWorkout[] = [...groupBy(typedRows, (row) => `${row.title}\u0000${row.startTime}`).values()].map(
     (sessionRows) => {
       const [first] = sessionRows;
-      const exercises: TransformedWorkoutExercise[] = [...groupBy(sessionRows, (row) => row.exerciseName)].map(
-        ([exerciseName, exerciseRows], orderIndex) => ({
+      // A superset id left on one exercise is dropped here, so the database only holds real supersets.
+      const exercises: TransformedWorkoutExercise[] = normalizeSupersets(
+        [...groupBy(sessionRows, (row) => row.exerciseName)].map(([exerciseName, exerciseRows], orderIndex) => ({
           exerciseName,
           notes: exerciseRows.find((row) => row.notes !== null)?.notes ?? null,
+          supersetId: exerciseRows.find((row) => row.supersetId !== null)?.supersetId ?? null,
           orderIndex,
           sets: exerciseRows.map((row) => row.set),
-        })
+        }))
       );
       return {
         title: first.title,

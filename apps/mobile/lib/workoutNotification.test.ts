@@ -8,7 +8,7 @@ function set(key: string, weight: string, reps: string, done = false): ActiveSet
 }
 
 function exercise(key: string, name: string, sets: ActiveSet[], type: ActiveExercise['type'] = 'weight_reps'): ActiveExercise {
-  return { key, exerciseId: key, catalogueId: `c-${key}`, name, type, notes: '', restSeconds: null, previous: [], sets };
+  return { key, exerciseId: key, catalogueId: `c-${key}`, name, type, notes: '', restSeconds: null, supersetId: null, previous: [], sets };
 }
 
 function workout(exercises: ActiveExercise[], restEndsAt: number | null = null): ActiveWorkout {

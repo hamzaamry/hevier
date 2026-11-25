@@ -31,6 +31,7 @@ export interface ExerciseEditorProps {
   onSetMenu: (exerciseKey: number, setKey: number) => void;
   onSetChange: (exerciseKey: number, setKey: number, change: Partial<DraftSet>) => void;
   onAddSet: (exerciseKey: number) => void;
+  hideRest?: boolean; // inside a superset, only its last exercise shows the rest timer
 }
 
 export interface WorkoutMetaFieldsProps {
@@ -44,7 +45,12 @@ export interface WorkoutMetaFieldsProps {
 export interface EditorExerciseMenuProps {
   // The exercise whose ⋮ was tapped; null = closed.
   exerciseKey: number | null;
+  // The routine's exercises: Add To Superset when there is another to pair with,
+  // Remove From Superset when this one is paired.
+  exercises: { key: number; supersetId: string | null }[];
   onDismiss: () => void;
   onReplace: (exerciseKey: number) => void;
   onRemove: (exerciseKey: number) => void;
+  onAddToSuperset: (exerciseKey: number) => void;
+  onRemoveFromSuperset: (exerciseKey: number) => void;
 }

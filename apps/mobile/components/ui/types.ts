@@ -113,7 +113,8 @@ export interface SheetItemProps {
 
 export interface SheetOptionProps {
   label: string;
-  selected: boolean;
+  // A blue ✓ on the chosen one; pickers with no current choice leave it out.
+  selected?: boolean;
   first?: boolean;
   onPress: () => void;
 }

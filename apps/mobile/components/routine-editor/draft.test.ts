@@ -9,6 +9,7 @@ const saved: EditorExercise = {
   type: 'weight_reps',
   notes: ' heavy ',
   restSeconds: 120,
+  supersetId: null,
   sets: [{ setType: 'warmup', weightKg: 60, reps: 10, distanceKm: null, durationSeconds: null, rpe: 7 }],
   previous: [],
 };

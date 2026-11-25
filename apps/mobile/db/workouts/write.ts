@@ -8,6 +8,7 @@ import { remove } from '@/db/appState/appState';
 import { ensureGym } from '@/db/gym/gym';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { elapsedSeconds } from '@/lib/workout/activeWorkout';
+import { normalizeSupersets } from '@/lib/workout/supersets';
 import { setRpe } from '@/lib/training/rpe';
 import type { GymChoice } from '@/types/gym';
 import type { ActiveWorkout } from '@/types/workout';
@@ -23,7 +24,7 @@ export async function insertWorkoutExercises(
 ): Promise<void> {
   for (const [orderIndex, e] of exercises.entries()) {
     const workoutExerciseId = Crypto.randomUUID();
-    await db.runAsync(INSERT_WORKOUT_EXERCISE, [workoutExerciseId, workoutId, e.exerciseId, orderIndex, e.notes]);
+    await db.runAsync(INSERT_WORKOUT_EXERCISE, [workoutExerciseId, workoutId, e.exerciseId, orderIndex, e.notes, e.supersetId]);
     for (const [setIndex, s] of e.sets.entries()) {
       await db.runAsync(INSERT_SET, [
         Crypto.randomUUID(),
@@ -42,10 +43,11 @@ export async function insertWorkoutExercises(
 
 // The completed sets of a live workout, as they are saved; exercises with none are left out.
 function completedExercises(workout: ActiveWorkout): WorkoutDraftExercise[] {
-  return workout.exercises
+  const exercises = workout.exercises
     .map((e) => ({
       exerciseId: e.exerciseId,
       notes: e.notes.trim() || null,
+      supersetId: e.supersetId,
       sets: e.sets
         .filter((s) => s.done)
         .map((s) => ({
@@ -58,6 +60,8 @@ function completedExercises(workout: ActiveWorkout): WorkoutDraftExercise[] {
         })),
     }))
     .filter((e) => e.sets.length > 0);
+  // A pair with one exercise left out is no superset any more.
+  return normalizeSupersets(exercises);
 }
 
 // Saves the completed sets as a workout in the history and clears the draft.

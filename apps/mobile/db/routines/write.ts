@@ -28,7 +28,7 @@ export async function insertRoutineExercises(
 ): Promise<void> {
   for (const [orderIndex, e] of exercises.entries()) {
     const routineExerciseId = Crypto.randomUUID();
-    await db.runAsync(INSERT_ROUTINE_EXERCISE, [routineExerciseId, routineId, e.exerciseId, orderIndex, e.restSeconds, e.notes]);
+    await db.runAsync(INSERT_ROUTINE_EXERCISE, [routineExerciseId, routineId, e.exerciseId, orderIndex, e.restSeconds, e.notes, e.supersetId]);
     for (const [setIndex, s] of e.sets.entries()) {
       await db.runAsync(INSERT_ROUTINE_SET, [
         Crypto.randomUUID(),
@@ -76,7 +76,7 @@ export async function duplicateRoutine(id: string): Promise<Routine> {
     await db.runAsync(INSERT_ROUTINE, [copy.id, copy.name, original.folder_id, original.position + 1]);
     for (const e of exercises) {
       const exerciseCopyId = Crypto.randomUUID();
-      await db.runAsync(INSERT_ROUTINE_EXERCISE, [exerciseCopyId, copy.id, e.exercise_id, e.order_index, e.rest_seconds, e.notes]);
+      await db.runAsync(INSERT_ROUTINE_EXERCISE, [exerciseCopyId, copy.id, e.exercise_id, e.order_index, e.rest_seconds, e.notes, e.superset_id]);
       await db.runAsync(COPY_ROUTINE_SETS, [exerciseCopyId, e.id]);
     }
   });

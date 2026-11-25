@@ -18,6 +18,7 @@ const plan = (exerciseId: string, sets: EditorSet[]): EditorExercise => ({
   type: 'weight_reps',
   notes: null,
   restSeconds: 120,
+  supersetId: null,
   sets,
   previous: [],
 });
@@ -39,6 +40,7 @@ const ex = (exerciseId: string, sets: ActiveSet[]): ActiveExercise => ({
   type: 'weight_reps',
   notes: '',
   restSeconds: 120,
+  supersetId: null,
   previous: [],
   sets,
 });
@@ -90,12 +92,14 @@ describe('routine update', () => {
           exerciseId: 'lat',
           notes: null,
           restSeconds: 120,
+          supersetId: null,
           sets: [{ setType: 'failure', weightKg: 82.5, reps: 9, distanceKm: null, durationSeconds: null }],
         },
         {
           exerciseId: 'curl',
           notes: null,
           restSeconds: 120,
+          supersetId: null,
           sets: [{ setType: 'normal', weightKg: null, reps: 12, distanceKm: null, durationSeconds: null }],
         },
       ],

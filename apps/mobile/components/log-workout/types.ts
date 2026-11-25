@@ -52,6 +52,7 @@ export interface LogExerciseProps {
   settings: WorkoutSettings;
   timer: SetTimer | null;
   actions: ExerciseActions;
+  hideRest?: boolean; // inside a superset, only its last exercise shows the rest timer
 }
 
 export interface SetRowProps {
@@ -83,9 +84,14 @@ export interface RestBarProps {
 export interface ExerciseMenuSheetProps {
   // The exercise whose ⋮ was tapped; null = closed.
   exerciseKey: string | null;
+  // The workout's exercises: Add To Superset when there is another to pair with,
+  // Remove From Superset when this one is paired.
+  exercises: { key: string; supersetId: string | null }[];
   onDismiss: () => void;
   onReorder: () => void;
   onReplace: (exerciseKey: string) => void;
+  onAddToSuperset: (exerciseKey: string) => void;
+  onRemoveFromSuperset: (exerciseKey: string) => void;
 }
 
 export interface RepsLeftInfoSheetProps {

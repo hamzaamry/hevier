@@ -27,7 +27,7 @@ import type { LogExerciseProps } from './types';
 // One exercise of the live workout: header, rest and per-hand rows, the set
 // table, the reps-left / how-hard chips and Add Set.
 // memo: redrawn only when its exercise (or the settings, or its ▶ timer) changes.
-export const LogExercise = memo(function LogExercise({ exercise, settings, timer, actions }: LogExerciseProps) {
+export const LogExercise = memo(function LogExercise({ exercise, settings, timer, actions, hideRest }: LogExerciseProps) {
   const fields = SET_FIELDS[exercise.type];
   // Dumbbell weight per hand (db/perHand/perHand.ts): its own row switches it; null = no switch.
   const perHand = usePerHand(exercise.exerciseId);
@@ -46,11 +46,13 @@ export const LogExercise = memo(function LogExercise({ exercise, settings, timer
         foldLongNotes
       />
 
+      {!hideRest && (
       <OptionRow
         icon={<Timer size={ICON_SIZES.lg} weight="light" color={COLORS.primary} />}
         label={`Rest Timer: ${restLabel(restOf(exercise.restSeconds, settings))}`}
         onPress={() => actions.rest(exercise.key)}
       />
+      )}
 
       {perHand !== null && (
         <OptionRow

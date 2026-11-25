@@ -44,7 +44,7 @@ describe('workout editing', () => {
       description: 'Felt strong',
       startTime: '2026-10-13T17:30:00.000Z',
       endTime: '2026-10-13T18:30:00.000Z',
-      exercises: [{ exerciseId: 'squat', notes: null, sets: [{ setType: 'normal', weightKg: 125, reps: 8, distanceKm: null, durationSeconds: null, rpe: 8 }] }],
+      exercises: [{ exerciseId: 'squat', notes: null, supersetId: null, sets: [{ setType: 'normal', weightKg: 125, reps: 8, distanceKm: null, durationSeconds: null, rpe: 8 }] }],
     });
     const w = await getWorkoutForEdit('w1');
     expect(w).toMatchObject({ title: 'LOWER B (fixed)', description: 'Felt strong', endTime: '2026-10-13T18:30:00.000Z' });

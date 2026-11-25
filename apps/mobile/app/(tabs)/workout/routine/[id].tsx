@@ -10,6 +10,7 @@ import { Screen } from '@/components/ui/Screen';
 import { SCREEN_STYLES } from '@/components/ui/screenStyles';
 import { RoutineChart } from '@/components/routine-page/RoutineChart';
 import { RoutineExerciseBlock } from '@/components/routine-page/RoutineExerciseBlock';
+import { SupersetBlocks } from '@/components/workout/SupersetBlocks';
 import { COLORS, LINE_HEIGHTS, TYPE } from '@/constants/theme';
 import { HIT_SLOPS, RADIUS, SPACE } from '@/constants/layout';
 import { ROUTINE_PAGE_SIZES } from '@/constants/sizes';
@@ -58,9 +59,14 @@ export default function RoutineScreen() {
             </Pressable>
           </View>
 
-          {page.exercises.map((exercise) => (
-            <RoutineExerciseBlock key={exercise.id} exercise={exercise} onOpen={openExercise} />
-          ))}
+          <SupersetBlocks
+            padded
+            exercises={page.exercises}
+            keyOf={(exercise) => exercise.id}
+            renderExercise={(exercise, hideRest) => (
+              <RoutineExerciseBlock exercise={exercise} onOpen={openExercise} hideRest={hideRest} />
+            )}
+          />
         </ScrollView>
       )}
 
