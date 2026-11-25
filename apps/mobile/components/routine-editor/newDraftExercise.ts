@@ -13,6 +13,7 @@ export async function newDraftExercise(e: PickerExercise, setCount = 1): Promise
     type: e.type,
     notes: null,
     restSeconds: null,
+    supersetId: null,
     previous: await getPreviousSets(e.id),
     sets: Array.from({ length: Math.max(1, setCount) }, emptySet),
   };

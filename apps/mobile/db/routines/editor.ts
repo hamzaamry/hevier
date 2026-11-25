@@ -22,6 +22,7 @@ export async function getRoutineForEdit(id: string): Promise<EditorRoutine | nul
     type: e.type,
     notes: notesById.get(e.id) ?? null,
     restSeconds: e.restSeconds,
+    supersetId: e.supersetId,
     sets: e.sets.map(({ setIndex: _, ...s }) => s),
     previous: (previous.get(e.exerciseId) ?? []).map((s) => ({ ...s })), // own copy: an exercise can be in twice
   }));

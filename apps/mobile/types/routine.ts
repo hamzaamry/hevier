@@ -51,6 +51,7 @@ export interface RoutinePageExercise {
   name: string;
   type: ExerciseType;
   restSeconds: number | null;
+  supersetId: string | null;
   sets: PlannedSet[];
 }
 
@@ -80,6 +81,7 @@ export interface EditorExercise {
   type: ExerciseType;
   notes: string | null;
   restSeconds: number | null;
+  supersetId: string | null;
   sets: EditorSet[];
   // The sets from the last workout with this exercise: the PREVIOUS column.
   previous: EditorSet[];
@@ -103,6 +105,7 @@ export interface RoutineDraftExercise {
   exerciseId: string;
   notes: string | null;
   restSeconds: number | null;
+  supersetId: string | null;
   sets: EditorSet[];
 }
 

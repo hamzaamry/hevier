@@ -22,6 +22,7 @@ const row = (workout: string, we: string, name: string, set: string | null, weig
   catalogue_id: null,
   archived: 0,
   notes: null,
+  superset_id: null,
   set_id: set,
   set_type: set ? ('normal' as const) : null,
   weight_kg: weight,

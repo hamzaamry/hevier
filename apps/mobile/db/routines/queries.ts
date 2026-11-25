@@ -63,7 +63,7 @@ export const SELECT_ROUTINE_FOR_COPY = 'SELECT name, folder_id, position FROM ro
 
 // A routine's exercises in order, to copy them.
 export const SELECT_ROUTINE_EXERCISES_FOR_COPY = `
-  SELECT id, exercise_id, order_index, rest_seconds, notes
+  SELECT id, exercise_id, order_index, rest_seconds, notes, superset_id
   FROM routine_exercises
   WHERE routine_id = ?
   ORDER BY order_index`;
@@ -87,8 +87,8 @@ export const UPDATE_ROUTINE_NAME = 'UPDATE routines SET name = ? WHERE id = ?';
 
 // One exercise of a routine.
 export const INSERT_ROUTINE_EXERCISE = `
-  INSERT INTO routine_exercises (id, routine_id, exercise_id, order_index, rest_seconds, notes)
-  VALUES (?, ?, ?, ?, ?, ?)`;
+  INSERT INTO routine_exercises (id, routine_id, exercise_id, order_index, rest_seconds, notes, superset_id)
+  VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
 // One planned set of a routine's exercise.
 export const INSERT_ROUTINE_SET = `
@@ -120,7 +120,7 @@ export const SELECT_ROUTINE = 'SELECT id, name FROM routines WHERE id = ?';
 
 // A routine's exercises with their planned sets, in order (an exercise without sets comes once, set columns null).
 export const SELECT_ROUTINE_EXERCISES_WITH_SETS = `
-  SELECT re.id AS re_id, re.exercise_id, e.catalogue_id, e.name, e.type, re.rest_seconds,
+  SELECT re.id AS re_id, re.exercise_id, e.catalogue_id, e.name, e.type, re.rest_seconds, re.superset_id,
          rs.set_index, rs.set_type, rs.weight_kg, rs.reps, rs.distance_km, rs.duration_seconds
   FROM routine_exercises re
   JOIN exercises e ON e.id = re.exercise_id

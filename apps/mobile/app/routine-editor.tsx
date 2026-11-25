@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, TextInput } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Barbell } from 'phosphor-react-native/src/icons/Barbell';
 import { Plus } from 'phosphor-react-native/src/icons/Plus';
+import * as Crypto from 'expo-crypto';
 
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { TimeSheet } from '@/components/workout/DurationSheet';
@@ -13,11 +14,13 @@ import { useMediaSource } from '@/hooks/useMediaSource';
 import { deleteMediaFiles } from '@/lib/workoutMedia';
 import { EditorExerciseMenu } from '@/components/routine-editor/EditorExerciseMenu';
 import { ExerciseEditor } from '@/components/routine-editor/ExerciseEditor';
+import { SupersetBlocks } from '@/components/workout/SupersetBlocks';
 import { WorkoutMetaFields } from '@/components/routine-editor/WorkoutMetaFields';
 import { nextDraftSet, routinePayload, workoutPayload } from '@/components/routine-editor/draft';
 import { newDraftExercise } from '@/components/routine-editor/newDraftExercise';
 import type { DraftExercise, DraftSet } from '@/components/routine-editor/types';
 import { RestTimerSheet } from '@/components/set-table/RestTimerSheet';
+import { SupersetPickerSheet } from '@/components/set-table/SupersetMenu';
 import { SetTypeSheet } from '@/components/set-table/SetTypeSheet';
 import { patchSet, removeByKey, updateByKey } from '@/components/set-table/draftOps';
 import { Button } from '@/components/ui/Button';
@@ -30,6 +33,7 @@ import { ICON_SIZES } from '@/constants/sizes';
 import { saveRoutine } from '@/db/routines/write';
 import { saveWorkoutEdit } from '@/db/workouts/edit';
 import { useRoutineDraft } from '@/hooks/useRoutineDraft';
+import { normalizeSupersets, pairExercises, unpairExercise } from '@/lib/workout/supersets';
 
 // The routine editor, built from Log Workout's blocks without the ✓ column;
 // KG/REPS end at the right edge instead. Nothing is written until Update
@@ -59,6 +63,8 @@ export default function RoutineEditor() {
   const [restFor, setRestFor] = useState<number | null>(null);
   const [setMenu, setSetMenu] = useState<{ exercise: number; set: number } | null>(null);
   const [exerciseMenu, setExerciseMenu] = useState<number | null>(null);
+  // Add To Superset: the exercise waiting for its partner.
+  const [supersetFor, setSupersetFor] = useState<number | null>(null);
   const [discarding, setDiscarding] = useState(false);
 
   // All stable (functional updates only), so the memoized exercises don't redraw
@@ -81,6 +87,12 @@ export default function RoutineEditor() {
     [updateExercise]
   );
   const openSetMenu = useCallback((exercise: number, set: number) => setSetMenu({ exercise, set }), []);
+
+  // For the ⋮ menu and the superset picker, which aren't memoized: no useCallback needed.
+  const addToSuperset = (key: number, partnerKey: number) =>
+    setExercises((all) => pairExercises(all, key, partnerKey, Crypto.randomUUID()));
+  const removeFromSuperset = (key: number) => setExercises((all) => unpairExercise(all, key));
+  const removeExercise = (key: number) => setExercises((all) => normalizeSupersets(removeByKey(all, key)));
 
   // Edit Workout's photos: a picked file is copied into media/ at once, but the
   // workout only keeps it on Save. Files added in this session that Save didn't keep
@@ -150,7 +162,7 @@ export default function RoutineEditor() {
       replacing: { exerciseId: old.exerciseId },
       onPicked: async ([picked]) => {
         const fresh = await newDraftExercise(picked, old.sets.length);
-        updateExercise(key, (e) => ({ ...fresh, restSeconds: e.restSeconds }));
+        updateExercise(key, (e) => ({ ...fresh, restSeconds: e.restSeconds, supersetId: e.supersetId }));
       },
     });
   }
@@ -203,18 +215,22 @@ export default function RoutineEditor() {
           />
         )}
 
-        {exercises.map((exercise) => (
-          <ExerciseEditor
-            key={exercise.key}
-            exercise={exercise}
-            onNotes={setNotes}
-            onRest={editingWorkout ? undefined : setRestFor}
-            onMenu={setExerciseMenu}
-            onSetMenu={openSetMenu}
-            onSetChange={updateSet}
-            onAddSet={addSet}
-          />
-        ))}
+        <SupersetBlocks
+          exercises={exercises}
+          keyOf={(e) => e.key}
+          renderExercise={(exercise, hideRest) => (
+            <ExerciseEditor
+              hideRest={hideRest}
+              exercise={exercise}
+              onNotes={setNotes}
+              onRest={editingWorkout ? undefined : setRestFor}
+              onMenu={setExerciseMenu}
+              onSetMenu={openSetMenu}
+              onSetChange={updateSet}
+              onAddSet={addSet}
+            />
+          )}
+        />
 
         <Button
           label="Add Exercise"
@@ -243,9 +259,19 @@ export default function RoutineEditor() {
 
       <EditorExerciseMenu
         exerciseKey={exerciseMenu}
+        exercises={exercises}
         onDismiss={() => setExerciseMenu(null)}
         onReplace={replaceExercise}
-        onRemove={(key) => setExercises((all) => removeByKey(all, key))}
+        onRemove={removeExercise}
+        onAddToSuperset={setSupersetFor}
+        onRemoveFromSuperset={removeFromSuperset}
+      />
+
+      <SupersetPickerSheet
+        exerciseKey={supersetFor}
+        exercises={exercises}
+        onPick={addToSuperset}
+        onDismiss={() => setSupersetFor(null)}
       />
 
       {editingWorkout && (

@@ -1,8 +1,10 @@
 import { updateActiveWorkout } from '@/stores/activeWorkoutStore';
+import * as Crypto from 'expo-crypto';
 import { parseClock } from '@/lib/format/setFormat';
 import { MS_PER_SECOND } from '@/constants/time';
 import { patchSet, removeByKey, updateByKey } from '@/components/set-table/draftOps';
-import { nextSetLike, orderByKeys } from '@/lib/workout/activeWorkout';
+import { nextSetLike } from '@/lib/workout/activeWorkout';
+import { orderKeepingSupersets, normalizeSupersets, pairExercises, unpairExercise } from '@/lib/workout/supersets';
 import type { ActiveExercise, ActiveSet } from '@/types/workout';
 
 // Changes to the live workout, by exercise / set key. Module-level on purpose:
@@ -26,11 +28,20 @@ export function addSet(exerciseKey: string) {
 }
 
 export function removeExercise(exerciseKey: string) {
-  updateActiveWorkout((w) => ({ ...w, exercises: removeByKey(w.exercises, exerciseKey) }));
+  updateActiveWorkout((w) => ({ ...w, exercises: normalizeSupersets(removeByKey(w.exercises, exerciseKey)) }));
 }
 
 export function reorderExercises(keys: string[]) {
-  updateActiveWorkout((w) => ({ ...w, exercises: orderByKeys(w.exercises, keys) }));
+  updateActiveWorkout((w) => ({ ...w, exercises: orderKeepingSupersets(w.exercises, keys) }));
+}
+
+// Add To Superset: pair this exercise with the picked one, in a new group.
+export function addToSuperset(exerciseKey: string, partnerKey: string) {
+  updateActiveWorkout((w) => ({ ...w, exercises: pairExercises(w.exercises, exerciseKey, partnerKey, Crypto.randomUUID()) }));
+}
+
+export function removeFromSuperset(exerciseKey: string) {
+  updateActiveWorkout((w) => ({ ...w, exercises: unpairExercise(w.exercises, exerciseKey) }));
 }
 
 // ▶ on a TIME box: a stopwatch that carries on from the box's time (00:00 when

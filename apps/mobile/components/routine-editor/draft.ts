@@ -46,7 +46,7 @@ export function snapshot(name: string, exercises: DraftExercise[], extra?: unkno
   return JSON.stringify([
     name,
     extra ?? null,
-    exercises.map((e) => [e.exerciseId, e.notes ?? '', e.restSeconds, e.sets.map((s) => [s.setType, s.weight, s.reps, s.km, s.time])]),
+    exercises.map((e) => [e.exerciseId, e.notes ?? '', e.restSeconds, e.supersetId, e.sets.map((s) => [s.setType, s.weight, s.reps, s.km, s.time])]),
   ]);
 }
 
@@ -65,6 +65,7 @@ export function routinePayload(
       exerciseId: e.exerciseId,
       notes: e.notes?.trim() || null,
       restSeconds: e.restSeconds,
+      supersetId: e.supersetId,
       sets: e.sets.map(fromDraftSet),
     })),
   };
@@ -81,6 +82,7 @@ export function workoutPayload(id: string, name: string, meta: WorkoutMeta, exer
     exercises: exercises.map((e) => ({
       exerciseId: e.exerciseId,
       notes: e.notes?.trim() || null,
+      supersetId: e.supersetId,
       sets: e.sets.map(fromDraftSet),
     })),
     media: meta.media,

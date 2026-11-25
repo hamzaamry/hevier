@@ -50,6 +50,9 @@ export interface ActiveExercise {
   type: ExerciseType;
   notes: string;
   restSeconds: number | null;
+  // The superset this exercise is in (lib/workout/supersets.ts): a group id
+  // shared with the others of the pair; null = no superset.
+  supersetId: string | null;
   previous: EditorSet[];
   sets: ActiveSet[];
   // From the history, for the PR medals (db/records/bests.ts); null = never done.

@@ -6,7 +6,7 @@ import type { ActiveExercise, ActiveSet, ActiveWorkout } from '@/types/workout';
 
 let nextId = 0;
 vi.mock('expo-crypto', () => ({ randomUUID: () => `id${++nextId}` }));
-const { elapsedSeconds, needsBodyWeight, newSet, nextSetLike, orderByKeys, shouldAskRating, shouldAskRepsLeft, workoutStats } = await import('./activeWorkout');
+const { elapsedSeconds, needsBodyWeight, newSet, nextSetLike, shouldAskRating, shouldAskRepsLeft, workoutStats } = await import('./activeWorkout');
 
 const set = (from: Partial<ActiveSet>) => newSet(from);
 const exercise = (name: string, sets: ActiveSet[]) => ({ key: name, name, sets }) as unknown as ActiveExercise;
@@ -27,13 +27,6 @@ describe('nextSetLike', () => {
 describe('elapsedSeconds', () => {
   it('is 0 when the start time cannot be read', () => {
     expect(elapsedSeconds({ startTime: 'garbage' } as ActiveWorkout, Date.now())).toBe(0);
-  });
-});
-
-describe('orderByKeys', () => {
-  it('puts the items in the order of the keys and skips unknown ones', () => {
-    const list = [{ key: 'a' }, { key: 'b' }, { key: 'c' }];
-    expect(orderByKeys(list, ['c', 'x', 'a', 'b']).map((i) => i.key)).toEqual(['c', 'a', 'b']);
   });
 });
 

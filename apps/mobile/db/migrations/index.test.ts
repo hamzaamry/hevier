@@ -53,7 +53,7 @@ describe('runMigrations', () => {
     ]);
 
     const version = rawDb.exec('PRAGMA user_version')[0].values[0][0];
-    expect(version).toBe(19);
+    expect(version).toBe(20);
   });
 
   it('is idempotent: running twice does not error or duplicate', async () => {
@@ -77,7 +77,7 @@ describe('runMigrations', () => {
 
     const row = rawDb.exec("SELECT is_custom, catalogue_id FROM exercises WHERE id = 'e1'")[0].values[0];
     expect(row).toEqual([1, null]);
-    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(19);
+    expect(rawDb.exec('PRAGMA user_version')[0].values[0][0]).toBe(20);
   });
 
   it('017 adds the custom exercise columns, off for existing exercises', async () => {
@@ -104,6 +104,23 @@ describe('runMigrations', () => {
     await runMigrations(wrap(rawDb));
 
     expect(rawDb.exec("SELECT cover_file FROM workouts WHERE id = 'w'")[0].values[0]).toEqual([null]);
+  });
+
+  it('020 adds the superset id to workout and routine exercises, empty for existing ones', async () => {
+    const rawDb = new SQL.Database();
+    for (const m of MIGRATIONS.slice(0, 19)) rawDb.exec(m.sql);
+    rawDb.exec('PRAGMA user_version = 19');
+    rawDb.exec(`
+      INSERT INTO workouts (id, title, start_time) VALUES ('w', 'LOWER A', '2026-10-06T18:00:00Z');
+      INSERT INTO workout_exercises (id, workout_id, exercise_id, order_index) VALUES ('we', 'w', 'squat', 0);
+      INSERT INTO routines (id, name) VALUES ('r', 'Legs');
+      INSERT INTO routine_exercises (id, routine_id, exercise_id, order_index) VALUES ('re', 'r', 'squat', 0);
+    `);
+
+    await runMigrations(wrap(rawDb));
+
+    expect(rawDb.exec('SELECT superset_id FROM workout_exercises WHERE id = \'we\'')[0].values[0]).toEqual([null]);
+    expect(rawDb.exec('SELECT superset_id FROM routine_exercises WHERE id = \'re\'')[0].values[0]).toEqual([null]);
   });
 
   it('allows warm-up sets and keeps the existing sets', async () => {

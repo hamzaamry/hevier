@@ -36,6 +36,7 @@ export async function getWorkoutForEdit(id: string): Promise<EditableWorkout | n
         type: r.type,
         notes: r.notes,
         restSeconds: null,
+        supersetId: r.superset_id,
         sets: [],
         previous: [], // filled in below, all in one query
       };

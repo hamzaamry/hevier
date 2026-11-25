@@ -1,7 +1,7 @@
 import { ArrowsClockwise } from 'phosphor-react-native/src/icons/ArrowsClockwise';
 import { ArrowsDownUp } from 'phosphor-react-native/src/icons/ArrowsDownUp';
-import { Plus } from 'phosphor-react-native/src/icons/Plus';
 import { X } from 'phosphor-react-native/src/icons/X';
+import { SupersetMenuItem } from '@/components/set-table/SupersetMenu';
 import { BottomSheet, SheetItem, sheetIcon } from '@/components/ui/BottomSheet';
 import { COLORS } from '@/constants/theme';
 import { ICON_SIZES } from '@/constants/sizes';
@@ -10,8 +10,16 @@ import { removeExercise } from './workoutOps';
 import type { ExerciseMenuSheetProps } from './types';
 
 // An exercise's ⋮ menu: no title.
-// Reorder and Replace open once the sheet has slid away.
-export function ExerciseMenuSheet({ exerciseKey, onDismiss, onReorder, onReplace }: ExerciseMenuSheetProps) {
+// Reorder, Replace and Add To Superset open once the sheet has slid away.
+export function ExerciseMenuSheet({
+  exerciseKey,
+  exercises,
+  onDismiss,
+  onReorder,
+  onReplace,
+  onAddToSuperset,
+  onRemoveFromSuperset,
+}: ExerciseMenuSheetProps) {
   const after = useAfterSheetClose();
   return (
     <BottomSheet visible={exerciseKey !== null} onDismiss={onDismiss} onClosed={after.onClosed}>
@@ -32,8 +40,14 @@ export function ExerciseMenuSheet({ exerciseKey, onDismiss, onReorder, onReplace
           onDismiss();
         }}
       />
-      {/* Supersets aren't built yet. */}
-      <SheetItem icon={<Plus {...sheetIcon} />} label="Add To Superset" onPress={onDismiss} />
+      <SupersetMenuItem
+        exerciseKey={exerciseKey}
+        exercises={exercises}
+        later={after.later}
+        onDismiss={onDismiss}
+        onAdd={onAddToSuperset}
+        onRemove={onRemoveFromSuperset}
+      />
       <SheetItem
         icon={<X {...sheetIcon} size={ICON_SIZES.lg} color={COLORS.danger} />}
         label="Remove Exercise"

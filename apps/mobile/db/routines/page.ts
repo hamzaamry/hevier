@@ -22,6 +22,7 @@ export async function getRoutinePage(id: string): Promise<RoutinePage | null> {
         name: row.name,
         type: row.type,
         restSeconds: row.rest_seconds,
+        supersetId: row.superset_id,
         sets: [],
       };
       exercises.push(exercise);

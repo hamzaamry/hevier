@@ -19,6 +19,7 @@ import { sql as migration016 } from './016_tennis_hiking';
 import { sql as migration017 } from './017_custom_exercises';
 import { sql as migration018 } from './018_catalogue_cleanup';
 import { sql as migration019 } from './019_workout_cover';
+import { sql as migration020 } from './020_supersets';
 import type { Migration, MigratableDb } from './types';
 
 export const MIGRATIONS: Migration[] = [
@@ -41,6 +42,7 @@ export const MIGRATIONS: Migration[] = [
   { version: 17, sql: migration017 },
   { version: 18, sql: migration018 },
   { version: 19, sql: migration019 },
+  { version: 20, sql: migration020 },
 ];
 
 async function applyMigration(db: MigratableDb, migration: Migration): Promise<void> {

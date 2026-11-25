@@ -118,7 +118,7 @@ export default function AddExercise({ browse = false }: AddExerciseProps) {
     const fresh = await newActiveExercise(exercise, await workoutStart(), replacing?.sets ?? 1);
     updateActiveWorkout((w) => ({
       ...w,
-      exercises: w.exercises.map((e) => (e.key === replace ? { ...fresh, restSeconds: e.restSeconds } : e)),
+      exercises: w.exercises.map((e) => (e.key === replace ? { ...fresh, restSeconds: e.restSeconds, supersetId: e.supersetId } : e)),
     }));
     router.back();
   }

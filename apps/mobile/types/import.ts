@@ -91,6 +91,7 @@ export interface ParsedRow {
   endTime: string | null;
   exerciseName: string;
   notes: string | null;
+  supersetId: string | null; // Hevy's superset_id: the exercises of one superset share it
   set: TransformedSet;
 }
 
@@ -121,6 +122,7 @@ export interface TransformedSet {
 export interface TransformedWorkoutExercise {
   exerciseName: string;
   notes: string | null;
+  supersetId: string | null;
   orderIndex: number;
   sets: TransformedSet[];
 }

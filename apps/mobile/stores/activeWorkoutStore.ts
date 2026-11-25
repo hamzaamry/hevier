@@ -10,6 +10,7 @@ import { celebratePr } from '@/lib/prFeedback';
 import { deleteMediaFiles } from '@/lib/workoutMedia';
 import { CLOCK_TICKS } from '@/constants/motion';
 import { secondsSince } from '@/lib/date';
+import { endsSuperset } from '@/lib/workout/supersets';
 import { clock } from '@/lib/format/duration';
 import type { ActiveWorkout, WorkoutSource, PrEvent } from '@/types/workout';
 
@@ -196,7 +197,9 @@ async function markSet(
   if (!current || !exercise || !set) return;
   const next = done === 'toggle' ? !set.done : done;
   if (next === set.done) return;
-  const rest = current.backdated ? null : restOf(exercise.restSeconds, settings);
+  // A superset rests only after its last exercise: the ones before flow into
+  // the next one without the timer.
+  const rest = current.backdated || !endsSuperset(current.exercises, exerciseKey) ? null : restOf(exercise.restSeconds, settings);
   if (next && settings.prAlert) {
     const sets = exercise.sets.map((s) => (s.key === set.key ? { ...s, done: true } : s));
     const records = setRecords(exercise.type, exercise.bests ?? null, sets, set.key);

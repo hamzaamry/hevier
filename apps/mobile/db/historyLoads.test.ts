@@ -203,7 +203,7 @@ describe('the shared history', () => {
         routineId: null,
         startTime: '2026-10-08T18:00:00.000Z',
         exercises: [
-          { key: 'k', exerciseId: 'squat', catalogueId: null, name: 'Squat', type: 'weight_reps', notes: '', restSeconds: null, previous: [], sets: [set] },
+          { key: 'k', exerciseId: 'squat', catalogueId: null, name: 'Squat', type: 'weight_reps', notes: '', restSeconds: null, supersetId: null, previous: [], sets: [set] },
         ],
         restEndsAt: null,
         restTotal: null,

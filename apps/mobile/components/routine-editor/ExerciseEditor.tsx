@@ -29,6 +29,7 @@ export const ExerciseEditor = memo(function ExerciseEditor({
   onSetMenu,
   onSetChange,
   onAddSet,
+  hideRest,
 }: ExerciseEditorProps) {
   const key = exercise.key;
   const fields = SET_FIELDS[exercise.type];
@@ -45,7 +46,7 @@ export const ExerciseEditor = memo(function ExerciseEditor({
         onMenu={() => onMenu(key)}
       />
 
-      {onRest && (
+      {onRest && !hideRest && (
         <OptionRow
           icon={<Timer size={ICON_SIZES.lg} weight="light" color={COLORS.primary} />}
           label={`Rest Timer: ${restLabel(exercise.restSeconds)}`}

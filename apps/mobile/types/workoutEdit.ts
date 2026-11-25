@@ -27,5 +27,6 @@ export interface WorkoutDraft {
 export interface WorkoutDraftExercise {
   exerciseId: string;
   notes: string | null;
+  supersetId: string | null;
   sets: EditorSet[];
 }

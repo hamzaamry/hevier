@@ -15,6 +15,8 @@ import { ICON_SIZES, WORKOUT_CARD_SIZES } from '@/constants/sizes';
 import { WORKOUT_CARD_LIMITS } from '@/constants/limits';
 import { plural } from '@/lib/format/text';
 import { mediaUri } from '@/lib/workoutMedia';
+import { supersetBlocks } from '@/lib/workout/supersets';
+import { supersetTextStyle } from './SupersetBlocks';
 import { Stat } from '@/components/ui/Stat';
 import type { WorkoutCardProps, WorkoutSummaryProps } from './types';
 import type { MediaItem } from '@/types/workout';
@@ -41,12 +43,17 @@ export const WorkoutCard = memo(function WorkoutCard({
       <View style={styles.divider} />
 
       <View style={styles.exercises}>
-        {workout.exercises.slice(0, WORKOUT_CARD_LIMITS.shownExercises).map((e, i) => (
-          <View key={i} style={styles.exercise}>
-            <ExerciseThumb catalogueId={e.catalogueId} size={WORKOUT_CARD_SIZES.exerciseThumb} />
-            <Text style={styles.exerciseText} numberOfLines={1}>
-              {e.sets.length} {plural(e.sets.length, 'set')} {e.name}
-            </Text>
+        {supersetBlocks(workout.exercises.slice(0, WORKOUT_CARD_LIMITS.shownExercises)).map((block, b) => (
+          <View key={b} style={block.supersetId ? styles.supersetGroup : undefined}>
+            {block.supersetId && <Text style={styles.supersetLabel}>Superset</Text>}
+            {block.exercises.map((e, i) => (
+              <View key={i} style={styles.exercise}>
+                <ExerciseThumb catalogueId={e.catalogueId} size={WORKOUT_CARD_SIZES.exerciseThumb} />
+                <Text style={styles.exerciseText} numberOfLines={1}>
+                  {e.sets.length} {plural(e.sets.length, 'set')} {e.name}
+                </Text>
+              </View>
+            ))}
           </View>
         ))}
       </View>
@@ -218,6 +225,18 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: SPACE.lg,
     ...TYPE.body,
+  },
+  supersetGroup: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: COLORS.separator,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACE.md,
+    paddingBottom: SPACE.xs,
+    marginVertical: SPACE.xs,
+  },
+  supersetLabel: {
+    ...supersetTextStyle,
+    marginTop: SPACE.sm,
   },
   more: {
     marginTop: SPACE.md,
